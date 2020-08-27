@@ -1,0 +1,35 @@
+{
+  "name": "barcodegen",
+  "version": "1.4.0",
+  "description": "App for generating barcode",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "generate": "electron-builder"
+  },
+  "author": "Sbb Company",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^8.5.0",
+    "electron-builder": "^22.8.0"
+  },
+  "dependencies": {
+    "bootstrap": "^4.5.2",
+    "bwip-js": "^2.0.10",
+    "custom-electron-titlebar": "^3.2.4",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1"
+  },
+  "build": {
+    "appId": "com.barcodegen.app",
+    "productName": "Barcode generator",
+    "target": "NSIS",
+    "directories": {
+      "output": "build"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false
+    }
+  }
+}
