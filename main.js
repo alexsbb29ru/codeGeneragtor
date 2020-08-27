@@ -12,7 +12,8 @@ function createWindow() {
         minWidth: 700,
         icon: __dirname + "/images/barcode.png",
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            enableRemoteModule: true
         },
         autoHideMenuBar: true,
         frame:false

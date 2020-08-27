@@ -3,7 +3,6 @@ const electron = require('electron');
 const { ipcRenderer, shell, clipboard } = electron;
 const path = require('path');
 const fs = require('fs');
-const { dialog } = require('electron').remote;
 
 let barcode = require('bwip-js');
 const { nativeImage } = require('electron');
