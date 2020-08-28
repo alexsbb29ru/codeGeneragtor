@@ -5,10 +5,14 @@ body {
 .contact-table {
   text-align: center;
 }
-.modal-header, .modal-footer, .symb-count{
+.modal-header,
+.modal-footer,
+.symb-count,
+.grid-alert {
   user-select: none;
 }
-#settingsModal, #contactModal{
+#settingsModal,
+#contactModal {
   user-select: none;
 }
 
@@ -151,7 +155,7 @@ body {
   text-align: left;
 }
 #removeSavedQrBtn,
-#saveQrTextButton{
+#saveQrTextButton {
   height: 2.3em;
 }
 
