@@ -5,6 +5,9 @@ body {
 .contact-table {
   text-align: center;
 }
+.modal{
+  margin-top: 10px;
+}
 .modal-header,
 .modal-footer,
 .symb-count,
