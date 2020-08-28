@@ -162,6 +162,9 @@ body {
 .settingsValue {
   text-align: left;
 }
+.settingsTooltip{
+  padding:0.2rem 0;
+}
 
 /* .color1 {background-color: #675BA7; opacity: 0.5;}
 .color2 {background-color: #9BC850; opacity: 0.5;}
