@@ -25,6 +25,10 @@ main {
   background-color: #1a2035;
 }
 
+.grid-container {
+  color: #8b92a9;
+}
+
 .grid-titlebar {
   background-color: white;
 }
