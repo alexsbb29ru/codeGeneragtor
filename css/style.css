@@ -5,6 +5,12 @@ body {
 .contact-table {
   text-align: center;
 }
+.modal-header, .modal-footer{
+  user-select: none;
+}
+#settingsModal{
+  user-select: none;
+}
 
 /* main {
   background-color: #f5f8fb;
