@@ -7,8 +7,8 @@ let lightTitleColor = "white"
 function createWindow() {
     let win = new BrowserWindow({
         width: 700,
-        height: 400,
-        minHeight: 410,
+        height: 380,
+        minHeight: 390,
         minWidth: 700,
         icon: __dirname + "/images/barcode.png",
         webPreferences: {
