@@ -1,11 +1,11 @@
 //----------------------- Main settings --------------------------------
-const electron = require('electron');
-const { ipcRenderer, shell, clipboard } = electron;
-const path = require('path');
-const fs = require('fs');
-
-let barcode = require('bwip-js');
-const { nativeImage } = require('electron');
+const electron = require('electron')
+const { ipcRenderer, shell, clipboard } = electron
+const path = require('path')
+const jetpack = require('fs-jetpack')
+const fs = require('fs')
+let barcode = require('bwip-js')
+const { nativeImage } = require('electron')
 
 
 //----------------------- Visual elements --------------------------------
@@ -196,10 +196,12 @@ function saveCodesToLocalStorage() {
 function saveDataToLocalStorage(fileName, saveData) {
   let savingData = JSON.stringify(saveData);
 
-  fs.writeFile(fileName, savingData, function (err) {
-    if (err)
-      console.log(err);
-  });
+  jetpack.writeAsync(fileName, savingData)
+
+  // fs.writeFile(fileName, savingData, function (err) {
+  //   if (err)
+  //     console.log(err);
+  // });
 }
 /**
  * Save settings to local storage
@@ -215,6 +217,9 @@ function saveSettingsToLocalStorage() {
 function getSettingsFromStorage(filename) {
   getDataFromStorage(filename, function (data) {
     //settingsBlock = JSON.parse(data);
+    if (!data)
+      data = JSON.stringify(settingsBlock)
+
     let sourceData = JSON.parse(data)
     objectMapper(sourceData, settingsBlock)
     changeColorTheme(settingsBlock.general.isDarkMode)
@@ -238,16 +243,25 @@ function getHistoryFromStorage(filename) {
  * Get data from file in local storage
  * @param {string} fileName Name of required file in storage
  */
-async function getDataFromStorage(fileName, callback) {
+function getDataFromStorage(fileName, callback) {
   if (fileName) {
-    fs.readFile(fileName, "utf-8", function (error, data) {
-      if (error) {
-        console.log(error);
-        throw error;
-      }
-      if (callback)
-        callback(data);
-    });
+    if(jetpack.exists(fileName)){
+      jetpack.readAsync(fileName).then((data) => {
+        if (callback)
+          callback(data);
+      })
+    }
+    else
+      jetpack.fileAsync(fileName)
+    
+    // fs.readFile(fileName, "utf-8", function (error, data) {
+    //   if (error) {
+    //     console.log(error);
+    //     throw error;
+    //   }
+    //   if (callback)
+    //     callback(data);
+    // });
   }
 }
 /**
@@ -256,6 +270,9 @@ async function getDataFromStorage(fileName, callback) {
  */
 function getSavedCodesFromStorage(fileName) {
   getDataFromStorage(fileName, function (data) {
+    if (!data)
+      data = JSON.stringify(savedCodes)
+
     savedCodes = JSON.parse(data);
     if (savedCodes.length > 0) {
       $.each(savedCodes, function (index, value) {
@@ -406,7 +423,7 @@ function saveFileFunc() {
  */
 const makeDir = function (dirPath) {
   try {
-    fs.mkdirSync(dirPath)
+    jetpack.dir(dirPath)
   }
   catch (err) {
     if (err.code !== 'EEXIST') throw err;
