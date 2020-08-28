@@ -13,6 +13,7 @@
 $barWidth: 32px;
 
 #titlebar {
+  user-select: none;
   display: grid;
   grid-template-columns: auto 138px;
   -webkit-app-region: drag;
@@ -47,7 +48,6 @@ $barWidth: 32px;
   height: $barWidth;
 }
 #windowControls .button {
-  user-select: none;
   grid-row: 1 / span 1;
   display: flex;
   justify-content: center;

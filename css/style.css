@@ -8,7 +8,7 @@ body {
 .modal-header, .modal-footer, .symb-count{
   user-select: none;
 }
-#settingsModal{
+#settingsModal, #contactModal{
   user-select: none;
 }
 
@@ -88,6 +88,7 @@ body {
   grid-row-start: 3;
 }
 .grid-draw-block {
+  user-select: none;
   height: 100%;
   padding: 0 0 0 10px;
   grid-column-start: 2;

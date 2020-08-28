@@ -6,6 +6,10 @@
 }
 
 #titlebar {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: auto 138px;
@@ -51,10 +55,6 @@
 }
 
 #windowControls .button {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
   -ms-grid-row: 1;
   -ms-grid-row-span: 1;
   grid-row: 1 / span 1;
