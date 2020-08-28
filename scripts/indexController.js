@@ -115,7 +115,7 @@ getSavedCodesFromStorage(savedDataFileName)
 getSettingsFromStorage(settingsFileName)
 
 //Get history
-//getHistoryFromStorage(historyFileName)
+getHistoryFromStorage(historyFileName, false)
 
 //Bind function to button to generate QR-code 
 genQrButton.click(async () => {
@@ -224,13 +224,15 @@ function getSettingsFromStorage(filename) {
  * Get history from storage
  * @param {string} filename Name of history file in storage
  */
-function getHistoryFromStorage(filename) {
+function getHistoryFromStorage(filename, openDialog) {
   getDataFromStorage(filename, function (data) {
     $('#historyListModal').html('');
     if (!data)
       data = JSON.stringify(historyCodes);
     historyCodes = JSON.parse(data);
-    ipcRenderer.send('window:open-history', historyCodes)
+
+    if(openDialog)
+      ipcRenderer.send('window:open-history', historyCodes)
   });
 }
 
@@ -318,7 +320,7 @@ settingsButton.click(() => {
 })
 
 historyButton.click(() => {
-  getHistoryFromStorage(historyFileName)
+  getHistoryFromStorage(historyFileName, true)
 })
 
 contactButton.click(() => {
