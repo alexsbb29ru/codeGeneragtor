@@ -20,6 +20,7 @@ body {
   font-size: 1.1em;
 }
 .main-grid-container {
+  padding-top: 32px;
   height: 100%;
   width: 100%;
   display: grid;
@@ -28,7 +29,7 @@ body {
 }
 .grid-left-side {
   display: grid;
-  padding: 10px 0px 35px 0px;
+  padding: 10px 0px 5px 0px;
   grid-column-start: 1;
   grid-row-start: 1;
   grid-template-rows: 3em 3em 1fr 3em;
@@ -53,7 +54,7 @@ body {
 }
 
 .grid-container {
-  padding: 10px 5px 35px 0;
+  padding: 10px 5px 5px 0;
   grid-column-start: 2;
   grid-row-start: 1;
   padding-left: 5px;

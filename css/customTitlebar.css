@@ -6,6 +6,9 @@
 }
 
 #titlebar {
+  position: absolute;
+  z-index: 2050;
+  width: 100%;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
