@@ -52,8 +52,6 @@ function generateSettingCat() {
                 <label class="custom-control-label" for="showText128">Отображать текст</label>
             </div>
         </td>
-        <td>
-        </td>
     </tr>`
     let gen_copyToClip =
         `<tr>
@@ -67,7 +65,7 @@ function generateSettingCat() {
                 <label class="custom-control-label" for="isCopyToClip">${copyToClipBlockName}</label>
             </div>
         </td>
-        <td>
+        <td class='settingsTooltip'>
             <div data-toggle="tooltip" title="${copyToClipboardTooltip}">
                 <span>
                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

@@ -159,7 +159,7 @@ body {
 
 /*-------------------- Settings page styles ---------------------------*/
 .settingsValue {
-  text-align: right;
+  text-align: left;
 }
 
 /* .color1 {background-color: #675BA7; opacity: 0.5;}
