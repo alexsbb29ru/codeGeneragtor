@@ -15,11 +15,6 @@ body {
 #contactModal {
   user-select: none;
 }
-
-/* main {
-  background-color: #f5f8fb;
-} */
-
 .grid-item {
   text-align: center;
   font-size: 1.1em;
@@ -37,8 +32,6 @@ body {
   grid-column-start: 1;
   grid-row-start: 1;
   grid-template-rows: 3em 3em 1fr 3em;
-  /* box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
-  background-color: white; */
 }
 .left-side-button {
   height: 2.3em;
@@ -46,9 +39,6 @@ body {
   padding: 0px 0px 0px 6px;
   height: 40px;
 }
-/* .left-side-button:hover {
-  background-color: #b9b9b94d;
-} */
 .settingsButton {
   grid-column-start: 1;
   grid-row-start: 1;
