@@ -35,6 +35,10 @@ main {
   background-color: #202940;
 }
 
+.left-side-button {
+  color: #8b92a9;
+}
+
 .left-side-button:hover {
   background-color: #1a2035;
 }

@@ -31,6 +31,7 @@ body {
   background-color: white; */
 }
 .left-side-button {
+  height: 2.3em;
   transition-duration: 0.3s;
   padding: 0px 0px 0px 6px;
   height: 40px;
@@ -143,8 +144,7 @@ body {
   text-align: left;
 }
 #removeSavedQrBtn,
-#saveQrTextButton,
-#settingsButton {
+#saveQrTextButton{
   height: 2.3em;
 }
 

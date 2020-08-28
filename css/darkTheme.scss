@@ -37,7 +37,9 @@ main {
   box-shadow: $boxShadow;
   background-color: $form-background;
 }
-
+.left-side-button{
+  color:$font-color;
+}
 .left-side-button:hover {
   background-color: $background;
 }
