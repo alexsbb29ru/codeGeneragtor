@@ -5,7 +5,7 @@ body {
 .contact-table {
   text-align: center;
 }
-.modal-header, .modal-footer{
+.modal-header, .modal-footer, .symb-count{
   user-select: none;
 }
 #settingsModal{
