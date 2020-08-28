@@ -197,11 +197,6 @@ function saveDataToLocalStorage(fileName, saveData) {
   let savingData = JSON.stringify(saveData);
 
   jetpack.writeAsync(fileName, savingData)
-
-  // fs.writeFile(fileName, savingData, function (err) {
-  //   if (err)
-  //     console.log(err);
-  // });
 }
 /**
  * Save settings to local storage
@@ -253,15 +248,6 @@ function getDataFromStorage(fileName, callback) {
     }
     else
       jetpack.fileAsync(fileName)
-    
-    // fs.readFile(fileName, "utf-8", function (error, data) {
-    //   if (error) {
-    //     console.log(error);
-    //     throw error;
-    //   }
-    //   if (callback)
-    //     callback(data);
-    // });
   }
 }
 /**
