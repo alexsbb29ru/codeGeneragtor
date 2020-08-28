@@ -80,6 +80,16 @@ main {
   color: #8b92a9;
 }
 
+.close {
+  color: #fff;
+  text-shadow: 0 1px 0 #000;
+}
+
+.close:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
 .table {
   color: #8b92a9;
 }
