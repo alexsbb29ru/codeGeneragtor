@@ -1,8 +1,6 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron')
 
 let startPage = "index.html"
-let darkTitleColor = "black"
-let lightTitleColor = "white"
 
 function createWindow() {
     let win = new BrowserWindow({

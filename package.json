@@ -16,7 +16,6 @@
   "dependencies": {
     "bootstrap": "^4.5.2",
     "bwip-js": "^2.0.10",
-    "custom-electron-titlebar": "^3.2.4",
     "fs-jetpack": "^3.1.0",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1"
