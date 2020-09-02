@@ -121,13 +121,15 @@ getHistoryFromStorage(historyFileName, false)
 genQrButton.click(async () => {
   if (inputText.val()) {
     drawFlag = true;
-    //Добавляем код в историю запросов
-    if (historyCodes[historyCodes.length - 1] != inputText.val())
-      historyCodes.push(inputText.val());
-    //Записываем историю в файл
-    saveDataToLocalStorage(historyFileName, historyCodes)
-    //Генерируем введенный текст
-    generateBarcode(inputText.val(), saveImageToBuffer);
+    getHistoryFromStorage(historyFileName, false, () => {
+      //Добавляем код в историю запросов
+      if (historyCodes[historyCodes.length - 1] != inputText.val())
+        historyCodes.push(inputText.val());
+      //Записываем историю в файл
+      saveDataToLocalStorage(historyFileName, historyCodes)
+      //Генерируем введенный текст
+      generateBarcode(inputText.val(), saveImageToBuffer);
+    })
   }
   else {
     drawFlag = false;
@@ -198,6 +200,7 @@ function saveDataToLocalStorage(fileName, saveData) {
 
   jetpack.writeAsync(fileName, savingData)
 }
+
 /**
  * Save settings to local storage
  */
@@ -224,14 +227,17 @@ function getSettingsFromStorage(filename) {
  * Get history from storage
  * @param {string} filename Name of history file in storage
  */
-function getHistoryFromStorage(filename, openDialog) {
+function getHistoryFromStorage(filename, openDialog, callback) {
   getDataFromStorage(filename, function (data) {
     $('#historyListModal').html('');
     if (!data)
       data = JSON.stringify(historyCodes);
     historyCodes = JSON.parse(data);
 
-    if(openDialog)
+    if (callback)
+      callback()
+
+    if (openDialog)
       ipcRenderer.send('window:open-history', historyCodes)
   });
 }
@@ -242,7 +248,7 @@ function getHistoryFromStorage(filename, openDialog) {
  */
 function getDataFromStorage(fileName, callback) {
   if (fileName) {
-    if(jetpack.exists(fileName)){
+    if (jetpack.exists(fileName)) {
       jetpack.readAsync(fileName).then((data) => {
         if (callback)
           callback(data);
