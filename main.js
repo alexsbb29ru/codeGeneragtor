@@ -68,6 +68,8 @@ app.on("window-all-closed", () => {
         app.quit()
 })
 
+app.allowRendererProcessReuse = false
+
 app.on("activate", () => {
     if (win == null)
         createWindow("index.html")
