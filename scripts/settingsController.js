@@ -1,10 +1,10 @@
-const electron = require('electron')
-const { ipcRenderer } = electron;
+const electron = require("electron")
+const { ipcRenderer } = electron
 
 //Модалка с настройками
-const settingsModal = $('#settingsModal')
+const settingsModal = $("#settingsModal")
 //Тело модалки с настройками. Все элементы настроек загружаются туда
-const settingsModalBody = $('#settingsModalBody')
+const settingsModalBody = $("#settingsModalBody")
 //Список настроек для каждого типа ШК
 let settingsTypes
 //Bool - показывать или нет текст ШК code128
@@ -14,7 +14,7 @@ let copyToClip
 //Bool - включение темной темы
 let darkMode
 //Кнопка закрытия модалки
-let closeSettingslBtn = $('#closeSettingslBtn')
+let closeSettingslBtn = $("#closeSettingslBtn")
 //Название блока с копированием изображения в буфер обмена
 let copyToClipBlockName = "Копировать в буфер обмена"
 //Tooltip для сохранения изображения в буфер
@@ -23,7 +23,7 @@ let copyToClipboardTooltip = "После генерации изображени
 let darkModeBlockName = "Тёмная тема"
 
 //Обработка запроса на открытие модалки с настройками
-ipcRenderer.on('window:open-settings', (event, settings) => {
+ipcRenderer.on("window:open-settings", (event, settings) => {
     //Запишем полученные настройки
     settingsTypes = settings
     //Покажем модалку
@@ -35,18 +35,18 @@ ipcRenderer.on('window:open-settings', (event, settings) => {
 //Обработка закрытия модалки
 closeSettingslBtn.click(() => {
     //Отправим запрос на применения настроек в ipcMain, а далее в indexController
-    ipcRenderer.send('window:change-settings', settingsTypes)
+    ipcRenderer.send("window:change-settings", settingsTypes)
 })
 
 /**
  * Generate settings positions by received settings
  */
 function generateSettingCat() {
-    let catBody = "<table class='table table-borderless'>"
+    let catBody = `<table class="table table-borderless">`
     let code128block =
         `<tr>
-        <th scope='row' class='settingsKey'>${settingsTypes.code128.bcid}</th>
-        <td id='${settingsTypes.code128.bcid}Cat' class='settingsValue'>
+        <th scope="row" class="settingsKey">${settingsTypes.code128.bcid}</th>
+        <td id="${settingsTypes.code128.bcid}Cat" class="settingsValue">
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="showText128">
                 <label class="custom-control-label" for="showText128">Отображать текст</label>
@@ -55,18 +55,18 @@ function generateSettingCat() {
     </tr>`
     let gen_copyToClip =
         `<tr>
-        <th scope='row' class='settingsKey'>Общие</th>
+        <th scope="row" class="settingsKey">Общие</th>
     </tr>
     <tr>
-        <th scope='row' class='settingsKey'></th>
-        <td class='settingsValue'>
+        <th scope="row" class="settingsKey"></th>
+        <td class="settingsValue">
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class="custom-control-input" id="isCopyToClip">
                 <label class="custom-control-label" for="isCopyToClip">${copyToClipBlockName}</label>
             </div>
         </td>
         <td>
-            <div class='settingsTooltip' data-toggle="tooltip" title="${copyToClipboardTooltip}">
+            <div class="settingsTooltip" data-toggle="tooltip" title="${copyToClipboardTooltip}">
                 <span>
                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -78,8 +78,8 @@ function generateSettingCat() {
     </tr>`
     let darkModeBlock =
         `<tr>
-            <th scope='row' class='settingsKey'></th>
-            <td class='settingsValue'>
+            <th scope="row" class="settingsKey"></th>
+            <td class="settingsValue">
                 <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="isDarkMode">
                     <label class="custom-control-label" for="isDarkMode">${darkModeBlockName}</label>
@@ -92,7 +92,7 @@ function generateSettingCat() {
     catBody += darkModeBlock
 
     catBody += "</table>"
-    settingsModalBody.html(catBody);
+    settingsModalBody.html(catBody)
 
     //Инициализируем инпуты для возможности изменения настроек
     initInputs()
@@ -102,15 +102,15 @@ function generateSettingCat() {
  * Init inputs to apply changes
  */
 let initInputs = () => {
-    $('[data-toggle=tooltip]').tooltip()
+    $("[data-toggle=tooltip]").tooltip()
 
-    showText128 = $('#showText128')
-    copyToClip = $('#isCopyToClip')
-    darkMode = $('#isDarkMode')
+    showText128 = $("#showText128")
+    copyToClip = $("#isCopyToClip")
+    darkMode = $("#isDarkMode")
     
     //Обработчик изменения чекбокса отображения текста code128
     showText128.change(() => {
-        settingsTypes.code128.includetext = showText128[0].checked;
+        settingsTypes.code128.includetext = showText128[0].checked
     })
     //Обработчик изменения чекбокса копирвоания в буфер обмена
     copyToClip.change(() => {

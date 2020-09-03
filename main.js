@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, shell, session } = require('electron')
 
 let startPage = "index.html"
 
@@ -15,51 +15,60 @@ function createWindow() {
         },
         autoHideMenuBar: true,
         frame:false
-    });
+    })
 
-    win.loadFile(startPage);
-    //win.webContents.openDevTools();
-    win.on('closed', () => {
-        win = null;
-    });
+    win.loadFile(startPage)
+    //win.webContents.openDevTools()
+    win.on("closed", () => {
+        win = null
+    })
     //Open settings page
-    ipcMain.on('window:open-settings', (event, args) => {
-        win.webContents.send('window:open-settings', args)
+    ipcMain.on("window:open-settings", (event, args) => {
+        win.webContents.send("window:open-settings", args)
     })
     //Open history page
-    ipcMain.on('window:open-history', (event, args) => {
-        win.webContents.send('window:open-history', args)
+    ipcMain.on("window:open-history", (event, args) => {
+        win.webContents.send("window:open-history", args)
     })
     //Change settings on settings page
-    ipcMain.on('window:change-settings', (event, args) => {
-        win.webContents.send('window:change-settings', args)
+    ipcMain.on("window:change-settings", (event, args) => {
+        win.webContents.send("window:change-settings", args)
     })
     //Set history position to main text input
-    ipcMain.on('window:set-history', (event, args) => {
-        win.webContents.send('window:set-history', args)
+    ipcMain.on("window:set-history", (event, args) => {
+        win.webContents.send("window:set-history", args)
     })
     //Clear history
-    ipcMain.on('window:clear-history', (event, args) => {
-        win.webContents.send('window:clear-history', args)
+    ipcMain.on("window:clear-history", (event, args) => {
+        win.webContents.send("window:clear-history", args)
     })
     //Open about
-    ipcMain.on('window:open-about', (event, args) => {
+    ipcMain.on("window:open-about", (event, args) => {
         args.version = `Версия: ${app.getVersion()}`
-        win.webContents.send('window:open-about', args)
+        win.webContents.send("window:open-about", args)
     })
     //Open URL
-    ipcMain.on('url:open-url', (event, stringURL) => {
+    ipcMain.on("url:open-url", (event, stringURL) => {
         shell.openExternal(stringURL)
     })
+
+    // session.defaultSession.webRequest.onHeadersReceived((det, callback) =>{
+    //     callback({
+    //         responseHeaders:{
+    //             ...det.requestHeaders,
+    //             "Content-Security-Policy": ["script-src 'self'"]
+    //         }
+    //     })
+    // })
 }
 
-app.on('ready', createWindow);
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin')
+app.on("ready", createWindow)
+app.on("window-all-closed", () => {
+    if (process.platform !== "darwin")
         app.quit()
-});
+})
 
 app.on("activate", () => {
     if (win == null)
         createWindow("index.html")
-});
+})
