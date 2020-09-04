@@ -1,10 +1,11 @@
 {
   "name": "barcodegen",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "App for generating barcode",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "watch": "nodemon --exec electron .",
     "generate": "electron-builder"
   },
   "author": "Sbb Company",

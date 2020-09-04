@@ -1,6 +1,9 @@
-const { app, BrowserWindow, ipcMain, shell, session } = require('electron')
+const { app, BrowserWindow, ipcMain, shell, globalShortcut } = require('electron')
 
 let startPage = "index.html"
+const devMode = "develop"
+const releaseMode = "release"
+const appMode = releaseMode
 
 function createWindow() {
     let win = new BrowserWindow({
@@ -8,17 +11,23 @@ function createWindow() {
         height: 380,
         minHeight: 390,
         minWidth: 700,
-        icon: __dirname + "/images/barcode.png",
+        icon: __dirname + "/images/iconMax.png",
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true
         },
         autoHideMenuBar: true,
-        frame:false
+        frame: false,
+        show: false
     })
+    if (appMode === releaseMode) {
+        globalShortcut.register("CommandOrControl+R", () => { })
+        globalShortcut.register("CommandOrControl+Shift+I", () => { })
+    }
 
     win.loadFile(startPage)
     //win.webContents.openDevTools()
+    win.once("ready-to-show", win.show)
     win.on("closed", () => {
         win = null
     })
@@ -51,15 +60,6 @@ function createWindow() {
     ipcMain.on("url:open-url", (event, stringURL) => {
         shell.openExternal(stringURL)
     })
-
-    // session.defaultSession.webRequest.onHeadersReceived((det, callback) =>{
-    //     callback({
-    //         responseHeaders:{
-    //             ...det.requestHeaders,
-    //             "Content-Security-Policy": ["script-src 'self'"]
-    //         }
-    //     })
-    // })
 }
 
 app.on("ready", createWindow)
