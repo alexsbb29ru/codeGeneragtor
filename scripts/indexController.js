@@ -10,8 +10,8 @@ const { nativeImage } = require("electron")
 
 
 //----------------------- Visual elements --------------------------------
-//Canvas с отображаемым QR-кодом
-const canvas = document.getElementById("qrOutput")
+//Img с отображаемым QR-кодом
+const qrImg = document.getElementById("qrOutput")
 //Выпадающий список с типами ШК (128, QR)
 const typesSelect = document.getElementById("barcodeTypesSelect")
 //Поле для ввода конвертируемого текста
@@ -157,7 +157,7 @@ qrCodeNameModal.keydown(function (e) {
 })
 
 //Save text to select control
-$("#saveQrTextButton").click(async() => {
+$("#saveQrTextButton").click(async () => {
   if (!inputText.val()) return
   let select = document.getElementById("savedCodesSelect")
   //Проверка на содержание текста в списке
@@ -180,7 +180,7 @@ function saveImageToBuffer() {
 
   //! Костыль. Почему-то не копируется текущее изображение буфер
   setTimeout(() => {
-    let img = nativeImage.createFromDataURL(canvas.src)
+    let img = nativeImage.createFromDataURL(qrImg.src)
     clipboard.writeImage(img)
     console.log("Image downloaded")
   }, 100)
@@ -306,7 +306,7 @@ $("#denyFileName").click(() => {
 
 //Show modal to save qr-code image
 saveButton.click(() => {
-  if (canvas.src) {
+  if (qrImg.src) {
     downloadFolder = path.join((electron.app || electron.remote.app).getPath("downloads"), "QR Downloads")
 
     qrCodeNameModal.modal("show")
@@ -322,7 +322,7 @@ settingsButton.click(() => {
   ipcRenderer.send("window:open-settings", settingsBlock)
 })
 
-historyButton.click(async() => {
+historyButton.click(async () => {
   await getHistoryFromStorage(historyFileName, true)
 })
 
@@ -399,7 +399,7 @@ function saveFileFunc() {
   // let fileName =  inputText.val().length > 13 ? inputText.val().slice(0, 13) : inputText.val() + '.png'
   let fileName = removeCharacters($("#fileNameInput").val()) + ".png"
   let pathToSave = path.join(downloadFolder, fileName)
-  let url = canvas.src
+  let url = qrImg.src
   const base64Data = url.replace(/^data:image\/png;base64,/, "")
 
   fs.writeFile(pathToSave, base64Data, "base64", function (err) {
@@ -514,15 +514,17 @@ function generateBarcode(text, callback) {
       if (err) {
         console.log(err)
       } else {
-        canvas.src = "data:image/png;base64," +
+        qrImg.src = "data:image/png;base64," +
           png.toString("base64")
+        qrImg.style.padding = "5px"
+        qrImg.style.background = "#fff"
 
         if (type == barcodeTypes.code128.bcid) {
-          canvas.height = 105
+          qrImg.height = 105
         }
         else
-          canvas.height = 210
-        canvas.width = 210
+          qrImg.height = 210
+        qrImg.width = 210
       }
     })
 
