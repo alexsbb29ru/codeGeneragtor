@@ -516,15 +516,17 @@ function generateBarcode(text, callback) {
       } else {
         qrImg.src = "data:image/png;base64," +
           png.toString("base64")
-        qrImg.style.padding = "5px"
+        qrImg.style.padding = "10px"
         qrImg.style.background = "#fff"
 
         if (type == barcodeTypes.code128.bcid) {
-          qrImg.height = 105
+          qrImg.height = 140
+          qrImg.width = 280
         }
-        else
-          qrImg.height = 210
-        qrImg.width = 210
+        else {
+          qrImg.height = 220
+          qrImg.width = 220
+        }
       }
     })
 
