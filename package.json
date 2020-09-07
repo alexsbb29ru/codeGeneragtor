@@ -1,6 +1,6 @@
 {
   "name": "barcodegen",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "App for generating barcode",
   "main": "main.js",
   "scripts": {
