@@ -119,7 +119,7 @@ getSettingsFromStorage(settingsFileName)
 getHistoryFromStorage(historyFileName, false)
 
 //Bind function to button to generate QR-code 
-genQrButton.click(async () => {
+genQrButton.on("click",async () => {
   if (inputText.val()) {
     drawFlag = true
     await getHistoryFromStorage(historyFileName, false)
@@ -138,26 +138,26 @@ genQrButton.click(async () => {
 })
 
 //Generating qr-code by keydown ctrl + enter
-inputText.keydown(function (e) {
+inputText.on("keydown", function (e) {
   if (e.ctrlKey && e.keyCode == 13)
-    genQrButton.click()
+    genQrButton.trigger("click")
 })
 
 //Open modal by ctrl + s
-window.onkeydown = function (e) {
+window.onkeydown = (e) => {
   if (!$(".modal").is(":visible")) {
     if (e.ctrlKey && e.keyCode == 83)
-      saveButton.click()
+      saveButton.trigger("click")
   }
 }
 //Saving image by enter
-qrCodeNameModal.keydown(function (e) {
+qrCodeNameModal.on("keydown", (e) => {
   if (e.keyCode == 13)
-    $("#confirmFileName").click()
+    $("#confirmFileName").trigger("click")
 })
 
 //Save text to select control
-$("#saveQrTextButton").click(async () => {
+$("#saveQrTextButton").on("click",async () => {
   if (!inputText.val()) return
   let select = document.getElementById("savedCodesSelect")
   //Проверка на содержание текста в списке
@@ -236,7 +236,7 @@ async function getHistoryFromStorage(filename, openDialog) {
     historyCodes = JSON.parse(data)
 
     if (openDialog)
-      ipcRenderer.send("window:open-history", historyCodes)
+      ipcRenderer.send("window:open-history", historyCodes.reverse())
   })
 }
 
@@ -274,13 +274,13 @@ function getSavedCodesFromStorage(fileName) {
 }
 
 //Remove code from array and select
-$("#removeSavedQrBtn").click(async () => {
+$("#removeSavedQrBtn").on("click",async () => {
   let code = $("#savedCodesSelect").val()
   if (code) {
     savedCodes.splice(savedCodes.indexOf(code), 1)
     $("#savedCodesSelect option:selected").remove()
-    $("#savedCodesSelect").change()
-    inputText.change()
+    $("#savedCodesSelect").trigger("change")
+    inputText.trigger("change")
     await saveCodesToLocalStorage()
     showAlert("Код успешно удален из избранного")
   }
@@ -288,7 +288,7 @@ $("#removeSavedQrBtn").click(async () => {
 
 //Close modal to save qr-code image
 //Call function to save qr-code image
-$("#confirmFileName").click(() => {
+$("#confirmFileName").on("click",() => {
   if ($("#fileNameInput").val()) {
     qrCodeNameModal.modal("hide")
     try {
@@ -300,33 +300,33 @@ $("#confirmFileName").click(() => {
   }
 })
 //Кнопка отмены при вводе имени файла
-$("#denyFileName").click(() => {
+$("#denyFileName").on("click",() => {
   $("#fileNameInput").val("")
 })
 
 //Show modal to save qr-code image
-saveButton.click(() => {
+saveButton.on("click",() => {
   if (qrImg.src) {
     downloadFolder = path.join((electron.app || electron.remote.app).getPath("downloads"), "QR Downloads")
 
     qrCodeNameModal.modal("show")
     $("#saveFolderPath").html(downloadFolder)
-    $("#fileNameInput").val(removeCharacters(inputText.val())).focus().select()
+    $("#fileNameInput").val(removeCharacters(inputText.val())).trigger("focus").trigger("select")
   }
 })
 
 /**
  * Нажатие на копку "Настройки". Показ модалки с настройками
  */
-settingsButton.click(() => {
+settingsButton.on("click",() => {
   ipcRenderer.send("window:open-settings", settingsBlock)
 })
 
-historyButton.click(async () => {
+historyButton.on("click", async () => {
   await getHistoryFromStorage(historyFileName, true)
 })
 
-contactButton.click(() => {
+contactButton.on("click",() => {
   aboutArgs.name = "Генератор штрих-кодов"
   aboutArgs.copyright = `&#169; 2019 - ${new Date().getFullYear()} 
   <a href="#" id="personLink" targetLink="https://vk.com/subbotinalexeysergeevich">Aleksey Subbotin</a>`
@@ -346,8 +346,8 @@ ipcRenderer.on("window:change-settings", async (event, codeTypes) => {
 ipcRenderer.on("window:set-history", (event, historyText) => {
   if (inputText.val() != historyText) {
     inputText.val(historyText)
-    inputText.change()
-    genQrButton.click()
+    inputText.trigger("change")
+    genQrButton.trigger("click")
   }
 })
 /**
@@ -360,17 +360,17 @@ ipcRenderer.on("window:clear-history", (event, args) => {
 })
 
 //Generate qr-code when select was changes
-$("#savedCodesSelect").change(() => {
+$("#savedCodesSelect").on("change", () => {
   inputText.val($("#savedCodesSelect").val())
-  inputText.change()
-  genQrButton.click()
+  inputText.trigger("change")
+  genQrButton.trigger("click")
 })
 
 inputText.on("input", () => {
   writeRemainingSymb()
 })
 
-inputText.change(() => {
+inputText.on("change", () => {
   writeRemainingSymb()
 })
 /**

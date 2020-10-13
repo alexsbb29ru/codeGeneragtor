@@ -33,7 +33,7 @@ ipcRenderer.on("window:open-settings", (event, settings) => {
 })
 
 //Обработка закрытия модалки
-closeSettingslBtn.click(() => {
+closeSettingslBtn.on("click", () => {
     //Отправим запрос на применения настроек в ipcMain, а далее в indexController
     ipcRenderer.send("window:change-settings", settingsTypes)
 })
@@ -109,15 +109,15 @@ let initInputs = () => {
     darkMode = $("#isDarkMode")
     
     //Обработчик изменения чекбокса отображения текста code128
-    showText128.change(() => {
+    showText128.on("change", () => {
         settingsTypes.code128.includetext = showText128[0].checked
     })
     //Обработчик изменения чекбокса копирвоания в буфер обмена
-    copyToClip.change(() => {
+    copyToClip.on("change", () => {
         settingsTypes.general.copyImageToClipboard.isCopy = copyToClip[0].checked
     })
 
-    darkMode.change(()=>{
+    darkMode.on("change", ()=>{
         settingsTypes.general.isDarkMode = darkMode[0].checked
     })
     //Применим начальное значение для чекбокса из полученных настроек

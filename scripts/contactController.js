@@ -27,7 +27,7 @@ const updateContactTable = (aboutParams)=>{
     copyrightContact.html(aboutParams.copyright)
 
     personLink = $("#personLink")
-    personLink.click(()=>{
+    personLink.on("click", ()=>{
         let stringUrl = personLink.attr("targetLink")
         ipcRenderer.send("url:open-url", stringUrl)
     })

@@ -42,20 +42,15 @@ function showHistoryList(history) {
 }
 
 //Очищаем историю
-clearHistBtn.click(() => {
-    // let clearResult = confirm("Вы уверены?")
-
-    // if(clearResult)
-    // {
-    closeHistorylBtn.click()
+clearHistBtn.on("click", () => {
+    closeHistorylBtn.trigger("click")
     ipcRenderer.send("window:clear-history")
-    // }
-
 })
+
 //Обработка двойного нажатия на пункте истории. 
-historyListModal.dblclick((e) => {
+historyListModal.on("dblclick", (e) => {
     //Закроем модалку
-    closeHistorylBtn.click()
+    closeHistorylBtn.trigger("click")
     //Отправим выбранный пункт в другой контроллер (indexController)
     ipcRenderer.send("window:set-history", e.target.innerHTML)
 })

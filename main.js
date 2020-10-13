@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, shell, globalShortcut } = require('electron
 
 let startPage = "index.html"
 const devMode = "develop"
-const releaseMode = "release"
+const releaseMode = "develop"
 const appMode = releaseMode
 
 function createWindow() {
@@ -21,8 +21,8 @@ function createWindow() {
         show: false
     })
     if (appMode === releaseMode) {
-        globalShortcut.register("CommandOrControl+R", () => { })
-        globalShortcut.register("CommandOrControl+Shift+I", () => { })
+        // globalShortcut.register("CommandOrControl+R", () => { })
+        // globalShortcut.register("CommandOrControl+Shift+I", () => { })
     }
 
     win.loadFile(startPage)
