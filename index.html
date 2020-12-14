@@ -19,23 +19,31 @@
   <!--Header block with custom titlebar-->
   <header id="titlebar">
     <div id="windowTitle">
-      
+
     </div>
     <div id="windowControls">
       <div class="button" id="min-button">
-        <img class="icon" srcset="images/icons/min-w-10.png 1x, images/icons/min-w-12.png 1.25x, images/icons/min-w-15.png 1.5x, images/icons/min-w-15.png 1.75x, images/icons/min-w-20.png 2x, images/icons/min-w-20.png 2.25x, images/icons/min-w-24.png 2.5x, images/icons/min-w-30.png 3x, images/icons/min-w-30.png 3.5x" draggable="false" />
+        <img class="icon"
+          srcset="images/icons/min-w-10.png 1x, images/icons/min-w-12.png 1.25x, images/icons/min-w-15.png 1.5x, images/icons/min-w-15.png 1.75x, images/icons/min-w-20.png 2x, images/icons/min-w-20.png 2.25x, images/icons/min-w-24.png 2.5x, images/icons/min-w-30.png 3x, images/icons/min-w-30.png 3.5x"
+          draggable="false" />
       </div>
 
       <div class="button" id="max-button">
-        <img class="icon" srcset="images/icons/max-w-10.png 1x, images/icons/max-w-12.png 1.25x, images/icons/max-w-15.png 1.5x, images/icons/max-w-15.png 1.75x, images/icons/max-w-20.png 2x, images/icons/max-w-20.png 2.25x, images/icons/max-w-24.png 2.5x, images/icons/max-w-30.png 3x, images/icons/max-w-30.png 3.5x" draggable="false" />
+        <img class="icon"
+          srcset="images/icons/max-w-10.png 1x, images/icons/max-w-12.png 1.25x, images/icons/max-w-15.png 1.5x, images/icons/max-w-15.png 1.75x, images/icons/max-w-20.png 2x, images/icons/max-w-20.png 2.25x, images/icons/max-w-24.png 2.5x, images/icons/max-w-30.png 3x, images/icons/max-w-30.png 3.5x"
+          draggable="false" />
       </div>
 
       <div class="button" id="restore-button">
-        <img class="icon" srcset="images/icons/restore-w-10.png 1x, images/icons/restore-w-12.png 1.25x, images/icons/restore-w-15.png 1.5x, images/icons/restore-w-15.png 1.75x, images/icons/restore-w-20.png 2x, images/icons/restore-w-20.png 2.25x, images/icons/restore-w-24.png 2.5x, images/icons/restore-w-30.png 3x, images/icons/restore-w-30.png 3.5x" draggable="false" />
+        <img class="icon"
+          srcset="images/icons/restore-w-10.png 1x, images/icons/restore-w-12.png 1.25x, images/icons/restore-w-15.png 1.5x, images/icons/restore-w-15.png 1.75x, images/icons/restore-w-20.png 2x, images/icons/restore-w-20.png 2.25x, images/icons/restore-w-24.png 2.5x, images/icons/restore-w-30.png 3x, images/icons/restore-w-30.png 3.5x"
+          draggable="false" />
       </div>
 
       <div class="button" id="close-button">
-        <img class="icon" srcset="images/icons/close-w-10.png 1x, images/icons/close-w-12.png 1.25x, images/icons/close-w-15.png 1.5x, images/icons/close-w-15.png 1.75x, images/icons/close-w-20.png 2x, images/icons/close-w-20.png 2.25x, images/icons/close-w-24.png 2.5x, images/icons/close-w-30.png 3x, images/icons/close-w-30.png 3.5x" draggable="false" />
+        <img class="icon"
+          srcset="images/icons/close-w-10.png 1x, images/icons/close-w-12.png 1.25x, images/icons/close-w-15.png 1.5x, images/icons/close-w-15.png 1.75x, images/icons/close-w-20.png 2x, images/icons/close-w-20.png 2.25x, images/icons/close-w-24.png 2.5x, images/icons/close-w-30.png 3x, images/icons/close-w-30.png 3.5x"
+          draggable="false" />
       </div>
     </div>
   </header>
@@ -129,11 +137,12 @@
             </button>
           </div>
           <div class="modal-body">
-            <input class="form-control" id="fileNameInput" type="text" placeholder="Введите имя файла">
+            <input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
             <span id="saveFolderPath"></span>
           </div>
           <div class="modal-footer">
-            <button type="button" id="denyFileName" class="btn btn-outline-secondary" data-dismiss="modal">Отмена</button>
+            <button type="button" id="denyFileName" class="btn btn-outline-secondary"
+              data-dismiss="modal">Отмена</button>
             <button type="button" id="confirmFileName" class="btn c-btn-outline-primary">ОК</button>
           </div>
         </div>
@@ -149,9 +158,12 @@
         <div class="left-side-button settingsButton">
           <div id="settingsButton" class="c-btn" title="Настройки">
             <!-- <span>&#9874;</span> -->
-            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>
-              <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z" />
+              <path fill-rule="evenodd"
+                d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z" />
             </svg>
           </div>
         </div>
@@ -159,10 +171,14 @@
         <div class="left-side-button historyButton">
           <div id="historyButton" class="c-btn" title="История">
             <!-- <span>&#9997;</span> -->
-            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-journal-text" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 1h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1H2a2 2 0 0 1 2-2z"/>
-              <path d="M2 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H2zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H2zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H2z"/>
-              <path fill-rule="evenodd" d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-journal-text" fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M4 1h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1H2a2 2 0 0 1 2-2z" />
+              <path
+                d="M2 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H2zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H2zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H2z" />
+              <path fill-rule="evenodd"
+                d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
             </svg>
           </div>
         </div>
@@ -170,8 +186,10 @@
         <div class="left-side-button contactButton">
           <div id="contactButton" class="c-btn" title="О приложении">
             <!-- <span>&#9875;</span> -->
-            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-at" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z"/>
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-at" fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z" />
             </svg>
           </div>
         </div>
@@ -202,10 +220,14 @@
             <button type="button" id="removeSavedQrBtn" class="btn c-btn-outline-danger"
               title="Удалить сохраненный QR-код из избранного">
               <!-- <span>&#9940;</span> -->
-              <svg width="1.15em" height="1.15em" viewBox="0 0 16 16" class="bi bi-backspace" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" d="M6.603 2h7.08a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7.08a1 1 0 0 1-.76-.35L1 8l4.844-5.65A1 1 0 0 1 6.603 2zm7.08-1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1h7.08z"/>
-                <path fill-rule="evenodd" d="M5.83 5.146a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .707-.708l-5-5a.5.5 0 0 0-.708 0z"/>
-                <path fill-rule="evenodd" d="M11.537 5.146a.5.5 0 0 1 0 .708l-5 5a.5.5 0 0 1-.708-.708l5-5a.5.5 0 0 1 .707 0z"/>
+              <svg width="1.15em" height="1.15em" viewBox="0 0 16 16" class="bi bi-backspace" fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M6.603 2h7.08a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7.08a1 1 0 0 1-.76-.35L1 8l4.844-5.65A1 1 0 0 1 6.603 2zm7.08-1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1h7.08z" />
+                <path fill-rule="evenodd"
+                  d="M5.83 5.146a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .707-.708l-5-5a.5.5 0 0 0-.708 0z" />
+                <path fill-rule="evenodd"
+                  d="M11.537 5.146a.5.5 0 0 1 0 .708l-5 5a.5.5 0 0 1-.708-.708l5-5a.5.5 0 0 1 .707 0z" />
               </svg>
             </button>
           </div>
@@ -243,8 +265,10 @@
             <button type="button" id="saveQrTextButton" class="btn c-btn-outline-success"
               title="Сохранить QR-код в избранное">
               <!-- <span>&#10004;</span> -->
-              <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-check2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+              <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-check2" fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
               </svg>
             </button>
           </div>

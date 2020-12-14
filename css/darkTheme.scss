@@ -1,6 +1,7 @@
 $font-color: #8b92a9;
 $background: #1a2035;
 $form-background: #202940;
+$input-modal-background: #36456c;
 $boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
 /* Btn colors */
 $primary-dark: #006adb;
@@ -30,8 +31,8 @@ $danger-dark: #ba323f;
 main {
   background-color: $background;
 }
-.grid-container{
-  color:$font-color;
+.grid-container {
+  color: $font-color;
 }
 .grid-titlebar {
   background-color: white;
@@ -40,8 +41,8 @@ main {
   box-shadow: $boxShadow;
   background-color: $form-background;
 }
-.left-side-button{
-  color:$font-color;
+.left-side-button {
+  color: $font-color;
 }
 .left-side-button:hover {
   background-color: $background;
@@ -64,6 +65,9 @@ main {
   color: $font-color;
   background-color: $form-background;
 }
+.modal-input {
+  background-color: $input-modal-background;
+}
 .modal-header {
   border-bottom: 1px solid $font-color;
   color: $font-color;
@@ -72,11 +76,11 @@ main {
   border-top: 1px solid $font-color;
   color: $font-color;
 }
-.close{
-  color:#fff;
+.close {
+  color: #fff;
   text-shadow: 0 1px 0 #000;
 }
-.close:hover{
+.close:hover {
   color: #fff;
   text-decoration: none;
 }

@@ -70,6 +70,10 @@ main {
   background-color: #202940;
 }
 
+.modal-input {
+  background-color: #36456c;
+}
+
 .modal-header {
   border-bottom: 1px solid #8b92a9;
   color: #8b92a9;

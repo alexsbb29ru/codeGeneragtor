@@ -37,8 +37,6 @@ const darkStyleLink = "./css/darkTheme.css"
 //Ссылка на стиль со светлой темой
 const lightStyleLink = "./css/lightTheme.css"
 //------------------------------------------------------------------------
-//Максимально доступное количество вводимых символов
-const maxSymbols = 100
 
 //Папка загрузок
 let downloadFolder = ""
@@ -89,7 +87,12 @@ let settingsBlock = {
     copyImageToClipboard: {
       isCopy: false,
     },
-    isDarkMode: false
+    isDarkMode: false,
+    codeSymbolLength: {
+      currentLength: 100,
+      maxLength: 150,
+      minLength: 1
+    }
   }
 }
 //Информация о приложении
@@ -100,10 +103,6 @@ let aboutArgs = {
   copyright: ""
 }
 
-//Set max symbols count for main input
-inputText.attr("maxlength", maxSymbols)
-
-symbolCount.html(`Ост. кол-во символов: ${maxSymbols}`)
 //Hide alert block on start
 successAlert.hide()
 //Init barcode types
@@ -119,7 +118,7 @@ getSettingsFromStorage(settingsFileName)
 getHistoryFromStorage(historyFileName, false)
 
 //Bind function to button to generate QR-code 
-genQrButton.on("click",async () => {
+genQrButton.on("click", async () => {
   if (inputText.val()) {
     drawFlag = true
     await getHistoryFromStorage(historyFileName, false)
@@ -139,25 +138,25 @@ genQrButton.on("click",async () => {
 
 //Generating qr-code by keydown ctrl + enter
 inputText.on("keydown", function (e) {
-  if (e.ctrlKey && e.keyCode == 13)
+  if (e.ctrlKey && e.key == "Enter")
     genQrButton.trigger("click")
 })
 
 //Open modal by ctrl + s
 window.onkeydown = (e) => {
   if (!$(".modal").is(":visible")) {
-    if (e.ctrlKey && e.keyCode == 83)
+    if (e.ctrlKey && e.code == "KeyS")
       saveButton.trigger("click")
   }
 }
 //Saving image by enter
 qrCodeNameModal.on("keydown", (e) => {
-  if (e.keyCode == 13)
+  if (e.key == "Enter")
     $("#confirmFileName").trigger("click")
 })
 
 //Save text to select control
-$("#saveQrTextButton").on("click",async () => {
+$("#saveQrTextButton").on("click", async () => {
   if (!inputText.val()) return
   let select = document.getElementById("savedCodesSelect")
   //Проверка на содержание текста в списке
@@ -222,6 +221,7 @@ async function getSettingsFromStorage(filename) {
     let sourceData = JSON.parse(data)
     objectMapper(sourceData, settingsBlock)
     changeColorTheme(settingsBlock.general.isDarkMode)
+    changeMaxSymbolCount(settingsBlock.general.codeSymbolLength.currentLength)
   })
 }
 /**
@@ -274,7 +274,7 @@ function getSavedCodesFromStorage(fileName) {
 }
 
 //Remove code from array and select
-$("#removeSavedQrBtn").on("click",async () => {
+$("#removeSavedQrBtn").on("click", async () => {
   let code = $("#savedCodesSelect").val()
   if (code) {
     savedCodes.splice(savedCodes.indexOf(code), 1)
@@ -288,7 +288,7 @@ $("#removeSavedQrBtn").on("click",async () => {
 
 //Close modal to save qr-code image
 //Call function to save qr-code image
-$("#confirmFileName").on("click",() => {
+$("#confirmFileName").on("click", () => {
   if ($("#fileNameInput").val()) {
     qrCodeNameModal.modal("hide")
     try {
@@ -300,12 +300,12 @@ $("#confirmFileName").on("click",() => {
   }
 })
 //Кнопка отмены при вводе имени файла
-$("#denyFileName").on("click",() => {
+$("#denyFileName").on("click", () => {
   $("#fileNameInput").val("")
 })
 
 //Show modal to save qr-code image
-saveButton.on("click",() => {
+saveButton.on("click", () => {
   if (qrImg.src) {
     downloadFolder = path.join((electron.app || electron.remote.app).getPath("downloads"), "QR Downloads")
 
@@ -318,7 +318,7 @@ saveButton.on("click",() => {
 /**
  * Нажатие на копку "Настройки". Показ модалки с настройками
  */
-settingsButton.on("click",() => {
+settingsButton.on("click", () => {
   ipcRenderer.send("window:open-settings", settingsBlock)
 })
 
@@ -326,7 +326,7 @@ historyButton.on("click", async () => {
   await getHistoryFromStorage(historyFileName, true)
 })
 
-contactButton.on("click",() => {
+contactButton.on("click", () => {
   aboutArgs.name = "Генератор штрих-кодов"
   aboutArgs.copyright = `&#169; 2019 - ${new Date().getFullYear()} 
   <a href="#" id="personLink" targetLink="https://vk.com/subbotinalexeysergeevich">Aleksey Subbotin</a>`
@@ -339,6 +339,7 @@ ipcRenderer.on("window:change-settings", async (event, codeTypes) => {
   settingsBlock = codeTypes
   await saveSettingsToLocalStorage()
   changeColorTheme(settingsBlock.general.isDarkMode)
+  changeMaxSymbolCount(settingsBlock.general.codeSymbolLength.currentLength)
 })
 /**
  * Генерация текста, выбранного из истории
@@ -366,7 +367,7 @@ $("#savedCodesSelect").on("change", () => {
   genQrButton.trigger("click")
 })
 
-inputText.on("input", () => {
+inputText.on("input", async () => {
   writeRemainingSymb()
 })
 
@@ -377,8 +378,12 @@ inputText.on("change", () => {
  * Отображение оставшихся символов
  */
 function writeRemainingSymb() {
-  let remainingSymbCount = maxSymbols - inputText.val().length
+  let remainingSymbCount = settingsBlock.general.codeSymbolLength.currentLength - inputText.val().length
   symbolCount.html(`Ост. кол-во символов: ${remainingSymbCount}`)
+}
+
+async function historySearch(searchText) {
+
 }
 
 /**
@@ -491,6 +496,13 @@ function changeColorTheme(isDarkMode) {
     document.body.classList.add("lightBody")
     document.body.classList.remove("darkBody")
   }
+}
+
+function changeMaxSymbolCount(length) {
+  //Set max symbols count for main input
+  inputText.attr("maxlength", length)
+
+  symbolCount.html(`Ост. кол-во символов: ${length}`)
 }
 
 //----------------------------------------------Generator settings region----------------------------------------

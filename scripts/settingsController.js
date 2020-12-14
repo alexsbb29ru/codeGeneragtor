@@ -7,20 +7,18 @@ const settingsModal = $("#settingsModal")
 const settingsModalBody = $("#settingsModalBody")
 //Список настроек для каждого типа ШК
 let settingsTypes
-//Bool - показывать или нет текст ШК code128
-let showText128
-//Bool - сохранять в буфер обмена сгенерированное изображение или нет
-let copyToClip
-//Bool - включение темной темы
-let darkMode
 //Кнопка закрытия модалки
 let closeSettingslBtn = $("#closeSettingslBtn")
 //Название блока с копированием изображения в буфер обмена
 let copyToClipBlockName = "Копировать в буфер обмена"
 //Tooltip для сохранения изображения в буфер
 let copyToClipboardTooltip = "После генерации изображения, оно будет скопировано в системный буфер обмена"
+//Tooltip для макимального количества символов
+let maxSybolsTooltip = "Максимальное количество символов, доступное для генерации кода"
 //Название блока с тумблером переключения в dark mode
 let darkModeBlockName = "Тёмная тема"
+//Название блока с указанием максимального количества символов
+let maxSybolsBlockName = "Макс. кол-во символов"
 
 //Обработка запроса на открытие модалки с настройками
 ipcRenderer.on("window:open-settings", (event, settings) => {
@@ -86,10 +84,35 @@ function generateSettingCat() {
                 </div>
             </td>
         </tr>`
+    let maxSymbolsBlock =
+        `<tr>
+            <th scope="row" class="settingsKey"></th>
+            <td class="settingsValue">
+                <div class="form-group">
+                    <label for="maxSybolsInput">${maxSybolsBlockName}</label>
+                    <input type="number" 
+                        min="${settingsTypes.general.codeSymbolLength.minLength}" 
+                        max="${settingsTypes.general.codeSymbolLength.maxLength}" 
+                        class="form-control modal-input" id="maxSybolsInput">
+                    <small id="symbolCountHelp" class="form-text text-muted">Максимум ${settingsTypes.general.codeSymbolLength.maxLength}</small>
+                </div>
+            </td>
+            <td>
+                <div class="settingsTooltip" data-toggle="tooltip" title="${maxSybolsTooltip}">
+                    <span>
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                        </svg>
+                    </span>
+                </div>
+            </td>
+        </tr>`
 
     catBody += code128block
     catBody += gen_copyToClip
     catBody += darkModeBlock
+    catBody += maxSymbolsBlock
 
     catBody += "</table>"
     settingsModalBody.html(catBody)
@@ -104,10 +127,16 @@ function generateSettingCat() {
 let initInputs = () => {
     $("[data-toggle=tooltip]").tooltip()
 
-    showText128 = $("#showText128")
-    copyToClip = $("#isCopyToClip")
-    darkMode = $("#isDarkMode")
-    
+    //Bool - показывать или нет текст ШК code128
+    let showText128 = $("#showText128")
+    //Bool - сохранять в буфер обмена сгенерированное изображение или нет
+    let copyToClip = $("#isCopyToClip")
+    //Bool - включение темной темы
+    let darkMode = $("#isDarkMode")
+
+    let maxSybolsInput = $("#maxSybolsInput")
+
+
     //Обработчик изменения чекбокса отображения текста code128
     showText128.on("change", () => {
         settingsTypes.code128.includetext = showText128[0].checked
@@ -116,14 +145,28 @@ let initInputs = () => {
     copyToClip.on("change", () => {
         settingsTypes.general.copyImageToClipboard.isCopy = copyToClip[0].checked
     })
-
-    darkMode.on("change", ()=>{
+    //Обработчик изменения темы оформления
+    darkMode.on("change", () => {
         settingsTypes.general.isDarkMode = darkMode[0].checked
+    })
+    //Обработчик изменения максимального количества символов
+    maxSybolsInput.on("change", () => {
+        if ((maxSybolsInput.val() ^ 0) !== maxSybolsInput.val())
+            maxSybolsInput.val(maxSybolsInput.val() ^ 0)
+
+        if (maxSybolsInput.val() > settingsTypes.general.codeSymbolLength.maxLength)
+            maxSybolsInput.val(settingsTypes.general.codeSymbolLength.maxLength)
+
+        if (maxSybolsInput.val() < settingsTypes.general.codeSymbolLength.minLength)
+            maxSybolsInput.val(settingsTypes.general.codeSymbolLength.minLength)
+
+        settingsTypes.general.codeSymbolLength.currentLength = maxSybolsInput.val()
     })
     //Применим начальное значение для чекбокса из полученных настроек
     showText128[0].checked = settingsTypes.code128.includetext
     copyToClip[0].checked = settingsTypes.general.copyImageToClipboard.isCopy
     darkMode[0].checked = settingsTypes.general.isDarkMode
+    maxSybolsInput.val(settingsTypes.general.codeSymbolLength.currentLength)
 }
 
 
