@@ -5,7 +5,7 @@ body {
 .contact-table {
   text-align: center;
 }
-.modal{
+.modal {
   margin-top: 10px;
 }
 .modal-header,
@@ -166,8 +166,12 @@ body {
 .settingsValue {
   text-align: left;
 }
-.settingsTooltip{
-  padding:0.2rem 0;
+.settingsTooltip {
+  padding: 0.2rem 0;
+}
+/*--------------------- History page style -----------------------------*/
+#history-search-input {
+  margin-left: 15px;
 }
 
 /* .color1 {background-color: #675BA7; opacity: 0.5;}

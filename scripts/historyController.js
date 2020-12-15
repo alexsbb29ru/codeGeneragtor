@@ -9,6 +9,8 @@ const historyListModal = $("#historyListModal")
 const closeHistorylBtn = $("#closeHistorylBtn")
 //Кнопка очистки истории
 const clearHistBtn = $("#clearHistBtn")
+//Поле ввода поиска по истории
+const searchInput = $("#history-search-input")
 
 //Открытие модалки после получения запроса от главного процесса
 ipcRenderer.on("window:open-history", (event, history) => {
@@ -40,7 +42,9 @@ function showHistoryList(history) {
         historyListModal[0].appendChild(li)
     })
 }
-
+closeHistorylBtn.on("click", () => {
+    searchInput.val("")
+})
 //Очищаем историю
 clearHistBtn.on("click", () => {
     closeHistorylBtn.trigger("click")
@@ -53,4 +57,19 @@ historyListModal.on("dblclick", (e) => {
     closeHistorylBtn.trigger("click")
     //Отправим выбранный пункт в другой контроллер (indexController)
     ipcRenderer.send("window:set-history", e.target.innerHTML)
+})
+searchInput.on("input", async (e) => {
+    let isSearching
+    if (!isSearching) {
+        for (let i = 0; i < historyListModal[0].children.length; i++) {
+            isSearching = true
+            let str = historyListModal[0].children[i]
+
+            if (!str.innerText.includes(searchInput.val()))
+                str.style.display = "none"
+            else
+                str.style.display = ""
+            isSearching = false
+        }
+    }
 })
