@@ -139,7 +139,7 @@ genQrButton.on("click", async () => {
   }
   //При генерации скроем всплывашку с историей кодов
   if (historyAlert.is(":visible"))
-    historyAlert.hide()
+    hideHistoryAlert()
 })
 
 //Generating qr-code by keydown ctrl + enter
@@ -156,13 +156,13 @@ window.onkeydown = (e) => {
   }
   //При нажатии Escape скрываем всплываху
   if (e.code == "Escape" && historyAlert.is(":visible"))
-    historyAlert.hide()
+    hideHistoryAlert()
 }
 //При кликах вне текстового поля и всплывашки, скроем предложенные коды из истории
 window.onclick = (e) => {
   if (!e.target.attributes["histListFlag"]
     && historyAlert.is(":visible"))
-    historyAlert.hide()
+    hideHistoryAlert()
 }
 //Saving image by enter
 qrCodeNameModal.on("keydown", (e) => {
@@ -428,7 +428,7 @@ async function historySearch(searchText) {
       //Если всплывашка скрыта, откроем ее
       if (str.includes(inputText.val())) {
         if (historyAlert.is(":hidden"))
-          historyAlert.show()
+          showHistoryAlert()
         counter++
         //Если отображено 5 элементов, завершаем цикл, так как пока что выводим только 5 элементов
         if (counter > 5)
@@ -451,7 +451,7 @@ async function historySearch(searchText) {
         //При клике запишем значение в текстовое поле
         li.onclick = () => {
           inputText.val(str)
-          historyAlert.hide()
+          hideHistoryAlert()
         }
         historyListAlert[0].appendChild(li)
       }
@@ -460,7 +460,7 @@ async function historySearch(searchText) {
     if ((historyListAlert[0].children.length == 1
       && historyListAlert[0].children[0].attributes["allText"].value == inputText.val())
       || historyListAlert[0].children.length == 0) {
-      historyAlert.hide()
+      hideHistoryAlert()
       isSearching = false
 
       return true
@@ -472,7 +472,7 @@ async function historySearch(searchText) {
   }
   else {
     if (historyAlert.is(":visible"))
-      historyAlert.hide()
+      hideHistoryAlert()
   }
 }
 
@@ -484,7 +484,12 @@ function showAlert(text) {
   $("#alertText").html(text)
   successAlert.fadeTo(2000, 50).fadeOut("fast")
 }
-
+function showHistoryAlert() {
+  historyAlert.fadeTo(1000, 50)
+}
+function hideHistoryAlert() {
+  historyAlert.hide()
+}
 /**
  * Save qr-code image to folder
  */
