@@ -237,7 +237,8 @@
         <!--Grid с блоком ввода текста для генерации-->
         <div class="grid-item grid-text-block">
           <div class="form-group">
-            <textarea class="form-control" id="qrTextForm" rows="5" placeholder="Введите текст:"></textarea>
+            <textarea class="form-control" histListFlag id="qrTextForm" rows="5"
+              placeholder="Введите текст:"></textarea>
           </div>
         </div>
 
@@ -285,6 +286,12 @@
         <!--Блок с высплывающим сообщением-->
         <div class="alert alert-primary grid-alert" id="successAlert" role="alert">
           <p id="alertText"></p>
+        </div>
+        <!--Блок с высплывающим списком из истории-->
+        <div class="alert alert-primary history-alert histListFlag" id="historyAlert" role="alert">
+          <ul class="list-group list-group-flush histListFlag" id="historyListAlert">
+
+          </ul>
         </div>
       </div>
     </div>

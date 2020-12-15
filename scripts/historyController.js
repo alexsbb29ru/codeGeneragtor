@@ -17,7 +17,7 @@ ipcRenderer.on("window:open-history", (event, history) => {
     historyModal.modal("show")
 
     //Выведем историю генерации
-    showHistoryList(history)
+    showHistoryList(history.reverse())
 })
 
 /**
@@ -61,15 +61,15 @@ historyListModal.on("dblclick", (e) => {
 searchInput.on("input", async (e) => {
     let isSearching
     if (!isSearching) {
+        isSearching = true
         for (let i = 0; i < historyListModal[0].children.length; i++) {
-            isSearching = true
             let str = historyListModal[0].children[i]
 
             if (!str.innerText.includes(searchInput.val()))
                 str.style.display = "none"
             else
                 str.style.display = ""
-            isSearching = false
         }
+        isSearching = false
     }
 })

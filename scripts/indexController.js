@@ -18,6 +18,8 @@ const typesSelect = document.getElementById("barcodeTypesSelect")
 const inputText = $("#qrTextForm")
 //Вылетающий блок с сообщением об успешной операции или ошибкой
 const successAlert = $("#successAlert")
+//всплывающий список с подходящими кодами из истории
+const historyAlert = $("#historyAlert")
 //Поле, в котором выводится количество оставшихся символов
 const symbolCount = $("#symbolCount")
 //Кнока "Сгенерировать" ШК
@@ -105,6 +107,7 @@ let aboutArgs = {
 
 //Hide alert block on start
 successAlert.hide()
+historyAlert.hide()
 //Init barcode types
 initBarcodeTypesSelect()
 
@@ -134,6 +137,9 @@ genQrButton.on("click", async () => {
   else {
     drawFlag = false
   }
+  //При генерации скроем всплывашку с историей кодов
+  if (historyAlert.is(":visible"))
+    historyAlert.hide()
 })
 
 //Generating qr-code by keydown ctrl + enter
@@ -148,6 +154,15 @@ window.onkeydown = (e) => {
     if (e.ctrlKey && e.code == "KeyS")
       saveButton.trigger("click")
   }
+  //При нажатии Escape скрываем всплываху
+  if (e.code == "Escape" && historyAlert.is(":visible"))
+    historyAlert.hide()
+}
+//При кликах вне текстового поля и всплывашки, скроем предложенные коды из истории
+window.onclick = (e) => {
+  if (!e.target.attributes["histListFlag"]
+    && historyAlert.is(":visible"))
+    historyAlert.hide()
 }
 //Saving image by enter
 qrCodeNameModal.on("keydown", (e) => {
@@ -236,7 +251,7 @@ async function getHistoryFromStorage(filename, openDialog) {
     historyCodes = JSON.parse(data)
 
     if (openDialog)
-      ipcRenderer.send("window:open-history", historyCodes.reverse())
+      ipcRenderer.send("window:open-history", historyCodes)
   })
 }
 
@@ -368,6 +383,7 @@ $("#savedCodesSelect").on("change", () => {
 })
 
 inputText.on("input", async () => {
+  await historySearch(inputText.val())
   writeRemainingSymb()
 })
 
@@ -381,9 +397,83 @@ function writeRemainingSymb() {
   let remainingSymbCount = settingsBlock.general.codeSymbolLength.currentLength - inputText.val().length
   symbolCount.html(`Ост. кол-во символов: ${remainingSymbCount}`)
 }
-
+/**
+ * Search text in history
+ * @param {string} searchText searched text
+ */
 async function historySearch(searchText) {
+  //Сохраняем новый массив с кодами, используя Set, чтобы были убраны дубликаты
+  let historyArr = [...new Set(historyCodes)]
+  let historyListAlert = $("#historyListAlert")
+  //Отступы сверху и снизу (костыль)
+  let topBottomHeight = 10
+  //Принимаем за высоту одной строки, чтобы указать высоту всплывающего блока
+  let stringHeight = 25
+  //Счетчик количества отображаемых кодов
+  let counter = 0
+  //Флаг, указывающий, что происходит поиск. Возможно, понадобится, когда история будет большая
+  let isSearching
 
+  //Очищаем содержимое всплывашки
+  historyListAlert[0].innerHTML = ""
+  //Инвертируем массив, чтобы недавние данные были первыми
+  historyArr.reverse()
+
+  if (!isSearching && inputText.val()) {
+    isSearching = true
+
+    for (let i = 0; i < historyArr.length; i++) {
+      let str = historyArr[i]
+
+      //Если всплывашка скрыта, откроем ее
+      if (str.includes(inputText.val())) {
+        if (historyAlert.is(":hidden"))
+          historyAlert.show()
+        counter++
+        //Если отображено 5 элементов, завершаем цикл, так как пока что выводим только 5 элементов
+        if (counter > 5)
+          break
+
+        //Создаем элемент списка для отображаемого кода
+        const li = document.createElement("li")
+        //Обрежем отображаемое значение, если слишком много символов
+        const itemText = str.length > 30
+          ? document.createTextNode(str.substring(0, 30) + "...")
+          : document.createTextNode(str)
+
+        li.classList.add("list-group-item")
+        //Добавляем этот параметр, чтобы при кликах вне текстового поля и всплывашки
+        //закрывалась эта самая всплывашка
+        li.setAttribute("histListFlag", true)
+        li.setAttribute("allText", str)
+
+        li.appendChild(itemText)
+        //При клике запишем значение в текстовое поле
+        li.onclick = () => {
+          inputText.val(str)
+          historyAlert.hide()
+        }
+        historyListAlert[0].appendChild(li)
+      }
+    }
+    //Если введенное значение равно тому, что в списке и в списке всего один элемент, скроем всплывашку
+    if ((historyListAlert[0].children.length == 1
+      && historyListAlert[0].children[0].attributes["allText"].value == inputText.val())
+      || historyListAlert[0].children.length == 0) {
+      historyAlert.hide()
+      isSearching = false
+
+      return true
+    }
+    //Формируем высоту вслывашки
+    historyAlert[0].style.height = (topBottomHeight + historyListAlert[0].children.length * stringHeight + topBottomHeight) + "px"
+
+    isSearching = false
+  }
+  else {
+    if (historyAlert.is(":visible"))
+      historyAlert.hide()
+  }
 }
 
 /**

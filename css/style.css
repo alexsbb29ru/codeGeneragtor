@@ -154,6 +154,14 @@ body {
   grid-area: 4 / 1 / 4 / 3;
   z-index: 100;
 }
+.history-alert {
+  grid-column: 2;
+  grid-row: 3;
+  z-index: 100;
+
+  margin-left: 10px;
+  height: 20px;
+}
 
 #symbolCount {
   display: grid;
@@ -193,6 +201,18 @@ body {
 }
 #historyListModal li:hover {
   color: gray;
+}
+#historyList {
+  padding: 5px;
+}
+#historyAlert li {
+  padding: 0;
+  list-style: none;
+}
+#historyAlert li:hover {
+  user-select: none;
+  cursor: pointer;
+  color: gray !important;
 }
 
 /* .color1 {background-color: #675BA7; opacity: 0.5;}
