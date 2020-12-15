@@ -187,6 +187,13 @@ body {
 #history-search-input {
   margin-left: 15px;
 }
+#historyListModal {
+  user-select: none;
+  cursor: pointer;
+}
+#historyListModal li:hover {
+  color: gray;
+}
 
 /* .color1 {background-color: #675BA7; opacity: 0.5;}
 .color2 {background-color: #9BC850; opacity: 0.5;}
