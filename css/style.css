@@ -1,7 +1,21 @@
 body {
   overflow: hidden;
 }
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
 
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: gray;
+  border-radius: 10px;
+}
 .contact-table {
   text-align: center;
 }
