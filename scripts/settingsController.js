@@ -9,6 +9,8 @@ const settingsModalBody = $("#settingsModalBody")
 let settingsTypes
 //Кнопка закрытия модалки
 let closeSettingslBtn = $("#closeSettingslBtn")
+//Кнопка применения настроек
+let confirmSettingsBtn = $("#confirmSettings")
 //Название блока с копированием изображения в буфер обмена
 let copyToClipBlockName = "Копировать в буфер обмена"
 //Tooltip для сохранения изображения в буфер
@@ -163,6 +165,10 @@ function generateSettingCat() {
  */
 let initInputs = () => {
     $("[data-toggle=tooltip]").tooltip()
+    //Применение настроект при нажатии вне формы
+    confirmSettingsBtn.on("click", (e) => {
+        closeSettingslBtn.trigger("click")
+    })
 
     //Bool - показывать или нет текст ШК code128
     let showText128 = $("#showText128")
