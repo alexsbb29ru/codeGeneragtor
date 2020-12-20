@@ -19,6 +19,12 @@ let maxSybolsTooltip = "Максимальное количество симво
 let darkModeBlockName = "Тёмная тема"
 //Название блока с указанием максимального количества символов
 let maxSybolsBlockName = "Макс. кол-во символов"
+//Стандартные цвета
+let defaultColorsTable = {
+    textColor: "#000000", //Цвет текста
+    background: "#FFFFFF", //Цвет фона
+    symbColor: "#000000" //Цвет символов кода
+}
 
 //Обработка запроса на открытие модалки с настройками
 ipcRenderer.on("window:open-settings", (event, settings) => {
@@ -109,10 +115,41 @@ function generateSettingCat() {
             </td>
         </tr>`
 
+    let colorsBlock =
+        `<tr>
+            <th scope="row" class="settingsKey">Выбор цвета:</th>
+            <td class="settingsValue">
+                <div class="form-group">
+                    <div>
+                        <input type="color" id="symbColor" name="symbColor"
+                            value="${settingsTypes.general.colors.symbolsColor}">
+                        <label for="symbColor">Цвет символов</label>
+                    </div>
+
+                    <div>
+                        <input type="color" id="backColor" name="backColor"
+                                value="${settingsTypes.general.colors.background}">
+                        <label for="backColor">Цвет фона</label>
+                    </div>
+
+                    <div>
+                        <input type="color" id="fontColor" name="fontColor"
+                                value="${settingsTypes.general.colors.fontColor}">
+                        <label for="fontColor">Цвет текста</label>
+                    </div>
+                    <br/>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary" id="setDefColors">Восстановить дефолтные цвета</button>
+                    </div>
+                </div>
+            </td>
+        </tr>`
+
     catBody += code128block
     catBody += gen_copyToClip
     catBody += darkModeBlock
     catBody += maxSymbolsBlock
+    catBody += colorsBlock
 
     catBody += "</table>"
     settingsModalBody.html(catBody)
@@ -133,9 +170,8 @@ let initInputs = () => {
     let copyToClip = $("#isCopyToClip")
     //Bool - включение темной темы
     let darkMode = $("#isDarkMode")
-
+    //Максимальное количество символов
     let maxSybolsInput = $("#maxSybolsInput")
-
 
     //Обработчик изменения чекбокса отображения текста code128
     showText128.on("change", () => {
@@ -162,11 +198,53 @@ let initInputs = () => {
 
         settingsTypes.general.codeSymbolLength.currentLength = maxSybolsInput.val()
     })
+
+    initColorControls()
+
     //Применим начальное значение для чекбокса из полученных настроек
     showText128[0].checked = settingsTypes.code128.includetext
     copyToClip[0].checked = settingsTypes.general.copyImageToClipboard.isCopy
     darkMode[0].checked = settingsTypes.general.isDarkMode
     maxSybolsInput.val(settingsTypes.general.codeSymbolLength.currentLength)
+}
+/**
+ *  Инициализация параметров для выбора цвета
+ */
+function initColorControls() {
+    //Цвет текста кода
+    let fontColor = $("#fontColor")
+    //Цвет фона кода
+    let backColor = $("#backColor")
+    //Цвет символов кода
+    let symbColor = $("#symbColor")
+    //Кнопка восстановления стандартных цветов
+    let setDefColorsBtn = $("#setDefColors")
+
+    fontColor.on("change", (e) => {
+        settingsTypes.general.colors.fontColor = e.target.value
+    })
+
+    backColor.on("change", (e) => {
+        settingsTypes.general.colors.background = e.target.value
+    })
+
+    symbColor.on("change", (e) => {
+        settingsTypes.general.colors.symbolsColor = e.target.value
+    })
+
+    setDefColorsBtn.on("click", (e) => {
+        fontColor[0].value = defaultColorsTable.textColor
+        backColor[0].value = defaultColorsTable.background
+        symbColor[0].value = defaultColorsTable.symbColor
+
+        fontColor.trigger("change")
+        backColor.trigger("change")
+        symbColor.trigger("change")
+    })
+
+    fontColor[0].value = settingsTypes.general.colors.fontColor
+    backColor[0].value = settingsTypes.general.colors.background
+    symbColor[0].value = settingsTypes.general.colors.symbolsColor
 }
 
 

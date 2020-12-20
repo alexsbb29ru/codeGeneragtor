@@ -62,14 +62,17 @@ let barcodeTypes = {
     scale: 10,
     height: 30,
     width: 60,
-    backgroundcolor: "FFFFFF"
+    backgroundcolor: "FFFFFF",
+    textcolor: "",
+    barcolor: ""
   },
   qrcode: {
     bcid: "qrcode",
     text: "",
     scale: 10,
     eclevel: "H",
-    backgroundcolor: "FFFFFF"
+    backgroundcolor: "FFFFFF",
+    barcolor: ""
   }
 }
 
@@ -78,12 +81,15 @@ let settingsBlock = {
   code128: {
     bcid: "code128",
     includetext: false,
-    backgroundcolor: "FFFFFF"
+    backgroundcolor: "FFFFFF",
+    textcolor: "",
+    barcolor: ""
   },
   qrcode: {
     bcid: "qrcode",
     eclevel: "H",
-    backgroundcolor: "FFFFFF"
+    backgroundcolor: "FFFFFF",
+    barcolor: ""
   },
   general: {
     copyImageToClipboard: {
@@ -94,6 +100,11 @@ let settingsBlock = {
       currentLength: 100,
       maxLength: 150,
       minLength: 1
+    },
+    colors: {
+      background: "#FFFFFF",
+      symbolsColor: "#000000",
+      fontColor: "#000000"
     }
   }
 }
@@ -615,6 +626,9 @@ function generateBarcode(text, callback) {
   })
 
   params.text = text
+  params.textcolor = settingsBlock.general.colors.fontColor.replace("#", "")
+  params.backgroundcolor = settingsBlock.general.colors.background.replace("#", "")
+  params.barcolor = settingsBlock.general.colors.symbolsColor.replace("#", "")
 
   barcode.toBuffer(
     params, function (err, png) {
@@ -624,7 +638,7 @@ function generateBarcode(text, callback) {
         qrImg.src = "data:image/png;base64," +
           png.toString("base64")
         qrImg.style.padding = "10px"
-        qrImg.style.background = "#fff"
+        qrImg.style.background = settingsBlock.general.colors.background
 
         if (type == barcodeTypes.code128.bcid) {
           qrImg.height = 140
