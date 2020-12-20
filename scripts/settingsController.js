@@ -37,9 +37,8 @@ ipcRenderer.on("window:open-settings", (event, settings) => {
     //Сгенерируем пункты полученных настроек в modalBody
     generateSettingCat()
 })
-
 //Обработка закрытия модалки
-closeSettingslBtn.on("click", () => {
+settingsModal.on("hide.bs.modal", (e) => {
     //Отправим запрос на применения настроек в ipcMain, а далее в indexController
     ipcRenderer.send("window:change-settings", settingsTypes)
 })
@@ -165,6 +164,8 @@ function generateSettingCat() {
  */
 let initInputs = () => {
     $("[data-toggle=tooltip]").tooltip()
+
+
     //Применение настроект при нажатии вне формы
     confirmSettingsBtn.on("click", (e) => {
         closeSettingslBtn.trigger("click")
