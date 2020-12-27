@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain, shell, globalShortcut } = require('electron
 let startPage = "index.html"
 const devMode = "develop"
 const releaseMode = "release"
-const appMode = devMode
+const appMode = releaseMode
 
 function createWindow() {
     let win = new BrowserWindow({
