@@ -58,10 +58,11 @@ let barcodeTypes = {
   code128: {
     bcid: "code128",
     text: "",
+    textfont: "PT-Sans",
     includetext: false,
     scale: 10,
-    height: 30,
-    width: 60,
+    height: 15,
+    width: 30,
     backgroundcolor: "FFFFFF",
     textcolor: "",
     barcolor: ""
@@ -131,6 +132,9 @@ getSettingsFromStorage(settingsFileName)
 //Get history
 getHistoryFromStorage(historyFileName, false)
 
+//Load own font
+loadFontToBarcode()
+
 //Bind function to button to generate QR-code 
 genQrButton.on("click", async () => {
   if (inputText.val()) {
@@ -196,6 +200,10 @@ $("#saveQrTextButton").on("click", async () => {
     $("#savedCodesSelect").append(new Option(inputText.val(), inputText.val()))
   }
 })
+function loadFontToBarcode() {
+  barcode.loadFont("PT-Sans", 100,
+    fs.readFileSync(require('path').resolve(__dirname, '..') + "/fonts/PTSans-Regular.ttf", "binary"))
+}
 /**
  * Save image to buffer
  */
@@ -641,8 +649,8 @@ function generateBarcode(text, callback) {
         qrImg.style.background = settingsBlock.general.colors.background
 
         if (type == barcodeTypes.code128.bcid) {
-          qrImg.height = 140
-          qrImg.width = 280
+          qrImg.height = 150
+          qrImg.width = qrImg.height * 1.67
         }
         else {
           qrImg.height = 220
