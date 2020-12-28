@@ -60,6 +60,8 @@ function createWindow() {
     ipcMain.on("url:open-url", (event, stringURL) => {
         shell.openExternal(stringURL)
     })
+
+    require('@electron/remote/main').initialize()
 }
 
 app.on("ready", createWindow)

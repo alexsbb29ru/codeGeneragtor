@@ -1,12 +1,11 @@
 
 //----------------------- Main settings --------------------------------
 const electron = require("electron")
-const { ipcRenderer, clipboard } = electron
+const { ipcRenderer, clipboard, nativeImage } = electron
 const path = require("path")
 const jetpack = require("fs-jetpack")
 const fs = require("fs")
-let barcode = require("bwip-js")
-const { nativeImage } = require("electron")
+const barcode = require("bwip-js")
 
 
 //----------------------- Visual elements --------------------------------

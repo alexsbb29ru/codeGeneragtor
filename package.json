@@ -15,6 +15,7 @@
     "electron-builder": "^22.8.0"
   },
   "dependencies": {
+    "@electron/remote": "^1.0.2",
     "bootstrap": "^4.5.2",
     "bwip-js": "^2.0.10",
     "fs-jetpack": "^3.1.0",
