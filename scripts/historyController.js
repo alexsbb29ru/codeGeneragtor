@@ -52,6 +52,11 @@ ipcRenderer.on("window:open-history", (event, history) => {
             isSearching = false
         }
     })
+
+    historyModal.on('shown.bs.modal', function (e) {
+        if (historyModalBody.height() >= historyListModal.height())
+            showHistoryList(scrolledHistory)
+    })
 })
 
 /**

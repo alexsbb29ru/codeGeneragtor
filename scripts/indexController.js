@@ -27,6 +27,8 @@ const genQrButton = $("#genQrButton")
 const settingsButton = $("#settingsButton")
 //Кнопка вызова окна с историей
 const historyButton = $("#historyButton")
+//Кнопка вызова окна множественной генерации
+const multiGenerateBtn = $("#multiGenerateBtn")
 //Кнопка вызова окна about
 const contactButton = $("#contactButton")
 //Кнопка вызова модалки для сохранения сгенерированного кода в изображение
@@ -378,6 +380,9 @@ ipcRenderer.on("window:change-settings", async (event, codeTypes) => {
  * Генерация текста, выбранного из истории
  */
 ipcRenderer.on("window:set-history", (event, historyText) => {
+  let maxLength = settingsBlock.general.codeSymbolLength.currentLength
+  if (historyText.length > maxLength)
+    historyText = historyText.substring(0, maxLength)
   if (inputText.val() != historyText) {
     inputText.val(historyText)
     inputText.trigger("change")
