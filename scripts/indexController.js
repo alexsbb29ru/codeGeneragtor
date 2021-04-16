@@ -650,7 +650,7 @@ async function generateBarcode(text, callback) {
 
 	if (Array.isArray(text)) {
 		for (let code of text) {
-			params.text = code
+			params.text = code.trim()
 
 			await generateSingleCode(true, params)
 		}
