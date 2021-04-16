@@ -138,10 +138,17 @@
             </button>
           </div>
           <div class="modal-body" id="multiGenModalBody">
-
+            <div class="form-group">
+              <textarea class="form-control" name="multiGenerateTextBlock" id="multiGenerateTextBlock"
+                placeholder="Введите данные через ;" rows="5"></textarea>
+            </div>
           </div>
           <div class="modal-footer">
-
+            <div id="generateFilesSpinner" style="display: none;" class="spinner-border spinner-border-sm text-primary"
+              role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <button type="button" id="confirmMultiGenBtn" class="btn c-btn-outline-primary">Сгенерировать</button>
           </div>
         </div>
       </div>
@@ -337,6 +344,7 @@
     require('./scripts/historyController.js')
     require('./scripts/contactController.js')
     require('./scripts/customTitlebarController.js')
+    require('./scripts/multiGenerateController.js')
   </script>
 </body>
 
