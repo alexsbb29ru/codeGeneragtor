@@ -24,6 +24,9 @@ multiGenModal.on("hidden.bs.modal", () => {
 confirmMultiGenBtn.on("click", () => {
 	//Распарсим текст по разделителю и отправим его дальше для генерации
 	let codesArr = multiGenerateTextBlock.val().trim().split(";")
+	codesArr.forEach((code, index) => {
+		if (!code) codesArr.splice(index, 1)
+	})
 	if (codesArr.length > 0) {
 		if (!generateFilesSpinner.is(":visible")) generateFilesSpinner.show()
 		ipcRenderer.send("window:generate-codes", codesArr)
