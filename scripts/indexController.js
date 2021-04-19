@@ -44,8 +44,6 @@ const darkStyleLink = "./css/darkTheme.css"
 const lightStyleLink = "./css/lightTheme.css"
 //------------------------------------------------------------------------
 
-//Папка загрузок
-let downloadFolder = ""
 //Файл, в котором содержатся "избранные" коды
 const savedDataFileName = "savedData.txt"
 //Файл, в котором содержатся настроки
@@ -334,10 +332,7 @@ $("#denyFileName").on("click", () => {
 //Show modal to save qr-code image
 saveButton.on("click", () => {
 	if (qrImg.src) {
-		downloadFolder = path.join(
-			(electron.app || electron.remote.app).getPath("downloads"),
-			"QR Downloads"
-		)
+		downloadFolder = getDownloadFolder()
 
 		qrCodeNameModal.modal("show")
 		$("#saveFolderPath").html(downloadFolder)
@@ -367,7 +362,8 @@ contactButton.on("click", () => {
 })
 
 multiGenerateBtn.on("click", () => {
-	ipcRenderer.send("window:open-multi-gen")
+	let downloadFolder = getDownloadFolder()
+	ipcRenderer.send("window:open-multi-gen", downloadFolder)
 })
 /**
  * Применение настроек и сохранение их в файл
@@ -522,6 +518,7 @@ function hideHistoryAlert() {
  * Save qr-code image to folder
  */
 function saveFileFunc(fileName, url) {
+	let downloadFolder = getDownloadFolder()
 	makeDir(downloadFolder)
 
 	let pathToSave = path.join(downloadFolder, fileName)
@@ -624,12 +621,20 @@ function changeMaxSymbolCount(length) {
 
 //Обработаем запрос пакетной генерации
 ipcRenderer.on("window:generate-codes", async (event, codesArr) => {
-	downloadFolder = path.join(
+	await generateBarcode(codesArr)
+})
+
+/**
+ * Get User's download folder
+ * @returns User's download folder
+ */
+function getDownloadFolder() {
+	let downloadFolder = path.join(
 		(electron.app || electron.remote.app).getPath("downloads"),
 		"QR Downloads"
 	)
-	await generateBarcode(codesArr)
-})
+	return downloadFolder
+}
 
 //----------------------------------------------Generator settings region----------------------------------------
 /**
@@ -696,5 +701,4 @@ async function generateSingleCode(isMulti, params) {
 	})
 
 	await promise
-	console.log("lol")
 }

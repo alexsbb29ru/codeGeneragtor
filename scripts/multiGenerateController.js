@@ -9,10 +9,13 @@ let multiGenerateTextBlock = $("#multiGenerateTextBlock")
 let confirmMultiGenBtn = $("#confirmMultiGenBtn")
 //Спиннер загрузки
 let generateFilesSpinner = $("#generateFilesSpinner")
+//Папка с сохраненными кодами
+let generagteFolderPath = $("#generagteFolderPath")
 
 //Обработаем вызов и откроем модалку
-ipcRenderer.on("window:open-multi-gen", () => {
+ipcRenderer.on("window:open-multi-gen", (event, folderPath) => {
 	multiGenModal.modal("show")
+	generagteFolderPath.html(`Папка с сохрененными файлами: ${folderPath}`)
 })
 //Обработаем закрытие модалки
 multiGenModal.on("hidden.bs.modal", () => {

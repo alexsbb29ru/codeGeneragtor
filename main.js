@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain, shell, globalShortcut } = require("electron
 let startPage = "index.html"
 const devMode = "develop"
 const releaseMode = "release"
-const appMode = devMode
+const appMode = releaseMode
 
 function createWindow() {
 	let win = new BrowserWindow({
@@ -61,8 +61,8 @@ function createWindow() {
 		shell.openExternal(stringURL)
 	})
 	//Open multi code generate page
-	ipcMain.on("window:open-multi-gen", () => {
-		win.webContents.send("window:open-multi-gen")
+	ipcMain.on("window:open-multi-gen", (event, downloadFolderPath) => {
+		win.webContents.send("window:open-multi-gen", downloadFolderPath)
 	})
 	//Generate all codes
 	ipcMain.on("window:generate-codes", (event, args) => {

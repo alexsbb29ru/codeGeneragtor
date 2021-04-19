@@ -124,9 +124,13 @@ body {
   align-items: center;
   margin: 2px;
 }
-#qrTextForm, #multiGenerateTextBlock {
+#qrTextForm {
   min-height: 150px;
   max-height: 150px;
+}
+#multiGenerateTextBlock{
+  min-height: 130px;
+  max-height: 130px;
 }
 
 .leftFooter {
@@ -184,7 +188,7 @@ body {
   height: 2.3rem;
 }
 
-#saveFolderPath {
+.saveFolderPath{
   font-size: x-small;
 }
 
