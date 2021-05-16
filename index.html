@@ -11,11 +11,6 @@
 </head>
 
 <body class="lightBody">
-  <!--Первоначальная инициализация модулей-->
-  <!-- <script src="~/lib/jquery/dist/jquery.min.js" onload="window.$ = window.jQuery = module.exports;"></script> -->
-  <script>window.jQuery = window.$ = require('jquery')</script>
-  <script src="./node_modules/popper.js/dist/umd/popper.js"></script>
-  <script src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
   <!--Header block with custom titlebar-->
   <header id="titlebar">
     <div id="windowTitle">
@@ -48,6 +43,24 @@
     </div>
   </header>
   <main>
+    <!-- Основная модалка-->
+    <div class="modal fade" id="mainModal" tabindex="-1" aria-hidden="true" style="display: none;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+            <div class="modal-extended-header"></div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer">
+
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Модалка с настройками -->
     <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModal"
       aria-hidden="true">
@@ -61,42 +74,6 @@
           </div>
           <div class="modal-body" id="settingsModalBody">
 
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Модалка о приложении -->
-    <div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-labelledby="contactModal"
-      aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="contactModalTitle">О приложении</h5>
-            <button type="button" class="close" id="closeContactlBtn" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body" id="contactModalBody">
-            <table class="table table-sm table-borderless contact-table">
-              <tr>
-                <td id="logoBlockContact">
-                  <img src="images/icon128.png">
-                </td>
-              </tr>
-              <tr>
-                <td id="appNameContact"></td>
-              </tr>
-              <tr>
-                <td id="desctiptionContact"></td>
-              </tr>
-              <tr>
-                <td id="versionContact"></td>
-              </tr>
-              <tr>
-                <td id="copyrightContact"></td>
-              </tr>
-            </table>
           </div>
         </div>
       </div>
@@ -150,30 +127,6 @@
               <span class="sr-only">Loading...</span>
             </div>
             <button type="button" id="confirmMultiGenBtn" class="btn c-btn-outline-primary">Сгенерировать</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Модалка написания имени файла для сохранения .png -->
-    <div class="modal fade" id="qrCodeNameModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeNameModal"
-      aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="qrCodeNameModalTitle">Введите имя файла без расширения</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
-            <span id="saveFolderPath" class="saveFolderPath"></span>
-          </div>
-          <div class="modal-footer">
-            <button type="button" id="denyFileName" class="btn btn-outline-secondary"
-              data-dismiss="modal">Отмена</button>
-            <button type="button" id="confirmFileName" class="btn c-btn-outline-primary">ОК</button>
           </div>
         </div>
       </div>
@@ -324,11 +277,12 @@
           </div>
         </div>
         <!--Блок с высплывающим сообщением-->
-        <div class="alert alert-primary grid-alert" id="successAlert" role="alert">
+        <div class="alert alert-primary grid-alert" id="successAlert" role="alert" style="display: none;">
           <p id="alertText"></p>
         </div>
         <!--Блок с высплывающим списком из истории-->
-        <div class="alert alert-primary history-alert histListFlag" id="historyAlert" role="alert">
+        <div class="alert alert-primary history-alert histListFlag" style="display: none;" id="historyAlert"
+          role="alert">
           <ul class="list-group list-group-flush histListFlag" id="historyListAlert">
 
           </ul>
@@ -336,16 +290,15 @@
       </div>
     </div>
   </main>
+  <!-- <script src="./src/renderer/indexController.js"></script> -->
+  <script src="./scripts/customTitlebarController.js"></script>
   <script>
-    $(document).ready(function () {
-      $('[data-toggle=tooltip]').tooltip()
-    });
-    require('./scripts/indexController.js')
-    require('./scripts/settingsController.js')
-    require('./scripts/historyController.js')
-    require('./scripts/contactController.js')
-    require('./scripts/customTitlebarController.js')
-    require('./scripts/multiGenerateController.js')
+    require('./src/renderer/indexController.js')
+    // require('./scripts/settingsController.js')
+    // require('./scripts/historyController.js')
+    require('./src/renderer/contactController.js')
+    //require('./scripts/customTitlebarController.js')
+    // require('./scripts/multiGenerateController.js')
   </script>
 </body>
 

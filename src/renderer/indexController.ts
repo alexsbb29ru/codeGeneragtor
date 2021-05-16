@@ -1,0 +1,798 @@
+﻿import electron, { App, IpcRenderer } from "electron"
+const { clipboard, nativeImage } = electron
+import path from "path"
+import jetpack from "fs-jetpack"
+import * as fs from "fs"
+import barcode from "bwip-js"
+import bootstrap from "bootstrap"
+import * as bs from "./barcodeSettings"
+import * as gp from "./generalSettings"
+import { ObjectMapper as mapper } from "./objectMapper"
+/**
+ * Существующие типы модалок
+ */
+enum ModalTypes {
+    saveBarcode = "saveBarcode",
+    settings = "settings",
+    history = "history",
+    multiGenerate = "multiGenerate",
+    about = "about",
+}
+
+class IndexController {
+    private ipcRender: IpcRenderer
+    private appData: App
+    //Img с отображаемым QR-кодом
+    private qrImg: HTMLImageElement
+    //Выпадающий список с типами ШК (128, QR)
+    private typesSelect: HTMLSelectElement
+    //Поле для ввода конвертируемого текста
+    private inputText: HTMLInputElement
+    //Поле, в котором выводится количество оставшихся символов
+    private symbolCount: HTMLElement
+    //Путь до папки с сохраненными изображениями
+    private downloadFolderPath: string
+    //Получаем стандартные настройки приложения
+    private appSettings: bs.TBarcodeParams
+    //Кнока "Сгенерировать" ШК
+    private readonly genQrButton: HTMLButtonElement
+    //Кнопка для вызова окна настроек
+    private readonly settingsButton: HTMLButtonElement
+    //Кнопка вызова окна с историей
+    private readonly historyButton: HTMLButtonElement
+    //Кнопка вызова окна множественной генерации
+    private readonly multiGenerateBtn: HTMLButtonElement
+    //Спиннер пакетной генерации кодов
+    private readonly generateFilesSpinner: HTMLElement
+    //Кнопка вызова окна about
+    private readonly contactButton: HTMLButtonElement
+    //Кнопка вызова модалки для сохранения сгенерированного кода в изображение
+    private readonly saveButton: HTMLButtonElement
+    //Модалка пакетной генерации
+    private readonly multiGenModalElement: HTMLElement
+    private readonly multiGenModal: bootstrap.Modal
+    private mainMoadlElement: HTMLElement
+    private mainModal: bootstrap.Modal
+    //Массив с историей генерации
+    private historyCodes: Array<string>
+    //Массив с сохраненными кодами
+    private savedCodes: Array<string>
+    //Общие параметры для приложения
+    private generalParams: gp.GeneralParams
+    //Текущая открытая модалка
+    private currentModal: string
+
+    constructor() {
+        this.ipcRender = window.require("electron").ipcRenderer
+        this.appData = window.require("electron").remote.app
+
+        this.qrImg = <HTMLImageElement>document.getElementById("qrOutput")
+        this.typesSelect = <HTMLSelectElement>(
+            document.getElementById("barcodeTypesSelect")
+        )
+        this.inputText = <HTMLInputElement>document.getElementById("qrTextForm")
+        this.symbolCount = <HTMLElement>document.getElementById("symbolCount")
+        this.downloadFolderPath = path.join(
+            (electron.app || electron.remote.app).getPath("downloads"),
+            "QR Downloads"
+        )
+        this.appSettings = new bs.BarcodeSettings().getSettingsParams()
+        this.genQrButton = <HTMLButtonElement>(
+            document.getElementById("genQrButton")
+        )
+        this.settingsButton = <HTMLButtonElement>(
+            document.getElementById("settingsButton")
+        )
+        this.historyButton = <HTMLButtonElement>(
+            document.getElementById("historyButton")
+        )
+        this.multiGenerateBtn = <HTMLButtonElement>(
+            document.getElementById("multiGenerateBtn")
+        )
+        this.generateFilesSpinner = <HTMLElement>(
+            document.getElementById("generateFilesSpinner")
+        )
+        this.contactButton = <HTMLButtonElement>(
+            document.getElementById("contactButton")
+        )
+        this.saveButton = <HTMLButtonElement>(
+            document.getElementById("saveQrImgButton")
+        )
+        this.multiGenModalElement = <HTMLElement>(
+            document.getElementById("multiGenModal")
+        )
+        this.mainMoadlElement = <HTMLElement>(
+            document.getElementById("mainModal")
+        )
+
+        this.generalParams = new gp.GeneralParams()
+
+        this.historyCodes = new Array<string>()
+        this.savedCodes = new Array<string>()
+        //Создадим реализацию модалки пакетной генерации в Bootstrap
+        this.multiGenModal = new bootstrap.Modal(this.multiGenModalElement)
+        //Реализация общей модалки
+        this.mainModal = new bootstrap.Modal(this.mainMoadlElement)
+        this.currentModal = ""
+    }
+
+    async init() {
+        this.initBarcodeTypesSelect()
+        this.getSettingsFromStorage()
+        this.getSavedCodesFromStorage()
+        this.getHistoryFromStorage(false)
+        this.initIpcRenderers()
+        this.initButtonsHandlers()
+        this.loadFontToBarcode()
+    }
+
+    public initButtonsHandlers = () => {
+        let savedCodesElement: HTMLSelectElement = <HTMLSelectElement>(
+            document.getElementById("savedCodesSelect")
+        )
+        savedCodesElement.addEventListener("change", async () => {
+            this.inputText.value = savedCodesElement.value
+            this.inputText.dispatchEvent(new Event("change"))
+            await this.generateCodesButtonsHandler()
+        })
+
+        this.inputText.addEventListener("change", () => {
+            this.writeRemainingSymb()
+        })
+        this.inputText.addEventListener("input", () => {
+            //Выводим всплывашку с предложенной историей генерации
+            this.writeRemainingSymb()
+        })
+        this.settingsButton.addEventListener("click", () => {
+            this.ipcRender.send("window:open-settings", this.appSettings)
+        })
+
+        this.historyButton.addEventListener("click", async () => {
+            await this.getHistoryFromStorage(true)
+        })
+
+        this.contactButton.addEventListener("click", () => {
+            let aboutArgs: gp.TAboutApp
+            aboutArgs = {
+                modalName: ModalTypes.about,
+                name: "Генератор штрих-кодов",
+                copyright: `&#169; 2019 - ${new Date().getFullYear()} 
+  <a href="#" id="personLink" targetLink="https://vk.com/subbotinalexeysergeevich">Aleksey Subbotin</a>`,
+                desctiption: "",
+                version: "",
+            }
+
+            this.ipcRender.send("window:open-about", aboutArgs)
+        })
+
+        this.multiGenerateBtn.addEventListener("click", () => {
+            this.ipcRender.send(
+                "window:open-multi-gen",
+                this.downloadFolderPath
+            )
+        })
+
+        this.genQrButton.addEventListener("click", async () => {
+            await this.generateCodesButtonsHandler()
+        })
+
+        //Генерация ШК нажатием ctrl + enter
+        this.inputText.addEventListener("keydown", async (e) => {
+            if (e.ctrlKey && e.key == "Enter")
+                await this.generateCodesButtonsHandler()
+        })
+
+        window.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.code == "KeyS")
+                if (!this.isModalShown())
+                    this.saveButton.dispatchEvent(new Event("click"))
+            if (e.code === "Escape") {
+                //При нажатии Escape закрываем высплывашку с предложенной историей генерации
+            }
+        })
+
+        //Сохранение текста в "избранное"
+        let saveQrTextButton: HTMLButtonElement = <HTMLButtonElement>(
+            document.getElementById("saveQrTextButton")
+        )
+        saveQrTextButton.addEventListener("click", async () => {
+            if (!this.inputText.value) return
+
+            if (this.savedCodes.includes(this.inputText.value)) {
+                //Выводим сообщение о том, что код уже содержится в избранном
+            } else {
+                this.savedCodes.push(this.inputText.value)
+                await this.saveCodesToLocalStorage()
+                //Вывести сообщение об успешном добавлении в "избранное"
+                savedCodesElement.options.add(
+                    new Option(this.inputText.value, this.inputText.value)
+                )
+            }
+        })
+
+        //Удаление элемента из "Избранного"
+        let removeSavedCodeBtn: HTMLButtonElement = <HTMLButtonElement>(
+            document.getElementById("removeSavedQrBtn")
+        )
+        removeSavedCodeBtn.addEventListener("click", async () => {
+            let code = savedCodesElement.value
+            if (!code) return
+
+            this.savedCodes.splice(this.savedCodes.indexOf(code), 1)
+            savedCodesElement.options.remove(savedCodesElement.selectedIndex)
+            savedCodesElement.dispatchEvent(new Event("change"))
+
+            this.inputText.dispatchEvent(new Event("change"))
+            await this.saveCodesToLocalStorage()
+            //Выводим сообщение об успешном удалении данных из избранного
+        })
+
+        //Вывод модалки для сохранения изображения в локальное хранилище
+        this.saveButton.addEventListener("click", () => {
+            if (!this.qrImg.src) return
+
+            let name = ModalTypes.saveBarcode
+            let title = "Введите имя файла без расширения"
+
+            let body = `<input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
+            <span id="saveFolderPath" class="saveFolderPath">${this.downloadFolderPath}</span>`
+
+            let dismissBtn = new gp.ModalButton(
+                "denyFileNameBtn",
+                "Отмена",
+                "outline-secondary",
+                () => {
+                    let fileNameInput = <HTMLInputElement>(
+                        document.getElementById("fileNameInput")
+                    )
+                    fileNameInput.value = ""
+                },
+                true
+            )
+            let okBtn = new gp.ModalButton(
+                "confirmFileNameBtn",
+                "ОК",
+                "primary",
+                () => {
+                    let fileNameInput = <HTMLInputElement>(
+                        document.getElementById("fileNameInput")
+                    )
+                    if (!fileNameInput.value) return
+
+                    this.mainModal.hide()
+                    try {
+                        let fileName =
+                            this.removeCharacters(fileNameInput.value) + ".png"
+                        let url = this.qrImg.src
+                        this.saveFileFunc(fileName, url)
+
+                        //Выводим сообщение об успешном сохранении изображении
+                    } catch (err) {
+                        console.log(err)
+                    }
+                },
+                false
+            )
+
+            let modalObj = new gp.MainModal(
+                name,
+                title,
+                body,
+                new Array<gp.ModalButton>(dismissBtn, okBtn),
+                false
+            )
+
+            this.openModal(modalObj)
+
+            let saveFolderPath = <HTMLSpanElement>(
+                document.getElementById("saveFolderPath")
+            )
+            let fileNameInput = <HTMLInputElement>(
+                document.getElementById("fileNameInput")
+            )
+
+            saveFolderPath.textContent = this.downloadFolderPath
+            fileNameInput.value = this.removeCharacters(
+                <string>this.inputText.value
+            )
+            fileNameInput.focus()
+            fileNameInput.select()
+        })
+
+        //Сохраняем изображение нажатием Enter в модалке
+        this.mainMoadlElement.addEventListener("keydown", (e) => {
+            if (this.currentModal === ModalTypes.saveBarcode)
+                if (e.key === "Enter")
+                    document
+                        .getElementById("confirmFileNameBtn")
+                        ?.dispatchEvent(new Event("click"))
+        })
+
+        let allModals = document.querySelectorAll(".modal")
+        allModals.forEach((modal) => {
+            // modal.addEventListener("")
+        })
+    }
+    /**
+     * Инициализация всех IpcRenderer
+     */
+    public initIpcRenderers = () => {
+        //Обработаем запрос пакетной генерации
+        this.ipcRender.on(
+            "window:generate-codes",
+            async (_event: Event, codesArr: string) => {
+                await this.generateBarcode(codesArr)
+            }
+        )
+
+        //Очистка истории
+        this.ipcRender.on(
+            "window:clear-history",
+            (_event: Event, _args: any) => {
+                //Очищаем массив с историей генерации
+                this.historyCodes = new Array<string>()
+                let fileName: string = new gp.GeneralParams().historyFileName
+                //Записываем историю в файл
+                let data = JSON.stringify(this.historyCodes)
+                this.saveDataToLocalStorage(fileName, data)
+            }
+        )
+        //Генерация текста, выбранного из истории
+        this.ipcRender.on(
+            "window:set-history",
+            (_event: Event, historyText: string) => {
+                let maxLength =
+                    this.appSettings.general.codeSymbolLength.currentLength
+                if (historyText.length > maxLength)
+                    historyText = historyText.substring(0, maxLength)
+                if (this.inputText.value != historyText) {
+                    this.inputText.value
+                    this.inputText.dispatchEvent(new Event("change"))
+                    this.genQrButton.dispatchEvent(new Event("click"))
+                }
+            }
+        )
+        //Применение настроек и сохранение их в файл
+        this.ipcRender.on(
+            "window:change-settings",
+            async (_event: Event, codeTypes: bs.TBarcodeParams) => {
+                this.appSettings = codeTypes
+                await this.saveSettingsToLocalStorage()
+                this.changeColorTheme(this.appSettings.general.isDarkMode)
+                this.changeMaxSymbolCount(
+                    this.appSettings.general.codeSymbolLength.currentLength
+                )
+            }
+        )
+
+        this.ipcRender.on(
+            "window:open-about-modal",
+            (_event: Event, modalObj: gp.MainModal) => {
+                this.openModal(modalObj)
+                let personLink = document.getElementById("personLink")
+                personLink?.addEventListener("click", () => {
+                    let url = personLink?.getAttribute("targetLink")
+                    this.ipcRender.send("url:open-url", url)
+                })
+            }
+        )
+    }
+    /**
+     * Получение списка типов кодов и добавление в Select
+     */
+    public initBarcodeTypesSelect = () => {
+        //Получим типы ШК
+        let barcodeTypes: string[] = Object.getOwnPropertyNames(
+            this.appSettings
+        )
+        //Переберем все типы ШК, создадим элементы и закинем в select
+        barcodeTypes.forEach((barcodeType) => {
+            let objectBarcodeType = barcodeType as keyof bs.TBarcodeParams
+            if (
+                this.appSettings[objectBarcodeType].typeName !==
+                this.appSettings.code128.typeName
+            )
+                return
+
+            let option = new Option()
+            let typeInd = barcodeTypes.indexOf(barcodeType)
+
+            option.text = barcodeTypes[typeInd]
+            option.value = barcodeTypes[typeInd]
+
+            //Сразу выделим нужный нам тип кода
+            if (barcodeType === this.appSettings.qrcode.bcid)
+                option.selected = true
+
+            this.typesSelect?.options.add(option)
+        })
+        //Удалим первый пустой элемент
+        this.typesSelect?.options.remove(0)
+    }
+    /**
+     * Получение сохраненных кодов и вывод в Select
+     */
+    public getSavedCodesFromStorage = async () => {
+        //Получаем имя файла с сохраненными кодами
+        let filePath: string = new gp.GeneralParams().savedDataFileName
+        //Получаем все сохраненные коды из файла
+        let data: string = <string>await this.getDataFromStorage(filePath)
+        if (data) {
+            this.savedCodes = <Array<string>>JSON.parse(data)
+
+            let savedCodesElement: HTMLSelectElement = <HTMLSelectElement>(
+                document.getElementById("savedCodesSelect")
+            )
+            //Закинем их в Select
+            this.savedCodes.forEach((code) => {
+                savedCodesElement.options.add(new Option(code, code))
+            })
+        }
+    }
+    /**
+     * Получение настроек из локального хранилища
+     */
+    public getSettingsFromStorage = async () => {
+        //Получаем имя файла с настройками
+        let filePath: string = new gp.GeneralParams().settingsFileName
+        //Получаем настройки из файла
+        let data: string = <string>await this.getDataFromStorage(filePath)
+        if (data) {
+            let sourceData: bs.TBarcodeParams = JSON.parse(data)
+            new mapper().map<bs.TBarcodeParams>(sourceData, this.appSettings)
+
+            this.changeColorTheme(this.appSettings.general.isDarkMode)
+            this.changeMaxSymbolCount(
+                this.appSettings.general.codeSymbolLength.currentLength
+            )
+        }
+    }
+    /**
+     * Получение истории генерации из локального хранилища
+     * @param openDialog параметр нужен для того, чтобы передать полученные данные в модалку
+     */
+    public getHistoryFromStorage = async (openDialog: boolean) => {
+        //Получаем имя файла с историей генерации
+        let filePath: string = new gp.GeneralParams().historyFileName
+        //Получаем историю генерации из файла
+        let data = await this.getDataFromStorage(filePath)
+
+        if (data) {
+            this.historyCodes = JSON.parse(data) as string[]
+            if (openDialog)
+                this.ipcRender.send("window:open-history", this.historyCodes)
+        }
+    }
+
+    /**
+     * Получение данных из локального хранилища
+     * @param fileName название файла, данные из которого надо получить
+     * @returns Данные из указанного файла
+     */
+    public getDataFromStorage = async (
+        fileName: string
+    ): Promise<string | undefined> => {
+        if (fileName) {
+            let data: string | undefined = ""
+            if (jetpack.exists(fileName)) {
+                data = await jetpack.readAsync(fileName)
+                // fs.readFile(fileName, (err, dataaa) => {
+                //     data = String(dataaa)
+                // })
+            } else await jetpack.fileAsync(fileName)
+
+            return data
+        }
+    }
+    /**
+     * Запись данных в файл локального хранилища
+     * @param fileName Название файла, куда надо записывать новые данные
+     * @param saveData Текстовые данные, которые надо записать в файл
+     */
+    public saveDataToLocalStorage = async (
+        fileName: string,
+        saveData: string
+    ) => {
+        await jetpack.writeAsync(fileName, saveData)
+    }
+
+    /**
+     * Сохранение изображения в буфер обмена системы
+     * @returns
+     */
+    public saveImageToBuffer = (): void => {
+        if (!this.appSettings.general.copyImageToClipboard) return
+
+        //! Костыль. Почему-то не копируется текущее изображение буфер
+        setTimeout(() => {
+            let img = nativeImage.createFromDataURL(this.qrImg.src)
+            clipboard.writeImage(img)
+            console.log("Image was generated")
+        }, 100)
+    }
+    /**
+     * Сохранение избранных данных в локальный файл
+     */
+    public saveCodesToLocalStorage = async () => {
+        let fileName = this.generalParams.savedDataFileName
+        let data = JSON.stringify(this.savedCodes)
+        await this.saveDataToLocalStorage(fileName, data)
+    }
+    /**
+     * Сохранение настроек в локальный файл
+     */
+    public saveSettingsToLocalStorage = async () => {
+        let fileName = this.generalParams.settingsFileName
+        let data = JSON.stringify(this.appSettings)
+
+        await this.saveDataToLocalStorage(fileName, data)
+    }
+
+    /**
+     * Создание файла с изображением
+     * @param fileName Имя сохраняемого файла
+     * @param url строка в формате Base64
+     */
+    public saveFileFunc = (fileName: string, url: string): void => {
+        //Создадим директорию для сохранения файлов
+        this.makeDir(this.downloadFolderPath)
+
+        let pathToSave = path.join(this.downloadFolderPath, fileName)
+        let base64Data = url.replace(/^data:image\/png;base64,/, "")
+
+        fs.writeFileSync(pathToSave, base64Data, "base64")
+    }
+
+    /**
+     * Создание директории по указанному пути
+     * @param dirPath Путь до директории
+     */
+    private makeDir = (dirPath: string) => {
+        try {
+            jetpack.dir(dirPath)
+        } catch (err) {
+            if (err.code !== "EEXIST") throw err
+        }
+    }
+    /**
+     * Переключение тем приложения
+     * @param isDarkMode выбрана темная тема?
+     */
+    private changeColorTheme = (isDarkMode: boolean) => {
+        let themeStyle: HTMLLinkElement = <HTMLLinkElement>(
+            document.getElementById("colorTheme")
+        )
+        if (isDarkMode) {
+            themeStyle.href = new gp.GeneralParams().darkStyleLink
+            document.body.classList.add("darkBody")
+            document.body.classList.remove("lightBody")
+        } else {
+            themeStyle.href = new gp.GeneralParams().lightStyleLink
+            document.body.classList.add("lightBody")
+            document.body.classList.remove("darkBody")
+        }
+    }
+    /**
+     * Указание измененного количества символов в текстовом поле ввода данных для генерации
+     * @param length новое количество символов в текстовом поле
+     */
+    private changeMaxSymbolCount = (length: number) => {
+        this.inputText?.setAttribute("maxlength", length.toString())
+        this.writeRemainingSymb()
+    }
+    /**
+     * Отображение оставшегося количества символов
+     */
+    private writeRemainingSymb = () => {
+        //Высчитываем оставшее количество символов
+        let remainingSymbCount =
+            this.appSettings.general.codeSymbolLength.currentLength -
+            <number>this.inputText?.value.length
+
+        //Выводим на экран
+        this.symbolCount.innerText = `Ост. кол-во символов: ${remainingSymbCount}`
+    }
+    /**
+     * Удаление недопустимых символов из строки
+     * @param text входящий текст
+     * @returns итоговая строка без недопустимых символов
+     */
+    private removeCharacters = (text: string): string => {
+        return text.replace(/[<>:/|?*\\"]/g, "")
+    }
+    /**
+     * Отображение модального окна с определенным содержимым
+     * @param modalObject Объект модального окна с необходимым содержимым
+     * @returns
+     */
+    private openModal(modalObject: gp.MainModal): void {
+        //Если модалка открыта или не содержит имя, не открываем ее
+        if (this.isModalShown() || !modalObject.name) return
+
+        //Элемент заголовка модалки
+        let modalTitle = <HTMLElement>(
+            this.mainMoadlElement.querySelector(".modal-title")
+        )
+        //Элемент тела модалки
+        let modalBody = <HTMLElement>(
+            this.mainMoadlElement.querySelector(".modal-body")
+        )
+        //Подвал модалки, куда кидаем кнопки, если они будут
+        let modalFooter = <HTMLElement>(
+            this.mainMoadlElement.querySelector(".modal-footer")
+        )
+
+        //Предварительно очистим старые данные и удалим стили
+        modalTitle.innerHTML = ""
+        modalBody.innerHTML = ""
+        modalFooter.innerHTML = ""
+        modalFooter.removeAttribute("style")
+
+        let modalExtendedHeader = <HTMLElement>(
+            this.mainMoadlElement.querySelector(".modal-extended-header")
+        )
+
+        //Запишем данные из объекта в соответствующие элементы
+        modalTitle.innerHTML = modalObject.title
+        modalBody.innerHTML = modalObject.body
+
+        //Если есть кнопки, создадим их на основе массива из объекта модалки
+        if (modalObject.buttons)
+            modalObject.buttons.forEach((button) => {
+                let btn = document.createElement("button")
+                btn.type = "button"
+                btn.id = button.id
+                btn.classList.add("btn", `btn-${button.bClass}`)
+                btn.textContent = button.text
+                if (button.handler)
+                    btn.addEventListener("click", () => {
+                        button.handler?.()
+                    })
+                if (button.dismiss)
+                    btn.addEventListener("click", () => this.mainModal.hide())
+
+                modalFooter.appendChild(btn)
+            })
+        //Если кнопок нет, скроем футер с глаз долой
+        if (modalObject.buttons.length === 0) modalFooter.style.display = "none"
+        //Укажем имя текущей открываемой модалки
+        this.currentModal = modalObject.name
+        //Откроем модалку
+        this.mainModal.show()
+    }
+    /**
+     * Возвращает результат в зависимости от того, выведена модалка на экран или нет
+     * @returns true или false, если отображается или не отображается модалка
+     */
+    private isModalShown(): boolean {
+        return document.getElementById("mainModal")?.style.display === "block"
+    }
+
+    //----------------------------------------------Generator settings region----------------------------------------
+
+    private loadFontToBarcode = () => {
+        barcode.loadFont(
+            "PT-Sans",
+            100,
+            fs.readFileSync(
+                require("path").resolve(this.appData.getAppPath()) +
+                    "/fonts/PTSans-Regular.ttf",
+                "binary"
+            )
+        )
+    }
+
+    public generateCodesButtonsHandler = async () => {
+        if (this.inputText.value) {
+            await this.getHistoryFromStorage(false)
+            //Добавляем код в историю запросов
+            if (
+                this.historyCodes[this.historyCodes.length - 1] !==
+                this.inputText.value
+            )
+                this.historyCodes.push(this.inputText.value)
+
+            let data = JSON.stringify(this.historyCodes)
+            //Записываем историю в файл
+            await this.saveDataToLocalStorage(
+                this.generalParams.historyFileName,
+                data
+            )
+
+            //Генерируем введенный текст
+            this.generateBarcode(this.inputText.value, this.saveImageToBuffer)
+        }
+    }
+    /**
+     * Генерация изображения ШК из текста
+     * @param {string} text Текст для генерации ШК
+     */
+    public generateBarcode = async (text: string, callback?: Function) => {
+        //Получим выбранный тип ШК из выпадающего списка
+        let type = this.typesSelect.value as keyof bs.TBarcodeParams
+        //Получаем параметры для выбранного типа ШК из настроек приложения
+        let params: bs.TCodeParams = <bs.TCodeParams>this.appSettings[type]
+
+        //Установим новые значения для цветовых свойств ШК
+        params.textcolor = this.appSettings.general.color.fontColor.replace(
+            "#",
+            ""
+        )
+        params.backgroundcolor =
+            this.appSettings.general.color.background.replace("#", "")
+        params.barcolor = this.appSettings.general.color.symbolsColor.replace(
+            "#",
+            ""
+        )
+
+        //Если поступающий текст - массив, значит, это множественная генерация
+        if (Array.isArray(text)) {
+            for (let code of text) {
+                params.text = code.trim()
+                await this.generateSingleCode(true, params)
+            }
+            //Выключим спиннер сохранения изображений
+            if (this.generateFilesSpinner.style.display === "none")
+                this.generateFilesSpinner.removeAttribute("style")
+            //Скроем модалку после завершения
+            this.multiGenModal.hide()
+        } else {
+            params.text = text
+
+            await this.generateSingleCode(false, params)
+        }
+
+        if (callback) callback()
+    }
+    /**
+     * Генерация одиночного изображения
+     * @param isMulty проверка для множественной генерации. Нужна для непосредственного сохранения файла
+     * @param params параметры для генерации ШК
+     */
+    public generateSingleCode = async (
+        isMulty: boolean,
+        params: bs.TCodeParams
+    ) => {
+        let promise = new Promise((resolve, reject) => {
+            //Сгенерируем изображение
+            barcode.toBuffer(params, (err, png) => {
+                if (err) console.log(err)
+                else {
+                    //Конвертируем изображение в строку Base64 для дальнейшего отображения и сохранения
+                    let imageSrc: string =
+                        "data:image/png;base64," + png.toString("base64")
+                    //Если множественная генерация, то сохраним файл в директорию для сохраненных изображений
+                    if (isMulty) {
+                        let fileName =
+                            this.removeCharacters(params.text) + ".png"
+
+                        this.saveFileFunc(fileName, imageSrc)
+                        resolve(true)
+                    } else {
+                        //Выведем изображение на экран с дополнительными отступами
+                        //Отступы нужны для нормального сканированя ТСД с темной темой приложения
+                        this.qrImg.src = imageSrc
+                        this.qrImg.style.padding = "10px"
+                        this.qrImg.style.background =
+                            this.appSettings.general.color.background
+
+                        //Чуток подправим отображение линейного ШК
+                        if (params.bcid == this.appSettings.code128.bcid) {
+                            this.qrImg.height = 150
+                            this.qrImg.width = this.qrImg.height * 1.67
+                        } else {
+                            this.qrImg.height = 220
+                            this.qrImg.width = 220
+                        }
+
+                        resolve(true)
+                    }
+                }
+            })
+        })
+
+        await promise
+    }
+}
+
+new IndexController().init()

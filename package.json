@@ -1,38 +1,40 @@
 {
-  "name": "barcodegen",
-  "version": "1.5.1",
-  "description": "App for generating barcode",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron .",
-    "watch": "nodemon --exec electron .",
-    "generate": "electron-builder"
-  },
-  "author": "Sbb Company",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "^11.1.0",
-    "electron-builder": "^22.8.0"
-  },
-  "dependencies": {
-    "@electron/remote": "^1.0.2",
-    "bootstrap": "^4.6.0",
-    "bwip-js": "^2.0.10",
-    "fs-jetpack": "^3.1.0",
-    "jquery": "^3.5.1",
-    "nodemon": "^2.0.7",
-    "popper.js": "^1.16.1"
-  },
-  "build": {
-    "appId": "com.barcodegen.app",
-    "productName": "Barcode generator",
-    "target": "NSIS",
-    "directories": {
-      "output": "build"
+    "name": "barcodegen",
+    "version": "2.0.0",
+    "description": "App for generating barcode",
+    "main": "src/main/index.js",
+    "scripts": {
+        "start": "tsc && electron .",
+        "watch": "nodemon --exec electron .",
+        "generate": "electron-builder"
     },
-    "nsis": {
-      "allowToChangeInstallationDirectory": true,
-      "oneClick": false
+    "author": "Sbb Company",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/bwip-js": "^2.1.0",
+        "@types/jquery": "^3.5.5",
+        "electron": "^12.0.7",
+        "electron-builder": "^22.8.0",
+        "nodemon": "^2.0.7"
+    },
+    "dependencies": {
+        "@electron/remote": "^1.0.2",
+        "@types/bootstrap": "^5.0.13",
+        "bootstrap": "^5.0.0",
+        "bwip-js": "^2.0.10",
+        "fs-jetpack": "^4.1.0",
+        "popper.js": "^1.16.1"
+    },
+    "build": {
+        "appId": "com.barcodegen.app",
+        "productName": "Barcode generator",
+        "target": "NSIS",
+        "directories": {
+            "output": "build"
+        },
+        "nsis": {
+            "allowToChangeInstallationDirectory": true,
+            "oneClick": false
+        }
     }
-  }
 }
