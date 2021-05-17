@@ -156,9 +156,9 @@ if (historyAlert.is(":visible")) hideHistoryAlert()
 
 //Open modal by ctrl + s
 window.onkeydown = (e) => {
-    if (!$(".modal").is(":visible")) {
-        if (e.ctrlKey && e.code == "KeyS") saveButton.trigger("click")
-    }
+    // if (!$(".modal").is(":visible")) {
+    //     if (e.ctrlKey && e.code == "KeyS") saveButton.trigger("click")
+    // }
     //При нажатии Escape скрываем всплываху
     if (e.code == "Escape" && historyAlert.is(":visible")) hideHistoryAlert()
 }

@@ -41,13 +41,7 @@ class ContactController {
               </tr>
             </table>`
 
-        let modal = new gp.MainModal(
-            aboutParams.modalName,
-            title,
-            body,
-            [],
-            false
-        )
+        let modal = new gp.MainModal(aboutParams.modalName, title, body, [])
         ipcRenderer.send("window:open-about-modal", modal)
     }
 }

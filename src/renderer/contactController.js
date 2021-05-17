@@ -25,12 +25,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = __importDefault(require("electron"));
 const { ipcRenderer } = electron_1.default;
 const gp = __importStar(require("./generalSettings"));
-//Открываем модалку о приложении
+//Обработаем обращение
 ipcRenderer.on("window:open-about", (event, aboutParams) => {
     new ContactController().updateContactTable(aboutParams);
 });
 class ContactController {
     constructor() {
+        //Создалим объект модалки и отправим его обратно для открытия
         this.updateContactTable = (aboutParams) => {
             let title = "О приложении";
             let body = `<table class="table table-sm table-borderless contact-table">
@@ -60,7 +61,7 @@ class ContactController {
                 </td>
               </tr>
             </table>`;
-            let modal = new gp.MainModal(aboutParams.modalName, title, body, [], false);
+            let modal = new gp.MainModal(aboutParams.modalName, title, body, []);
             ipcRenderer.send("window:open-about-modal", modal);
         };
     }

@@ -31,55 +31,80 @@ const createWindow = (startPage) => {
     win.on("closed", () => {
         win = null;
     });
-    //Open settings page
-    electron_1.ipcMain.on("window:open-settings", (event, args) => {
+    //! -------------- Settings modal -----------------------
+    //Prepare settings page
+    electron_1.ipcMain.on("window:prepare-settings-page", (_event, args) => {
         if (win)
             win.webContents.send("window:open-settings", args);
     });
-    //Open history page
-    electron_1.ipcMain.on("window:open-history", (event, args) => {
+    electron_1.ipcMain.on("window:open-settings-modal", (_event, args) => {
         if (win)
-            win.webContents.send("window:open-history", args);
+            win.webContents.send("window:open-settings-modal", args);
+    });
+    electron_1.ipcMain.on("settings:init-settings-elements", (_event, args) => {
+        if (win)
+            win.webContents.send("settings:init-settings-elements", args);
     });
     //Change settings on settings page
-    electron_1.ipcMain.on("window:change-settings", (event, args) => {
+    electron_1.ipcMain.on("window:change-settings", (_event, args) => {
         if (win)
             win.webContents.send("window:change-settings", args);
     });
+    //! ------------------ History modal -------------------
+    //Open history page
+    electron_1.ipcMain.on("window:init-history-modal", (_event, args) => {
+        if (win)
+            win.webContents.send("window:init-history-modal", args);
+    });
+    electron_1.ipcMain.on("window:open-history-modal", (_event, modal) => {
+        if (win)
+            win.webContents.send("window:open-history-modal", modal);
+    });
     //Set history position to main text input
-    electron_1.ipcMain.on("window:set-history", (event, args) => {
+    electron_1.ipcMain.on("window:set-history", (_event, args) => {
         if (win)
             win.webContents.send("window:set-history", args);
     });
     //Clear history
-    electron_1.ipcMain.on("window:clear-history", (event, args) => {
+    electron_1.ipcMain.on("window:clear-history", (_event, args) => {
         if (win)
             win.webContents.send("window:clear-history", args);
     });
+    //! ----------------- About modal -----------------------
     //Open about
-    electron_1.ipcMain.on("window:open-about", (event, args) => {
+    electron_1.ipcMain.on("window:open-about", (_event, args) => {
         args.version = `Версия: ${electron_1.app.getVersion()}`;
         if (win)
             win.webContents.send("window:open-about", args);
     });
-    electron_1.ipcMain.on("window:open-about-modal", (event, args) => {
+    electron_1.ipcMain.on("window:open-about-modal", (_event, args) => {
         if (win)
             win.webContents.send("window:open-about-modal", args);
     });
     //Open URL
-    electron_1.ipcMain.on("url:open-url", (event, stringURL) => {
+    electron_1.ipcMain.on("url:open-url", (_event, stringURL) => {
         electron_1.shell.openExternal(stringURL);
     });
+    //! --------------- Multi generate modal ------------------
     //Open multi code generate page
-    electron_1.ipcMain.on("window:open-multi-gen", (event, downloadFolderPath) => {
+    electron_1.ipcMain.on("window:init-multi-gen", (_event, downloadFolderPath) => {
         if (win)
-            win.webContents.send("window:open-multi-gen", downloadFolderPath);
+            win.webContents.send("window:init-multi-gen", downloadFolderPath);
+    });
+    electron_1.ipcMain.on("window:open-multigen-modal", (_event, args) => {
+        if (win)
+            win.webContents.send("window:open-multigen-modal", args);
+    });
+    electron_1.ipcMain.on("window:init-multi-elements", (_event, args) => {
+        if (win)
+            win.webContents.send("window:init-multi-elements", args);
     });
     //Generate all codes
-    electron_1.ipcMain.on("window:generate-codes", (event, args) => {
+    electron_1.ipcMain.on("window:generate-codes", (_event, args) => {
         if (win)
             win.webContents.send("window:generate-codes", args);
     });
+    // ------------------ Other --------------------
     require("@electron/remote/main").initialize();
 };
 electron_1.app.on("ready", () => createWindow("index.html"));

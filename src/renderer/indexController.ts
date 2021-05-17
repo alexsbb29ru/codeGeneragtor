@@ -8,16 +8,6 @@ import bootstrap from "bootstrap"
 import * as bs from "./barcodeSettings"
 import * as gp from "./generalSettings"
 import { ObjectMapper as mapper } from "./objectMapper"
-/**
- * Существующие типы модалок
- */
-enum ModalTypes {
-    saveBarcode = "saveBarcode",
-    settings = "settings",
-    history = "history",
-    multiGenerate = "multiGenerate",
-    about = "about",
-}
 
 class IndexController {
     private ipcRender: IpcRenderer
@@ -48,9 +38,7 @@ class IndexController {
     private readonly contactButton: HTMLButtonElement
     //Кнопка вызова модалки для сохранения сгенерированного кода в изображение
     private readonly saveButton: HTMLButtonElement
-    //Модалка пакетной генерации
-    private readonly multiGenModalElement: HTMLElement
-    private readonly multiGenModal: bootstrap.Modal
+    //Общая модалка
     private mainMoadlElement: HTMLElement
     private mainModal: bootstrap.Modal
     //Массив с историей генерации
@@ -59,8 +47,6 @@ class IndexController {
     private savedCodes: Array<string>
     //Общие параметры для приложения
     private generalParams: gp.GeneralParams
-    //Текущая открытая модалка
-    private currentModal: string
 
     constructor() {
         this.ipcRender = window.require("electron").ipcRenderer
@@ -98,9 +84,6 @@ class IndexController {
         this.saveButton = <HTMLButtonElement>(
             document.getElementById("saveQrImgButton")
         )
-        this.multiGenModalElement = <HTMLElement>(
-            document.getElementById("multiGenModal")
-        )
         this.mainMoadlElement = <HTMLElement>(
             document.getElementById("mainModal")
         )
@@ -109,11 +92,29 @@ class IndexController {
 
         this.historyCodes = new Array<string>()
         this.savedCodes = new Array<string>()
-        //Создадим реализацию модалки пакетной генерации в Bootstrap
-        this.multiGenModal = new bootstrap.Modal(this.multiGenModalElement)
         //Реализация общей модалки
         this.mainModal = new bootstrap.Modal(this.mainMoadlElement)
-        this.currentModal = ""
+        //Очистка модалки при закрытии
+        this.mainMoadlElement.addEventListener("hidden.bs.modal", () => {
+            ;(<HTMLElement>(
+                this.mainMoadlElement.querySelector(".modal-title")
+            )).innerHTML = ""
+            ;(<HTMLElement>(
+                this.mainMoadlElement.querySelector(".modal-extended-header")
+            )).innerHTML = ""
+            ;(<HTMLElement>(
+                this.mainMoadlElement.querySelector(".modal-body")
+            )).innerHTML = ""
+            let footer = <HTMLElement>(
+                this.mainMoadlElement.querySelector(".modal-footer")
+            )
+            footer.innerHTML = ""
+            footer.removeAttribute("style")
+
+            this.mainMoadlElement
+                .querySelector(".modal-dialog")
+                ?.classList.remove("modal-dialog-scrollable")
+        })
     }
 
     async init() {
@@ -144,7 +145,10 @@ class IndexController {
             this.writeRemainingSymb()
         })
         this.settingsButton.addEventListener("click", () => {
-            this.ipcRender.send("window:open-settings", this.appSettings)
+            this.ipcRender.send(
+                "window:prepare-settings-page",
+                this.appSettings
+            )
         })
 
         this.historyButton.addEventListener("click", async () => {
@@ -154,7 +158,7 @@ class IndexController {
         this.contactButton.addEventListener("click", () => {
             let aboutArgs: gp.TAboutApp
             aboutArgs = {
-                modalName: ModalTypes.about,
+                modalName: gp.ModalTypes.about,
                 name: "Генератор штрих-кодов",
                 copyright: `&#169; 2019 - ${new Date().getFullYear()} 
   <a href="#" id="personLink" targetLink="https://vk.com/subbotinalexeysergeevich">Aleksey Subbotin</a>`,
@@ -167,7 +171,7 @@ class IndexController {
 
         this.multiGenerateBtn.addEventListener("click", () => {
             this.ipcRender.send(
-                "window:open-multi-gen",
+                "window:init-multi-gen",
                 this.downloadFolderPath
             )
         })
@@ -231,7 +235,7 @@ class IndexController {
         this.saveButton.addEventListener("click", () => {
             if (!this.qrImg.src) return
 
-            let name = ModalTypes.saveBarcode
+            let name = gp.ModalTypes.saveBarcode
             let title = "Введите имя файла без расширения"
 
             let body = `<input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
@@ -240,7 +244,7 @@ class IndexController {
             let dismissBtn = new gp.ModalButton(
                 "denyFileNameBtn",
                 "Отмена",
-                "outline-secondary",
+                "btn-outline-secondary",
                 () => {
                     let fileNameInput = <HTMLInputElement>(
                         document.getElementById("fileNameInput")
@@ -252,7 +256,7 @@ class IndexController {
             let okBtn = new gp.ModalButton(
                 "confirmFileNameBtn",
                 "ОК",
-                "primary",
+                "btn-primary",
                 () => {
                     let fileNameInput = <HTMLInputElement>(
                         document.getElementById("fileNameInput")
@@ -278,8 +282,7 @@ class IndexController {
                 name,
                 title,
                 body,
-                new Array<gp.ModalButton>(dismissBtn, okBtn),
-                false
+                new Array<gp.ModalButton>(dismissBtn, okBtn)
             )
 
             this.openModal(modalObj)
@@ -301,7 +304,7 @@ class IndexController {
 
         //Сохраняем изображение нажатием Enter в модалке
         this.mainMoadlElement.addEventListener("keydown", (e) => {
-            if (this.currentModal === ModalTypes.saveBarcode)
+            if (gp.getCurrentModal() === gp.ModalTypes.saveBarcode)
                 if (e.key === "Enter")
                     document
                         .getElementById("confirmFileNameBtn")
@@ -317,10 +320,37 @@ class IndexController {
      * Инициализация всех IpcRenderer
      */
     public initIpcRenderers = () => {
+        this.ipcRender.on(
+            "window:open-multigen-modal",
+            (_event: Event, modalObj: gp.MainModal) => {
+                gp.setCurrentModal(gp.ModalTypes.multiGenerate)
+                modalObj.name = gp.ModalTypes.multiGenerate
+                this.openModal(modalObj)
+
+                let spinner = document.createElement("div")
+                spinner.id = "generateFilesSpinner"
+                spinner.style.display = "none"
+                spinner.classList.add(
+                    "spinner-border",
+                    "spinner-border-sm",
+                    "text-primary"
+                )
+                spinner.setAttribute("role", "status")
+                spinner.innerHTML = `<span class="visually-hidden">Loading...</span></div>`
+
+                this.mainMoadlElement
+                    .querySelector(".modal-footer")
+                    ?.prepend(spinner)
+                this.ipcRender.send(
+                    "window:init-multi-elements",
+                    this.downloadFolderPath
+                )
+            }
+        )
         //Обработаем запрос пакетной генерации
         this.ipcRender.on(
             "window:generate-codes",
-            async (_event: Event, codesArr: string) => {
+            async (_event: Event, codesArr: string[]) => {
                 await this.generateBarcode(codesArr)
             }
         )
@@ -352,6 +382,15 @@ class IndexController {
                 }
             }
         )
+        this.ipcRender.on(
+            "window:open-history-modal",
+            (_event: Event, modalObj: gp.MainModal) => {
+                this.mainMoadlElement
+                    .querySelector(".modal-dialog")
+                    ?.classList.add("modal-dialog-scrollable")
+                this.openModal(modalObj)
+            }
+        )
         //Применение настроек и сохранение их в файл
         this.ipcRender.on(
             "window:change-settings",
@@ -364,7 +403,18 @@ class IndexController {
                 )
             }
         )
-
+        //Открытие модалки настроек
+        this.ipcRender.on(
+            "window:open-settings-modal",
+            (_event: Event, modalObj: gp.MainModal) => {
+                modalObj.name = gp.ModalTypes.settings
+                this.openModal(modalObj)
+                this.ipcRender.send(
+                    "settings:init-settings-elements",
+                    this.appSettings
+                )
+            }
+        )
         this.ipcRender.on(
             "window:open-about-modal",
             (_event: Event, modalObj: gp.MainModal) => {
@@ -460,7 +510,10 @@ class IndexController {
         if (data) {
             this.historyCodes = JSON.parse(data) as string[]
             if (openDialog)
-                this.ipcRender.send("window:open-history", this.historyCodes)
+                this.ipcRender.send(
+                    "window:init-history-modal",
+                    this.historyCodes
+                )
         }
     }
 
@@ -622,15 +675,11 @@ class IndexController {
             this.mainMoadlElement.querySelector(".modal-footer")
         )
 
-        //Предварительно очистим старые данные и удалим стили
-        modalTitle.innerHTML = ""
-        modalBody.innerHTML = ""
-        modalFooter.innerHTML = ""
-        modalFooter.removeAttribute("style")
-
         let modalExtendedHeader = <HTMLElement>(
             this.mainMoadlElement.querySelector(".modal-extended-header")
         )
+        if (modalObject.extendedHeader && modalObject.extendedHeader.length > 0)
+            modalExtendedHeader.innerHTML = modalObject.extendedHeader
 
         //Запишем данные из объекта в соответствующие элементы
         modalTitle.innerHTML = modalObject.title
@@ -642,7 +691,7 @@ class IndexController {
                 let btn = document.createElement("button")
                 btn.type = "button"
                 btn.id = button.id
-                btn.classList.add("btn", `btn-${button.bClass}`)
+                btn.classList.add("btn", `${button.bClass}`)
                 btn.textContent = button.text
                 if (button.handler)
                     btn.addEventListener("click", () => {
@@ -656,9 +705,11 @@ class IndexController {
         //Если кнопок нет, скроем футер с глаз долой
         if (modalObject.buttons.length === 0) modalFooter.style.display = "none"
         //Укажем имя текущей открываемой модалки
-        this.currentModal = modalObject.name
+        gp.setCurrentModal(modalObject.name)
         //Откроем модалку
         this.mainModal.show()
+
+        if (modalObject.handler) modalObject.handler
     }
     /**
      * Возвращает результат в зависимости от того, выведена модалка на экран или нет
@@ -707,7 +758,10 @@ class IndexController {
      * Генерация изображения ШК из текста
      * @param {string} text Текст для генерации ШК
      */
-    public generateBarcode = async (text: string, callback?: Function) => {
+    public generateBarcode = async (
+        text: string | string[],
+        callback?: Function
+    ) => {
         //Получим выбранный тип ШК из выпадающего списка
         let type = this.typesSelect.value as keyof bs.TBarcodeParams
         //Получаем параметры для выбранного типа ШК из настроек приложения
@@ -731,11 +785,8 @@ class IndexController {
                 params.text = code.trim()
                 await this.generateSingleCode(true, params)
             }
-            //Выключим спиннер сохранения изображений
-            if (this.generateFilesSpinner.style.display === "none")
-                this.generateFilesSpinner.removeAttribute("style")
             //Скроем модалку после завершения
-            this.multiGenModal.hide()
+            this.mainModal.hide()
         } else {
             params.text = text
 

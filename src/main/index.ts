@@ -42,53 +42,94 @@ const createWindow = (startPage: string): void => {
     win.on("closed", () => {
         win = null
     })
-    //Open settings page
-    ipcMain.on("window:open-settings", (event: IpcMainEvent, args: any) => {
-        if (win) win.webContents.send("window:open-settings", args)
-    })
-    //Open history page
-    ipcMain.on("window:open-history", (event: IpcMainEvent, args: any) => {
-        if (win) win.webContents.send("window:open-history", args)
-    })
+    //! -------------- Settings modal -----------------------
+    //Prepare settings page
+    ipcMain.on(
+        "window:prepare-settings-page",
+        (_event: IpcMainEvent, args: any) => {
+            if (win) win.webContents.send("window:open-settings", args)
+        }
+    )
+    ipcMain.on(
+        "window:open-settings-modal",
+        (_event: IpcMainEvent, args: any) => {
+            if (win) win.webContents.send("window:open-settings-modal", args)
+        }
+    )
+    ipcMain.on(
+        "settings:init-settings-elements",
+        (_event: IpcMainEvent, args: any) => {
+            if (win)
+                win.webContents.send("settings:init-settings-elements", args)
+        }
+    )
     //Change settings on settings page
-    ipcMain.on("window:change-settings", (event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:change-settings", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:change-settings", args)
     })
+
+    //! ------------------ History modal -------------------
+    //Open history page
+    ipcMain.on(
+        "window:init-history-modal",
+        (_event: IpcMainEvent, args: any) => {
+            if (win) win.webContents.send("window:init-history-modal", args)
+        }
+    )
+    ipcMain.on(
+        "window:open-history-modal",
+        (_event: IpcMainEvent, modal: any) => {
+            if (win) win.webContents.send("window:open-history-modal", modal)
+        }
+    )
+
     //Set history position to main text input
-    ipcMain.on("window:set-history", (event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:set-history", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:set-history", args)
     })
     //Clear history
-    ipcMain.on("window:clear-history", (event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:clear-history", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:clear-history", args)
     })
+
+    //! ----------------- About modal -----------------------
     //Open about
-    ipcMain.on("window:open-about", (event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:open-about", (_event: IpcMainEvent, args: any) => {
         args.version = `Версия: ${app.getVersion()}`
         if (win) win.webContents.send("window:open-about", args)
     })
-    ipcMain.on("window:open-about-modal", (event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:open-about-modal", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:open-about-modal", args)
     })
     //Open URL
-    ipcMain.on("url:open-url", (event: IpcMainEvent, stringURL: string) => {
+    ipcMain.on("url:open-url", (_event: IpcMainEvent, stringURL: string) => {
         shell.openExternal(stringURL)
     })
+
+    //! --------------- Multi generate modal ------------------
     //Open multi code generate page
     ipcMain.on(
-        "window:open-multi-gen",
-        (event: IpcMainEvent, downloadFolderPath: string) => {
+        "window:init-multi-gen",
+        (_event: IpcMainEvent, downloadFolderPath: string) => {
             if (win)
                 win.webContents.send(
-                    "window:open-multi-gen",
+                    "window:init-multi-gen",
                     downloadFolderPath
                 )
         }
     )
+    ipcMain.on("window:open-multigen-modal", (_event: IpcMainEvent, args) => {
+        if (win) win.webContents.send("window:open-multigen-modal", args)
+    })
+    ipcMain.on("window:init-multi-elements", (_event: IpcMainEvent, args) => {
+        if (win) win.webContents.send("window:init-multi-elements", args)
+    })
     //Generate all codes
-    ipcMain.on("window:generate-codes", (event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:generate-codes", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:generate-codes", args)
     })
+
+    // ------------------ Other --------------------
 
     require("@electron/remote/main").initialize()
 }

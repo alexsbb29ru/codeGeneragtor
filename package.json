@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@electron/remote": "^1.0.2",
+        "@popperjs/core": "^2.9.2",
         "@types/bootstrap": "^5.0.13",
         "bootstrap": "^5.0.0",
         "bwip-js": "^2.0.10",

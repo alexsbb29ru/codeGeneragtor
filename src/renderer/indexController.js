@@ -32,17 +32,6 @@ const bootstrap_1 = __importDefault(require("bootstrap"));
 const bs = __importStar(require("./barcodeSettings"));
 const gp = __importStar(require("./generalSettings"));
 const objectMapper_1 = require("./objectMapper");
-/**
- * Существующие типы модалок
- */
-var ModalTypes;
-(function (ModalTypes) {
-    ModalTypes["saveBarcode"] = "saveBarcode";
-    ModalTypes["settings"] = "settings";
-    ModalTypes["history"] = "history";
-    ModalTypes["multiGenerate"] = "multiGenerate";
-    ModalTypes["about"] = "about";
-})(ModalTypes || (ModalTypes = {}));
 class IndexController {
     constructor() {
         this.initButtonsHandlers = () => {
@@ -60,7 +49,7 @@ class IndexController {
                 this.writeRemainingSymb();
             });
             this.settingsButton.addEventListener("click", () => {
-                this.ipcRender.send("window:open-settings", this.appSettings);
+                this.ipcRender.send("window:prepare-settings-page", this.appSettings);
             });
             this.historyButton.addEventListener("click", async () => {
                 await this.getHistoryFromStorage(true);
@@ -68,7 +57,7 @@ class IndexController {
             this.contactButton.addEventListener("click", () => {
                 let aboutArgs;
                 aboutArgs = {
-                    modalName: ModalTypes.about,
+                    modalName: gp.ModalTypes.about,
                     name: "Генератор штрих-кодов",
                     copyright: `&#169; 2019 - ${new Date().getFullYear()} 
   <a href="#" id="personLink" targetLink="https://vk.com/subbotinalexeysergeevich">Aleksey Subbotin</a>`,
@@ -78,7 +67,7 @@ class IndexController {
                 this.ipcRender.send("window:open-about", aboutArgs);
             });
             this.multiGenerateBtn.addEventListener("click", () => {
-                this.ipcRender.send("window:open-multi-gen", this.downloadFolderPath);
+                this.ipcRender.send("window:init-multi-gen", this.downloadFolderPath);
             });
             this.genQrButton.addEventListener("click", async () => {
                 await this.generateCodesButtonsHandler();
@@ -128,15 +117,15 @@ class IndexController {
             this.saveButton.addEventListener("click", () => {
                 if (!this.qrImg.src)
                     return;
-                let name = ModalTypes.saveBarcode;
+                let name = gp.ModalTypes.saveBarcode;
                 let title = "Введите имя файла без расширения";
                 let body = `<input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
             <span id="saveFolderPath" class="saveFolderPath">${this.downloadFolderPath}</span>`;
-                let dismissBtn = new gp.ModalButton("denyFileNameBtn", "Отмена", "outline-secondary", () => {
+                let dismissBtn = new gp.ModalButton("denyFileNameBtn", "Отмена", "btn-outline-secondary", () => {
                     let fileNameInput = (document.getElementById("fileNameInput"));
                     fileNameInput.value = "";
                 }, true);
-                let okBtn = new gp.ModalButton("confirmFileNameBtn", "ОК", "primary", () => {
+                let okBtn = new gp.ModalButton("confirmFileNameBtn", "ОК", "btn-primary", () => {
                     let fileNameInput = (document.getElementById("fileNameInput"));
                     if (!fileNameInput.value)
                         return;
@@ -151,7 +140,7 @@ class IndexController {
                         console.log(err);
                     }
                 }, false);
-                let modalObj = new gp.MainModal(name, title, body, new Array(dismissBtn, okBtn), false);
+                let modalObj = new gp.MainModal(name, title, body, new Array(dismissBtn, okBtn));
                 this.openModal(modalObj);
                 let saveFolderPath = (document.getElementById("saveFolderPath"));
                 let fileNameInput = (document.getElementById("fileNameInput"));
@@ -163,7 +152,7 @@ class IndexController {
             //Сохраняем изображение нажатием Enter в модалке
             this.mainMoadlElement.addEventListener("keydown", (e) => {
                 var _a;
-                if (this.currentModal === ModalTypes.saveBarcode)
+                if (gp.getCurrentModal() === gp.ModalTypes.saveBarcode)
                     if (e.key === "Enter")
                         (_a = document
                             .getElementById("confirmFileNameBtn")) === null || _a === void 0 ? void 0 : _a.dispatchEvent(new Event("click"));
@@ -177,6 +166,21 @@ class IndexController {
          * Инициализация всех IpcRenderer
          */
         this.initIpcRenderers = () => {
+            this.ipcRender.on("window:open-multigen-modal", (_event, modalObj) => {
+                var _a;
+                gp.setCurrentModal(gp.ModalTypes.multiGenerate);
+                modalObj.name = gp.ModalTypes.multiGenerate;
+                this.openModal(modalObj);
+                let spinner = document.createElement("div");
+                spinner.id = "generateFilesSpinner";
+                spinner.style.display = "none";
+                spinner.classList.add("spinner-border", "spinner-border-sm", "text-primary");
+                spinner.setAttribute("role", "status");
+                spinner.innerHTML = `<span class="visually-hidden">Loading...</span></div>`;
+                (_a = this.mainMoadlElement
+                    .querySelector(".modal-footer")) === null || _a === void 0 ? void 0 : _a.prepend(spinner);
+                this.ipcRender.send("window:init-multi-elements", this.downloadFolderPath);
+            });
             //Обработаем запрос пакетной генерации
             this.ipcRender.on("window:generate-codes", async (_event, codesArr) => {
                 await this.generateBarcode(codesArr);
@@ -201,12 +205,24 @@ class IndexController {
                     this.genQrButton.dispatchEvent(new Event("click"));
                 }
             });
+            this.ipcRender.on("window:open-history-modal", (_event, modalObj) => {
+                var _a;
+                (_a = this.mainMoadlElement
+                    .querySelector(".modal-dialog")) === null || _a === void 0 ? void 0 : _a.classList.add("modal-dialog-scrollable");
+                this.openModal(modalObj);
+            });
             //Применение настроек и сохранение их в файл
             this.ipcRender.on("window:change-settings", async (_event, codeTypes) => {
                 this.appSettings = codeTypes;
                 await this.saveSettingsToLocalStorage();
                 this.changeColorTheme(this.appSettings.general.isDarkMode);
                 this.changeMaxSymbolCount(this.appSettings.general.codeSymbolLength.currentLength);
+            });
+            //Открытие модалки настроек
+            this.ipcRender.on("window:open-settings-modal", (_event, modalObj) => {
+                modalObj.name = gp.ModalTypes.settings;
+                this.openModal(modalObj);
+                this.ipcRender.send("settings:init-settings-elements", this.appSettings);
             });
             this.ipcRender.on("window:open-about-modal", (_event, modalObj) => {
                 this.openModal(modalObj);
@@ -287,7 +303,7 @@ class IndexController {
             if (data) {
                 this.historyCodes = JSON.parse(data);
                 if (openDialog)
-                    this.ipcRender.send("window:open-history", this.historyCodes);
+                    this.ipcRender.send("window:init-history-modal", this.historyCodes);
             }
         };
         /**
@@ -456,11 +472,8 @@ class IndexController {
                     params.text = code.trim();
                     await this.generateSingleCode(true, params);
                 }
-                //Выключим спиннер сохранения изображений
-                if (this.generateFilesSpinner.style.display === "none")
-                    this.generateFilesSpinner.removeAttribute("style");
                 //Скроем модалку после завершения
-                this.multiGenModal.hide();
+                this.mainModal.hide();
             }
             else {
                 params.text = text;
@@ -527,16 +540,25 @@ class IndexController {
         this.generateFilesSpinner = (document.getElementById("generateFilesSpinner"));
         this.contactButton = (document.getElementById("contactButton"));
         this.saveButton = (document.getElementById("saveQrImgButton"));
-        this.multiGenModalElement = (document.getElementById("multiGenModal"));
         this.mainMoadlElement = (document.getElementById("mainModal"));
         this.generalParams = new gp.GeneralParams();
         this.historyCodes = new Array();
         this.savedCodes = new Array();
-        //Создадим реализацию модалки пакетной генерации в Bootstrap
-        this.multiGenModal = new bootstrap_1.default.Modal(this.multiGenModalElement);
         //Реализация общей модалки
         this.mainModal = new bootstrap_1.default.Modal(this.mainMoadlElement);
-        this.currentModal = "";
+        //Очистка модалки при закрытии
+        this.mainMoadlElement.addEventListener("hidden.bs.modal", () => {
+            var _a;
+            ;
+            (this.mainMoadlElement.querySelector(".modal-title")).innerHTML = "";
+            (this.mainMoadlElement.querySelector(".modal-extended-header")).innerHTML = "";
+            (this.mainMoadlElement.querySelector(".modal-body")).innerHTML = "";
+            let footer = (this.mainMoadlElement.querySelector(".modal-footer"));
+            footer.innerHTML = "";
+            footer.removeAttribute("style");
+            (_a = this.mainMoadlElement
+                .querySelector(".modal-dialog")) === null || _a === void 0 ? void 0 : _a.classList.remove("modal-dialog-scrollable");
+        });
     }
     async init() {
         this.initBarcodeTypesSelect();
@@ -553,26 +575,28 @@ class IndexController {
      * @returns
      */
     openModal(modalObject) {
-        var _a;
-        if (((_a = this.mainMoadlElement) === null || _a === void 0 ? void 0 : _a.style.display) === "block" ||
-            !modalObject.name)
+        //Если модалка открыта или не содержит имя, не открываем ее
+        if (this.isModalShown() || !modalObject.name)
             return;
+        //Элемент заголовка модалки
         let modalTitle = (this.mainMoadlElement.querySelector(".modal-title"));
+        //Элемент тела модалки
         let modalBody = (this.mainMoadlElement.querySelector(".modal-body"));
+        //Подвал модалки, куда кидаем кнопки, если они будут
         let modalFooter = (this.mainMoadlElement.querySelector(".modal-footer"));
-        modalTitle.innerHTML = "";
-        modalBody.innerHTML = "";
-        modalFooter.innerHTML = "";
-        modalFooter.removeAttribute("style");
         let modalExtendedHeader = (this.mainMoadlElement.querySelector(".modal-extended-header"));
+        if (modalObject.extendedHeader && modalObject.extendedHeader.length > 0)
+            modalExtendedHeader.innerHTML = modalObject.extendedHeader;
+        //Запишем данные из объекта в соответствующие элементы
         modalTitle.innerHTML = modalObject.title;
         modalBody.innerHTML = modalObject.body;
+        //Если есть кнопки, создадим их на основе массива из объекта модалки
         if (modalObject.buttons)
             modalObject.buttons.forEach((button) => {
                 let btn = document.createElement("button");
                 btn.type = "button";
                 btn.id = button.id;
-                btn.classList.add("btn", `btn-${button.bClass}`);
+                btn.classList.add("btn", `${button.bClass}`);
                 btn.textContent = button.text;
                 if (button.handler)
                     btn.addEventListener("click", () => {
@@ -583,10 +607,15 @@ class IndexController {
                     btn.addEventListener("click", () => this.mainModal.hide());
                 modalFooter.appendChild(btn);
             });
+        //Если кнопок нет, скроем футер с глаз долой
         if (modalObject.buttons.length === 0)
             modalFooter.style.display = "none";
-        this.currentModal = modalObject.name;
+        //Укажем имя текущей открываемой модалки
+        gp.setCurrentModal(modalObject.name);
+        //Откроем модалку
         this.mainModal.show();
+        if (modalObject.handler)
+            modalObject.handler;
     }
     /**
      * Возвращает результат в зависимости от того, выведена модалка на экран или нет
