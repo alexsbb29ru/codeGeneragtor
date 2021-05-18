@@ -41,10 +41,6 @@ const createWindow = (startPage) => {
         if (win)
             win.webContents.send("window:open-settings-modal", args);
     });
-    electron_1.ipcMain.on("settings:init-settings-elements", (_event, args) => {
-        if (win)
-            win.webContents.send("settings:init-settings-elements", args);
-    });
     //Change settings on settings page
     electron_1.ipcMain.on("window:change-settings", (_event, args) => {
         if (win)
@@ -61,9 +57,9 @@ const createWindow = (startPage) => {
             win.webContents.send("window:open-history-modal", modal);
     });
     //Set history position to main text input
-    electron_1.ipcMain.on("window:set-history", (_event, args) => {
+    electron_1.ipcMain.on("window:set-history", (_event, selectedText) => {
         if (win)
-            win.webContents.send("window:set-history", args);
+            win.webContents.send("window:set-history", selectedText);
     });
     //Clear history
     electron_1.ipcMain.on("window:clear-history", (_event, args) => {
@@ -72,10 +68,10 @@ const createWindow = (startPage) => {
     });
     //! ----------------- About modal -----------------------
     //Open about
-    electron_1.ipcMain.on("window:open-about", (_event, args) => {
+    electron_1.ipcMain.on("window:init-about", (_event, args) => {
         args.version = `Версия: ${electron_1.app.getVersion()}`;
         if (win)
-            win.webContents.send("window:open-about", args);
+            win.webContents.send("window:init-about", args);
     });
     electron_1.ipcMain.on("window:open-about-modal", (_event, args) => {
         if (win)
@@ -94,10 +90,6 @@ const createWindow = (startPage) => {
     electron_1.ipcMain.on("window:open-multigen-modal", (_event, args) => {
         if (win)
             win.webContents.send("window:open-multigen-modal", args);
-    });
-    electron_1.ipcMain.on("window:init-multi-elements", (_event, args) => {
-        if (win)
-            win.webContents.send("window:init-multi-elements", args);
     });
     //Generate all codes
     electron_1.ipcMain.on("window:generate-codes", (_event, args) => {

@@ -11,19 +11,23 @@ ipcRenderer.on(
         historyCont.initHistoryModal()
     }
 )
+
 class HistoryController {
     private history: Array<string>
-    private loadList: number
-    private loadIncrement: number
+    private loadList: number = 0
+    private loadIncrement: number = 0
     private scrolledHistory: Array<string>
 
     constructor(history: Array<string>) {
         this.history = history.reverse()
-        this.loadList = 0
-        this.loadIncrement = 15
+        this.initHistoryParams()
         this.scrolledHistory = new Array<string>(...this.history)
     }
-
+    private initHistoryParams() {
+        this.loadList = 0
+        this.loadIncrement = 15
+        this.scrolledHistory = new Array<string>()
+    }
     public initHistoryModal() {
         let title: string = "История"
         let extendedHeader: string = `<input type="text" placeholder="Поиск" class="form-control modal-input" id="history-search-input">`
@@ -46,7 +50,19 @@ class HistoryController {
         )
 
         ipcRenderer.send("window:open-history-modal", modal)
+
         let mainModal = <HTMLElement>document.getElementById("mainModal")
+        //Во время открытия модалки загружаем в нее данные
+        mainModal.addEventListener(
+            "show.bs.modal",
+            () => {
+                if (gp.getCurrentModal() !== gp.ModalTypes.history) return
+                this.showHistoryList(this.scrolledHistory)
+            },
+            { once: true }
+        )
+        //После открытия модалки, проверяем высоты элементов,
+        //чтобы вывести дополнительные данные, если потребуется
         mainModal.addEventListener(
             "shown.bs.modal",
             () => {
@@ -63,11 +79,77 @@ class HistoryController {
                 ) {
                     this.showHistoryList(this.scrolledHistory)
                 }
+
+                let clearHistBtn = <HTMLButtonElement>(
+                    document.getElementById("clearHistBtn")
+                )
+                //!Навесим обработчики на элементы модалки
+                //Очистка истории при нажатии на кнопку
+                clearHistBtn.addEventListener("click", () => {
+                    ipcRenderer.send("window:clear-history")
+                })
+
+                //Обработка двойного нажатия на пункте истории.
+                let historyListModal = <HTMLUListElement>(
+                    document.getElementById("historyListModal")
+                )
+                historyListModal.addEventListener("dblclick", (e) => {
+                    //Отправим выбранный пункт в другой контроллер (indexController)
+                    ipcRenderer.send(
+                        "window:set-history",
+                        (<HTMLLIElement>e.target).innerText
+                    )
+                })
+
+                //Сделаем подгрузку данных при скролле
+                let historyModalBody = <HTMLElement>(
+                    mainModal.querySelector(".modal-body")
+                )
+                historyModalBody.addEventListener("scroll", (e) => {
+                    if (this.scrolledHistory.length - this.loadList > 0) {
+                        let windowRelativeBottom =
+                            historyListModal.getBoundingClientRect().bottom
+                        let clientHeight = historyModalBody.clientHeight
+
+                        // если пользователь прокрутил достаточно далеко (< 100px до конца)
+                        if (windowRelativeBottom <= clientHeight + 100)
+                            //Выведем историю генерации
+                            this.showHistoryList(this.scrolledHistory)
+                    }
+                })
+                //Обработчик ввода в поисковое поле
+                let searchInput = <HTMLInputElement>(
+                    document.getElementById("history-search-input")
+                )
+                searchInput.addEventListener("input", () => {
+                    let isSearching = false
+                    if (!searchInput.value) {
+                        historyListModal.innerHTML = ""
+                        this.initHistoryParams()
+                        this.showHistoryList(this.history)
+                    }
+                    if (!isSearching) {
+                        isSearching = true
+                        historyListModal.innerHTML = ""
+
+                        this.initHistoryParams()
+
+                        this.history.forEach((str) => {
+                            if (str.includes(searchInput.value))
+                                this.scrolledHistory.push(str)
+                        })
+                        this.showHistoryList(this.scrolledHistory)
+                        isSearching = false
+                    }
+                })
             },
             { once: true }
         )
     }
-
+    /**
+     * Вывод истории генерации
+     * @param history Массив с историей генерации
+     */
     private showHistoryList(history: Array<string>) {
         //Если история пустая, диактивируем кнопку очистки
         if (history.length === 0)

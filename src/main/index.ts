@@ -56,13 +56,6 @@ const createWindow = (startPage: string): void => {
             if (win) win.webContents.send("window:open-settings-modal", args)
         }
     )
-    ipcMain.on(
-        "settings:init-settings-elements",
-        (_event: IpcMainEvent, args: any) => {
-            if (win)
-                win.webContents.send("settings:init-settings-elements", args)
-        }
-    )
     //Change settings on settings page
     ipcMain.on("window:change-settings", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:change-settings", args)
@@ -84,9 +77,12 @@ const createWindow = (startPage: string): void => {
     )
 
     //Set history position to main text input
-    ipcMain.on("window:set-history", (_event: IpcMainEvent, args: any) => {
-        if (win) win.webContents.send("window:set-history", args)
-    })
+    ipcMain.on(
+        "window:set-history",
+        (_event: IpcMainEvent, selectedText: string) => {
+            if (win) win.webContents.send("window:set-history", selectedText)
+        }
+    )
     //Clear history
     ipcMain.on("window:clear-history", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:clear-history", args)
@@ -94,9 +90,9 @@ const createWindow = (startPage: string): void => {
 
     //! ----------------- About modal -----------------------
     //Open about
-    ipcMain.on("window:open-about", (_event: IpcMainEvent, args: any) => {
+    ipcMain.on("window:init-about", (_event: IpcMainEvent, args: any) => {
         args.version = `Версия: ${app.getVersion()}`
-        if (win) win.webContents.send("window:open-about", args)
+        if (win) win.webContents.send("window:init-about", args)
     })
     ipcMain.on("window:open-about-modal", (_event: IpcMainEvent, args: any) => {
         if (win) win.webContents.send("window:open-about-modal", args)
@@ -120,9 +116,6 @@ const createWindow = (startPage: string): void => {
     )
     ipcMain.on("window:open-multigen-modal", (_event: IpcMainEvent, args) => {
         if (win) win.webContents.send("window:open-multigen-modal", args)
-    })
-    ipcMain.on("window:init-multi-elements", (_event: IpcMainEvent, args) => {
-        if (win) win.webContents.send("window:init-multi-elements", args)
     })
     //Generate all codes
     ipcMain.on("window:generate-codes", (_event: IpcMainEvent, args: any) => {

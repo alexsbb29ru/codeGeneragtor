@@ -26,13 +26,14 @@ const electron_1 = __importDefault(require("electron"));
 const { ipcRenderer } = electron_1.default;
 const gp = __importStar(require("./generalSettings"));
 //Обработаем обращение
-ipcRenderer.on("window:open-about", (event, aboutParams) => {
+ipcRenderer.on("window:init-about", (event, aboutParams) => {
     new ContactController().updateContactTable(aboutParams);
 });
 class ContactController {
     constructor() {
         //Создалим объект модалки и отправим его обратно для открытия
         this.updateContactTable = (aboutParams) => {
+            var _a;
             let title = "О приложении";
             let body = `<table class="table table-sm table-borderless contact-table">
               <tr>
@@ -63,6 +64,13 @@ class ContactController {
             </table>`;
             let modal = new gp.MainModal(aboutParams.modalName, title, body, []);
             ipcRenderer.send("window:open-about-modal", modal);
+            (_a = document.getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.addEventListener("show.bs.modal", () => {
+                let personLink = document.getElementById("personLink");
+                personLink === null || personLink === void 0 ? void 0 : personLink.addEventListener("click", () => {
+                    let url = personLink === null || personLink === void 0 ? void 0 : personLink.getAttribute("targetLink");
+                    ipcRenderer.send("url:open-url", url);
+                });
+            }, { once: true });
         };
     }
 }

@@ -30,15 +30,12 @@ ipcRenderer.on("window:init-multi-gen", (event, folderPath) => {
     let multiGen = new MultiGenerate(folderPath);
     multiGen.initModal();
 });
-ipcRenderer.on("window:init-multi-elements", (event, folderPath) => {
-    let multiGen = new MultiGenerate(folderPath);
-    multiGen.initHandlers();
-});
 class MultiGenerate {
     constructor(folderPath) {
         this.folderPath = folderPath;
     }
     initModal() {
+        var _a;
         let title = "Множественная генерация";
         let body = `<div class="form-floating">
               <textarea class="form-control" name="multiGenerateTextBlock" id="multiGenerateTextBlock"
@@ -50,6 +47,10 @@ class MultiGenerate {
         let buttons = new Array(generateBtn);
         let modal = new gp.MainModal("", title, body, buttons);
         ipcRenderer.send("window:open-multigen-modal", modal);
+        (_a = document.getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.addEventListener("show.bs.modal", () => {
+            if (gp.getCurrentModal() === gp.ModalTypes.multiGenerate)
+                this.initHandlers();
+        }, { once: true });
     }
     initHandlers() {
         let confirmMultiGenBtn = (document.getElementById("confirmMultiGenBtn"));

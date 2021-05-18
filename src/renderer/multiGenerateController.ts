@@ -8,10 +8,6 @@ ipcRenderer.on("window:init-multi-gen", (event, folderPath) => {
     let multiGen = new MultiGenerate(folderPath)
     multiGen.initModal()
 })
-ipcRenderer.on("window:init-multi-elements", (event, folderPath) => {
-    let multiGen = new MultiGenerate(folderPath)
-    multiGen.initHandlers()
-})
 
 class MultiGenerate {
     private folderPath: string
@@ -38,6 +34,15 @@ class MultiGenerate {
         let buttons = new Array<gp.ModalButton>(generateBtn)
         let modal = new gp.MainModal("", title, body, buttons)
         ipcRenderer.send("window:open-multigen-modal", modal)
+
+        document.getElementById("mainModal")?.addEventListener(
+            "show.bs.modal",
+            () => {
+                if (gp.getCurrentModal() === gp.ModalTypes.multiGenerate)
+                    this.initHandlers()
+            },
+            { once: true }
+        )
     }
     public initHandlers() {
         let confirmMultiGenBtn = <HTMLButtonElement>(

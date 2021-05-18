@@ -4,7 +4,7 @@ const { ipcRenderer } = electron
 import * as gp from "./generalSettings"
 
 //Обработаем обращение
-ipcRenderer.on("window:open-about", (event, aboutParams) => {
+ipcRenderer.on("window:init-about", (event, aboutParams) => {
     new ContactController().updateContactTable(aboutParams)
 })
 class ContactController {
@@ -43,5 +43,17 @@ class ContactController {
 
         let modal = new gp.MainModal(aboutParams.modalName, title, body, [])
         ipcRenderer.send("window:open-about-modal", modal)
+
+        document.getElementById("mainModal")?.addEventListener(
+            "show.bs.modal",
+            () => {
+                let personLink = document.getElementById("personLink")
+                personLink?.addEventListener("click", () => {
+                    let url = personLink?.getAttribute("targetLink")
+                    ipcRenderer.send("url:open-url", url)
+                })
+            },
+            { once: true }
+        )
     }
 }

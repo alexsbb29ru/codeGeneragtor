@@ -5,7 +5,7 @@
     "main": "src/main/index.js",
     "scripts": {
         "start": "tsc && electron .",
-        "watch": "nodemon --exec electron .",
+        "watch": "nodemon",
         "generate": "electron-builder"
     },
     "author": "Sbb Company",

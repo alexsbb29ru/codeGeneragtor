@@ -34,11 +34,6 @@ ipcRenderer.on("window:open-settings", (_event, settings) => {
     //Сгенерируем пункты полученных настроек в modalBody
     setController.generateSettingCat();
 });
-ipcRenderer.on("settings:init-settings-elements", (_event, settings) => {
-    let setController = new SettingsController(settings);
-    //Инициализируем инпуты для возможности изменения настроек
-    setController.initInputs();
-});
 class SettingsController {
     constructor(settings) {
         //Название блока с копированием изображения в буфер обмена
@@ -61,6 +56,7 @@ class SettingsController {
          * Generate settings positions by received settings
          */
         this.generateSettingCat = () => {
+            var _a;
             let title = "Настройки";
             let catBody = `<table class="table table-borderless">`;
             let code128block = `<tr>
@@ -162,6 +158,10 @@ class SettingsController {
             catBody += "</table>";
             let modal = new gp.MainModal("", title, catBody, []);
             ipcRenderer.send("window:open-settings-modal", modal);
+            (_a = document.getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.addEventListener("show.bs.modal", () => {
+                if (gp.getCurrentModal() === gp.ModalTypes.settings)
+                    this.initInputs();
+            }, { once: true });
         };
         /**
          * Init inputs to apply changes

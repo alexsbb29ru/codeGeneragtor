@@ -166,7 +166,7 @@ class IndexController {
                 version: "",
             }
 
-            this.ipcRender.send("window:open-about", aboutArgs)
+            this.ipcRender.send("window:init-about", aboutArgs)
         })
 
         this.multiGenerateBtn.addEventListener("click", () => {
@@ -341,10 +341,6 @@ class IndexController {
                 this.mainMoadlElement
                     .querySelector(".modal-footer")
                     ?.prepend(spinner)
-                this.ipcRender.send(
-                    "window:init-multi-elements",
-                    this.downloadFolderPath
-                )
             }
         )
         //Обработаем запрос пакетной генерации
@@ -359,6 +355,7 @@ class IndexController {
         this.ipcRender.on(
             "window:clear-history",
             (_event: Event, _args: any) => {
+                this.mainModal.hide()
                 //Очищаем массив с историей генерации
                 this.historyCodes = new Array<string>()
                 let fileName: string = new gp.GeneralParams().historyFileName
@@ -371,12 +368,13 @@ class IndexController {
         this.ipcRender.on(
             "window:set-history",
             (_event: Event, historyText: string) => {
+                this.mainModal.hide()
                 let maxLength =
                     this.appSettings.general.codeSymbolLength.currentLength
                 if (historyText.length > maxLength)
                     historyText = historyText.substring(0, maxLength)
                 if (this.inputText.value != historyText) {
-                    this.inputText.value
+                    this.inputText.value = historyText
                     this.inputText.dispatchEvent(new Event("change"))
                     this.genQrButton.dispatchEvent(new Event("click"))
                 }
@@ -409,21 +407,12 @@ class IndexController {
             (_event: Event, modalObj: gp.MainModal) => {
                 modalObj.name = gp.ModalTypes.settings
                 this.openModal(modalObj)
-                this.ipcRender.send(
-                    "settings:init-settings-elements",
-                    this.appSettings
-                )
             }
         )
         this.ipcRender.on(
             "window:open-about-modal",
             (_event: Event, modalObj: gp.MainModal) => {
                 this.openModal(modalObj)
-                let personLink = document.getElementById("personLink")
-                personLink?.addEventListener("click", () => {
-                    let url = personLink?.getAttribute("targetLink")
-                    this.ipcRender.send("url:open-url", url)
-                })
             }
         )
     }

@@ -15,14 +15,7 @@ ipcRenderer.on(
         setController.generateSettingCat()
     }
 )
-ipcRenderer.on(
-    "settings:init-settings-elements",
-    (_event: Event, settings: bs.TBarcodeParams) => {
-        let setController = new SettingsController(settings)
-        //Инициализируем инпуты для возможности изменения настроек
-        setController.initInputs()
-    }
-)
+
 type TDefaultColors = {
     textColor: string //Цвет текста
     background: string //Цвет фона
@@ -162,6 +155,15 @@ class SettingsController {
 
         let modal = new gp.MainModal("", title, catBody, [])
         ipcRenderer.send("window:open-settings-modal", modal)
+
+        document.getElementById("mainModal")?.addEventListener(
+            "show.bs.modal",
+            () => {
+                if (gp.getCurrentModal() === gp.ModalTypes.settings)
+                    this.initInputs()
+            },
+            { once: true }
+        )
     }
 
     /**

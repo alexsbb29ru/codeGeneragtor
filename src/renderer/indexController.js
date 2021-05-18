@@ -64,7 +64,7 @@ class IndexController {
                     desctiption: "",
                     version: "",
                 };
-                this.ipcRender.send("window:open-about", aboutArgs);
+                this.ipcRender.send("window:init-about", aboutArgs);
             });
             this.multiGenerateBtn.addEventListener("click", () => {
                 this.ipcRender.send("window:init-multi-gen", this.downloadFolderPath);
@@ -179,7 +179,6 @@ class IndexController {
                 spinner.innerHTML = `<span class="visually-hidden">Loading...</span></div>`;
                 (_a = this.mainMoadlElement
                     .querySelector(".modal-footer")) === null || _a === void 0 ? void 0 : _a.prepend(spinner);
-                this.ipcRender.send("window:init-multi-elements", this.downloadFolderPath);
             });
             //Обработаем запрос пакетной генерации
             this.ipcRender.on("window:generate-codes", async (_event, codesArr) => {
@@ -187,6 +186,7 @@ class IndexController {
             });
             //Очистка истории
             this.ipcRender.on("window:clear-history", (_event, _args) => {
+                this.mainModal.hide();
                 //Очищаем массив с историей генерации
                 this.historyCodes = new Array();
                 let fileName = new gp.GeneralParams().historyFileName;
@@ -196,11 +196,12 @@ class IndexController {
             });
             //Генерация текста, выбранного из истории
             this.ipcRender.on("window:set-history", (_event, historyText) => {
+                this.mainModal.hide();
                 let maxLength = this.appSettings.general.codeSymbolLength.currentLength;
                 if (historyText.length > maxLength)
                     historyText = historyText.substring(0, maxLength);
                 if (this.inputText.value != historyText) {
-                    this.inputText.value;
+                    this.inputText.value = historyText;
                     this.inputText.dispatchEvent(new Event("change"));
                     this.genQrButton.dispatchEvent(new Event("click"));
                 }
@@ -222,15 +223,9 @@ class IndexController {
             this.ipcRender.on("window:open-settings-modal", (_event, modalObj) => {
                 modalObj.name = gp.ModalTypes.settings;
                 this.openModal(modalObj);
-                this.ipcRender.send("settings:init-settings-elements", this.appSettings);
             });
             this.ipcRender.on("window:open-about-modal", (_event, modalObj) => {
                 this.openModal(modalObj);
-                let personLink = document.getElementById("personLink");
-                personLink === null || personLink === void 0 ? void 0 : personLink.addEventListener("click", () => {
-                    let url = personLink === null || personLink === void 0 ? void 0 : personLink.getAttribute("targetLink");
-                    this.ipcRender.send("url:open-url", url);
-                });
             });
         };
         /**

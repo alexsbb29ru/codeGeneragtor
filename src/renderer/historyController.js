@@ -31,10 +31,16 @@ ipcRenderer.on("window:init-history-modal", (_event, history) => {
 });
 class HistoryController {
     constructor(history) {
+        this.loadList = 0;
+        this.loadIncrement = 0;
         this.history = history.reverse();
+        this.initHistoryParams();
+        this.scrolledHistory = new Array(...this.history);
+    }
+    initHistoryParams() {
         this.loadList = 0;
         this.loadIncrement = 15;
-        this.scrolledHistory = new Array(...this.history);
+        this.scrolledHistory = new Array();
     }
     initHistoryModal() {
         let title = "История";
@@ -45,6 +51,14 @@ class HistoryController {
         let modal = new gp.MainModal(gp.ModalTypes.history, title, body, buttons, extendedHeader);
         ipcRenderer.send("window:open-history-modal", modal);
         let mainModal = document.getElementById("mainModal");
+        //Во время открытия модалки загружаем в нее данные
+        mainModal.addEventListener("show.bs.modal", () => {
+            if (gp.getCurrentModal() !== gp.ModalTypes.history)
+                return;
+            this.showHistoryList(this.scrolledHistory);
+        }, { once: true });
+        //После открытия модалки, проверяем высоты элементов,
+        //чтобы вывести дополнительные данные, если потребуется
         mainModal.addEventListener("shown.bs.modal", () => {
             if (gp.getCurrentModal() !== gp.ModalTypes.history)
                 return;
@@ -54,8 +68,57 @@ class HistoryController {
                 this.loadList < this.scrolledHistory.length) {
                 this.showHistoryList(this.scrolledHistory);
             }
+            let clearHistBtn = (document.getElementById("clearHistBtn"));
+            //!Навесим обработчики на элементы модалки
+            //Очистка истории при нажатии на кнопку
+            clearHistBtn.addEventListener("click", () => {
+                ipcRenderer.send("window:clear-history");
+            });
+            //Обработка двойного нажатия на пункте истории.
+            let historyListModal = (document.getElementById("historyListModal"));
+            historyListModal.addEventListener("dblclick", (e) => {
+                //Отправим выбранный пункт в другой контроллер (indexController)
+                ipcRenderer.send("window:set-history", e.target.innerText);
+            });
+            //Сделаем подгрузку данных при скролле
+            let historyModalBody = (mainModal.querySelector(".modal-body"));
+            historyModalBody.addEventListener("scroll", (e) => {
+                if (this.scrolledHistory.length - this.loadList > 0) {
+                    let windowRelativeBottom = historyListModal.getBoundingClientRect().bottom;
+                    let clientHeight = historyModalBody.clientHeight;
+                    // если пользователь прокрутил достаточно далеко (< 100px до конца)
+                    if (windowRelativeBottom <= clientHeight + 100)
+                        //Выведем историю генерации
+                        this.showHistoryList(this.scrolledHistory);
+                }
+            });
+            //Обработчик ввода в поисковое поле
+            let searchInput = (document.getElementById("history-search-input"));
+            searchInput.addEventListener("input", () => {
+                let isSearching = false;
+                if (!searchInput.value) {
+                    historyListModal.innerHTML = "";
+                    this.initHistoryParams();
+                    this.showHistoryList(this.history);
+                }
+                if (!isSearching) {
+                    isSearching = true;
+                    historyListModal.innerHTML = "";
+                    this.initHistoryParams();
+                    this.history.forEach((str) => {
+                        if (str.includes(searchInput.value))
+                            this.scrolledHistory.push(str);
+                    });
+                    this.showHistoryList(this.scrolledHistory);
+                    isSearching = false;
+                }
+            });
         }, { once: true });
     }
+    /**
+     * Вывод истории генерации
+     * @param history Массив с историей генерации
+     */
     showHistoryList(history) {
         var _a, _b, _c;
         //Если история пустая, диактивируем кнопку очистки
