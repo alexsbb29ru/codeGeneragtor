@@ -59,8 +59,10 @@ body {
 .left-side-button {
     height: 2.3rem;
     transition-duration: 0.3s;
-    padding: 0px 0px 0px 6px;
-    height: 40px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .settingsButton {
     grid-column-start: 1;
@@ -80,10 +82,10 @@ body {
 }
 
 .grid-container {
-    padding: 10px 5px 5px 0;
+    border-top-left-radius: 10px;
+    padding: 10px 10px 5px 10px;
     grid-column-start: 2;
     grid-row-start: 1;
-    padding-left: 5px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: 3rem 3rem 1fr 2rem 3rem;
@@ -118,7 +120,7 @@ body {
 }
 
 .centeredChild {
-    height: 240px;
+    height: 242px;
     display: flex;
     justify-content: center; /*Центрирование по горизонтали*/
     align-items: center;

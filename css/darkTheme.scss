@@ -1,7 +1,8 @@
-$font-color: #8b92a9;
-$background: #1a2035;
-$form-background: #202940;
-$input-modal-background: #1a2035;
+$font-color: #bebebe;
+$background: #262626;
+$main-grid-background: #181818;
+$form-background: #2d2d2d;
+$input-modal-background: #222222;
 $boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
 /* Btn colors */
 $primary-dark: #006adb;
@@ -11,7 +12,7 @@ $danger-dark: #ba323f;
 
 #titlebar {
     color: $font-color;
-    background: #29375b;
+    background: $background;
     border-bottom: none;
 }
 
@@ -32,19 +33,16 @@ main {
 }
 .grid-container {
     color: $font-color;
+    background-color: $main-grid-background;
 }
 .grid-titlebar {
     background-color: white;
 }
 .grid-left-side {
     box-shadow: $boxShadow;
-    background-color: $form-background;
 }
 .left-side-button {
     color: $font-color;
-}
-.left-side-button:hover {
-    background-color: $background;
 }
 .canvasContainer {
     background-color: $form-background;
@@ -59,6 +57,8 @@ main {
     color: $font-color;
     background-color: $form-background;
     border-color: #0d1b29;
+}
+.form-select {
 }
 .modal-content {
     color: $font-color;
@@ -109,6 +109,14 @@ main {
     color: #243c7e !important;
 }
 
+.c-btn {
+    background-color: #424242;
+    color: #789eff;
+}
+.c-btn:hover {
+    color: $background;
+    background-color: #789eff;
+}
 /* Custom bootstrap buttons*/
 
 /*------------------------------------- Outline primary --------------------------*/

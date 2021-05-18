@@ -1,7 +1,7 @@
 /* Btn colors */
 #titlebar {
-  color: #8b92a9;
-  background: #29375b;
+  color: #bebebe;
+  background: #262626;
   border-bottom: none;
 }
 
@@ -21,11 +21,12 @@
 }
 
 main {
-  background-color: #1a2035;
+  background-color: #262626;
 }
 
 .grid-container {
-  color: #8b92a9;
+  color: #bebebe;
+  background-color: #181818;
 }
 
 .grid-titlebar {
@@ -35,52 +36,47 @@ main {
 .grid-left-side {
   -webkit-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
           box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
-  background-color: #202940;
 }
 
 .left-side-button {
-  color: #8b92a9;
-}
-
-.left-side-button:hover {
-  background-color: #1a2035;
+  color: #bebebe;
 }
 
 .canvasContainer {
-  background-color: #202940;
+  background-color: #2d2d2d;
   -webkit-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
           box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
 }
 
 .form-control {
-  color: #8b92a9;
-  background-color: #202940;
+  color: #bebebe;
+  background-color: #2d2d2d;
   border-color: #0d1b29;
 }
 
 .form-control:focus {
-  color: #8b92a9;
-  background-color: #202940;
+  color: #bebebe;
+  background-color: #2d2d2d;
   border-color: #0d1b29;
 }
 
 .modal-content {
-  color: #8b92a9;
-  background-color: #202940;
+  color: #bebebe;
+  background-color: #2d2d2d;
 }
 
 .modal-input {
-  background-color: #1a2035;
+  background-color: #222222;
 }
 
 .modal-header {
-  border-bottom: 1px solid #8b92a9;
-  color: #8b92a9;
+  border-bottom: 1px solid #bebebe;
+  color: #bebebe;
 }
 
 .modal-footer {
-  border-top: 1px solid #8b92a9;
-  color: #8b92a9;
+  border-top: 1px solid #bebebe;
+  color: #bebebe;
 }
 
 .btn-close {
@@ -96,13 +92,13 @@ main {
 }
 
 .table {
-  color: #8b92a9;
+  color: #bebebe;
 }
 
 .list-group-item {
   background-color: transparent;
   border: 1px solid rgba(0, 0, 0, 0.41);
-  color: #8b92a9;
+  color: #bebebe;
 }
 
 .grid-alert {
@@ -122,6 +118,16 @@ main {
 
 #historyAlert li:hover {
   color: #243c7e !important;
+}
+
+.c-btn {
+  background-color: #424242;
+  color: #789eff;
+}
+
+.c-btn:hover {
+  color: #262626;
+  background-color: #789eff;
 }
 
 /* Custom bootstrap buttons*/
