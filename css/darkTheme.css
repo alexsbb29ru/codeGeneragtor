@@ -7,7 +7,6 @@
 
 #restore-button .icon,
 #max-button .icon,
-#close-button .icon,
 #min-button .icon {
   -webkit-filter: none;
           filter: none;
@@ -84,12 +83,14 @@ main {
   color: #8b92a9;
 }
 
-.close {
+.btn-close {
   color: #fff;
   text-shadow: 0 1px 0 #000;
+  -webkit-filter: invert(1);
+          filter: invert(1);
 }
 
-.close:hover {
+.btn-close:hover {
   color: #fff;
   text-decoration: none;
 }

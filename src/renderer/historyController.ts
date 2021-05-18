@@ -112,7 +112,10 @@ class HistoryController {
                         let clientHeight = historyModalBody.clientHeight
 
                         // если пользователь прокрутил достаточно далеко (< 100px до конца)
-                        if (windowRelativeBottom <= clientHeight + 100)
+                        if (
+                            windowRelativeBottom <= clientHeight + 150 &&
+                            windowRelativeBottom !== 0
+                        )
                             //Выведем историю генерации
                             this.showHistoryList(this.scrolledHistory)
                     }

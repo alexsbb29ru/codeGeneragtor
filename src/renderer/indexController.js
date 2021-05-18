@@ -34,6 +34,7 @@ const gp = __importStar(require("./generalSettings"));
 const objectMapper_1 = require("./objectMapper");
 class IndexController {
     constructor() {
+        var _a;
         this.initButtonsHandlers = () => {
             let savedCodesElement = (document.getElementById("savedCodesSelect"));
             savedCodesElement.addEventListener("change", async () => {
@@ -207,9 +208,11 @@ class IndexController {
                 }
             });
             this.ipcRender.on("window:open-history-modal", (_event, modalObj) => {
-                var _a;
+                var _a, _b;
                 (_a = this.mainMoadlElement
                     .querySelector(".modal-dialog")) === null || _a === void 0 ? void 0 : _a.classList.add("modal-dialog-scrollable");
+                (_b = this.mainMoadlElement
+                    .querySelector(".modal-dialog")) === null || _b === void 0 ? void 0 : _b.classList.remove("modal-dialog-centered");
                 this.openModal(modalObj);
             });
             //Применение настроек и сохранение их в файл
@@ -543,7 +546,7 @@ class IndexController {
         this.mainModal = new bootstrap_1.default.Modal(this.mainMoadlElement);
         //Очистка модалки при закрытии
         this.mainMoadlElement.addEventListener("hidden.bs.modal", () => {
-            var _a;
+            var _a, _b;
             ;
             (this.mainMoadlElement.querySelector(".modal-title")).innerHTML = "";
             (this.mainMoadlElement.querySelector(".modal-extended-header")).innerHTML = "";
@@ -553,6 +556,13 @@ class IndexController {
             footer.removeAttribute("style");
             (_a = this.mainMoadlElement
                 .querySelector(".modal-dialog")) === null || _a === void 0 ? void 0 : _a.classList.remove("modal-dialog-scrollable");
+            (_b = this.mainMoadlElement
+                .querySelector(".modal-dialog")) === null || _b === void 0 ? void 0 : _b.classList.add("modal-dialog-centered");
+        });
+        let tooltipTriggerList = [].slice.call((_a = document
+            .getElementById("main")) === null || _a === void 0 ? void 0 : _a.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap_1.default.Tooltip(tooltipTriggerEl);
         });
     }
     async init() {

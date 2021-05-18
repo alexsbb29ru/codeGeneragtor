@@ -170,10 +170,12 @@ class SettingsController {
      * Init inputs to apply changes
      */
     public initInputs = () => {
-        var tooltipTriggerList = [].slice.call(
-            document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        let tooltipTriggerList = [].slice.call(
+            document
+                .getElementById("mainModal")
+                ?.querySelectorAll('[data-bs-toggle="tooltip"]')
         )
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
 

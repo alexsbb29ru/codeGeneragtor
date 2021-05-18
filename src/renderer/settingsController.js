@@ -167,9 +167,10 @@ class SettingsController {
          * Init inputs to apply changes
          */
         this.initInputs = () => {
-            var _a;
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var _a, _b;
+            let tooltipTriggerList = [].slice.call((_a = document
+                .getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap_1.default.Tooltip(tooltipTriggerEl);
             });
             //Bool - показывать или нет текст ШК code128
@@ -216,7 +217,7 @@ class SettingsController {
             maxSybolsInput.value =
                 this.settingsTypes.general.codeSymbolLength.currentLength.toString();
             //Обработка закрытия модалки
-            (_a = document.getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.addEventListener("hide.bs.modal", (e) => {
+            (_b = document.getElementById("mainModal")) === null || _b === void 0 ? void 0 : _b.addEventListener("hide.bs.modal", (e) => {
                 if (gp.getCurrentModal() === gp.ModalTypes.settings)
                     //Отправим запрос на применения настроек в ipcMain, а далее в indexController
                     ipcRenderer.send("window:change-settings", this.settingsTypes);

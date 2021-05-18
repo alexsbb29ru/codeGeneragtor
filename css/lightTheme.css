@@ -6,7 +6,6 @@
 
 #restore-button .icon,
 #max-button .icon,
-#close-button .icon,
 #min-button .icon {
   -webkit-filter: invert(1);
           filter: invert(1);

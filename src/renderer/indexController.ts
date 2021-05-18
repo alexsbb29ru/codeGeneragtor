@@ -114,6 +114,18 @@ class IndexController {
             this.mainMoadlElement
                 .querySelector(".modal-dialog")
                 ?.classList.remove("modal-dialog-scrollable")
+            this.mainMoadlElement
+                .querySelector(".modal-dialog")
+                ?.classList.add("modal-dialog-centered")
+        })
+
+        let tooltipTriggerList = [].slice.call(
+            document
+                .getElementById("main")
+                ?.querySelectorAll('[data-bs-toggle="tooltip"]')
+        )
+        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     }
 
@@ -386,6 +398,9 @@ class IndexController {
                 this.mainMoadlElement
                     .querySelector(".modal-dialog")
                     ?.classList.add("modal-dialog-scrollable")
+                this.mainMoadlElement
+                    .querySelector(".modal-dialog")
+                    ?.classList.remove("modal-dialog-centered")
                 this.openModal(modalObj)
             }
         )

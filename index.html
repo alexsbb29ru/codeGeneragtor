@@ -42,7 +42,7 @@
       </div>
     </div>
   </header>
-  <main>
+  <main id="main">
     <!-- Основная модалка-->
     <div class="modal fade" id="mainModal" tabindex="-1" aria-hidden="true" style="display: none;">
       <div class="modal-dialog modal-dialog-centered">
@@ -62,30 +62,6 @@
       </div>
     </div>
 
-    <!-- Модалка с историей текстов -->
-    <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModal"
-      aria-hidden="true">
-      <div class="modal-dialog modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="historyModalTitle">История</h5>
-            <input type="text" placeholder="Поиск" class="form-control modal-input" id="history-search-input">
-            <button type="button" class="close" id="closeHistorylBtn" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body" id="historyModalBody">
-            <ul class="list-group list-group-flush" id="historyListModal">
-
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn c-btn-outline-danger" id="clearHistBtn">Очистить</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!--Общий контейнер-->
     <div class="main-grid-container">
       <!--Левый блок с кнопками-->
@@ -93,7 +69,7 @@
 
         <!--Кнопка настроек-->
         <div class="left-side-button settingsButton">
-          <div id="settingsButton" class="c-btn" title="Настройки">
+          <div id="settingsButton" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn" title="Настройки">
             <!-- <span>&#9874;</span> -->
             <svg width="1.5rem" height="1.5rem" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor"
               xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +82,7 @@
         </div>
         <!--Кнопка истории-->
         <div class="left-side-button historyButton">
-          <div id="historyButton" class="c-btn" title="История">
+          <div id="historyButton" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn" title="История">
             <!-- <span>&#9997;</span> -->
             <svg width="1.5rem" height="1.5rem" viewBox="0 0 16 16" class="bi bi-journal-text" fill="currentColor"
               xmlns="http://www.w3.org/2000/svg">
@@ -121,7 +97,7 @@
         </div>
         <!--Кнопка о приложении-->
         <div class="left-side-button contactButton">
-          <div id="contactButton" class="c-btn" title="О приложении">
+          <div id="contactButton" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn" title="О приложении">
             <!-- <span>&#9875;</span> -->
             <svg width="1.5rem" height="1.5rem" viewBox="0 0 16 16" class="bi bi-at" fill="currentColor"
               xmlns="http://www.w3.org/2000/svg">
@@ -132,7 +108,8 @@
         </div>
         <!--Кнопка паетного ввода-->
         <div class="left-side-button multiGenerateBtn">
-          <div id="multiGenerateBtn" class="c-btn" title="Множественная генерация">
+          <div id="multiGenerateBtn" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn"
+            title="Множественная генерация">
             <!-- <span>&#9997;</span> -->
             <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 16 16"
               fill="currentColor" class="bi bi-collection" viewBox="0 0 16 16">
