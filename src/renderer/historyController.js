@@ -46,7 +46,7 @@ class HistoryController {
         let title = "История";
         let extendedHeader = `<input type="text" placeholder="Поиск" class="form-control modal-input" id="history-search-input">`;
         let body = `<ul class="list-group list-group-flush" id="historyListModal"></ul>`;
-        let clearBtn = new gp.ModalButton("clearHistBtn", "Очистить", "c-btn-outline-danger", null, false);
+        let clearBtn = new gp.ModalButton("clearHistBtn", "Очистить", "btn-danger", null, false);
         let buttons = new Array(clearBtn);
         let modal = new gp.MainModal(gp.ModalTypes.history, title, body, buttons, extendedHeader);
         ipcRenderer.send("window:open-history-modal", modal);

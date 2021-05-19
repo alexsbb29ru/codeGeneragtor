@@ -35,7 +35,7 @@ class HistoryController {
         let clearBtn = new gp.ModalButton(
             "clearHistBtn",
             "Очистить",
-            "c-btn-outline-danger",
+            "btn-danger",
             null,
             false
         )

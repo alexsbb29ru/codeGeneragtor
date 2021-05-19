@@ -145,7 +145,7 @@ class SettingsController {
                     </div>
                     <br/>
                     <div>
-                        <button type="button" class="btn btn-outline-secondary" id="setDefColors">Восстановить дефолтные цвета</button>
+                        <button type="button" class="btn btn-secondary" id="setDefColors">Восстановить дефолтные цвета</button>
                     </div>
                 </div>
             </td>

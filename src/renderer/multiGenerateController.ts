@@ -26,7 +26,7 @@ class MultiGenerate {
         let generateBtn = new gp.ModalButton(
             "confirmMultiGenBtn",
             "Сгенерировать",
-            "c-btn-outline-primary",
+            "btn-primary",
             null,
             false
         )

@@ -122,7 +122,7 @@ class IndexController {
                 let title = "Введите имя файла без расширения";
                 let body = `<input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
             <span id="saveFolderPath" class="saveFolderPath">${this.downloadFolderPath}</span>`;
-                let dismissBtn = new gp.ModalButton("denyFileNameBtn", "Отмена", "btn-outline-secondary", () => {
+                let dismissBtn = new gp.ModalButton("denyFileNameBtn", "Отмена", "btn-secondary", () => {
                     let fileNameInput = (document.getElementById("fileNameInput"));
                     fileNameInput.value = "";
                 }, true);

@@ -43,7 +43,7 @@ class MultiGenerate {
               <label for="multiGenerateTextBlock">Введите данные через ;</label>
             </div>
             <span id="generagteFolderPath" class="saveFolderPath">${this.folderPath}</span>`;
-        let generateBtn = new gp.ModalButton("confirmMultiGenBtn", "Сгенерировать", "c-btn-outline-primary", null, false);
+        let generateBtn = new gp.ModalButton("confirmMultiGenBtn", "Сгенерировать", "btn-primary", null, false);
         let buttons = new Array(generateBtn);
         let modal = new gp.MainModal("", title, body, buttons);
         ipcRenderer.send("window:open-multigen-modal", modal);

@@ -256,7 +256,7 @@ class IndexController {
             let dismissBtn = new gp.ModalButton(
                 "denyFileNameBtn",
                 "Отмена",
-                "btn-outline-secondary",
+                "btn-secondary",
                 () => {
                     let fileNameInput = <HTMLInputElement>(
                         document.getElementById("fileNameInput")
