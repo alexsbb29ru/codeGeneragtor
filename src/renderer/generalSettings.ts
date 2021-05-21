@@ -97,6 +97,12 @@ export enum ModalTypes {
     about = "about",
 }
 
+export enum AlertCssClasses {
+    primary = "alert-primary",
+    success = "alert-success",
+    danger = "alert-danger",
+}
+
 let currentModal: string
 export const getCurrentModal = (): string => {
     return currentModal

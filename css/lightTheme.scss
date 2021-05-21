@@ -1,10 +1,14 @@
 $hoverColor: #b9b9b94d;
 $boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
+$main-grid-background: #e9e9e9;
+
+$success: #d1e7dd;
+$danger: #f8d7da;
+
+$c-button: #5b95ff;
 
 #titlebar {
     color: black;
-    background: white;
-    border-bottom: 1px solid #eeeeeec2;
 }
 
 #restore-button .icon,
@@ -22,17 +26,13 @@ $boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
 }
 
 main {
-    background-color: #f5f8fb;
+    background-color: #fff;
 }
-.grid-left-side {
-    box-shadow: $boxShadow;
-    background-color: white;
+.grid-container {
+    background-color: $main-grid-background;
 }
 .list-group-item {
     background-color: transparent;
-}
-.left-side-button:hover {
-    background-color: $hoverColor;
 }
 .canvasContainer {
     background-color: white;
@@ -53,117 +53,28 @@ main {
     color: rgb(19, 43, 110) !important;
 }
 
-/* Custom bootstrap buttons*/
-
-/*------------------------------------- Outline primary --------------------------*/
-.c-btn-outline-primary {
-    color: #007bff;
-    border-color: #007bff;
+.alert-danger {
+    color: #842029;
+    background-color: $danger !important;
+    border-color: $danger !important;
+}
+.alert-success {
+    color: #0f5132;
+    background-color: $success !important;
+    border-color: $success !important;
 }
 
-.c-btn-outline-primary:hover {
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
+.c-btn {
+    background-color: $main-grid-background;
+    color: $c-button;
+}
+.c-btn:hover {
+    color: $main-grid-background;
+    background-color: $c-button;
 }
 
-.c-btn-outline-primary:focus,
-.c-btn-outline-primary.focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
-}
-
-.c-btn-outline-primary.disabled,
-.c-btn-outline-primary:disabled {
-    color: #007bff;
-    background-color: transparent;
-}
-
-.c-btn-outline-primary:not(:disabled):not(.disabled):active,
-.c-btn-outline-primary:not(:disabled):not(.disabled).active,
-.show > .c-btn-outline-primary.dropdown-toggle {
-    color: #fff;
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.c-btn-outline-primary:not(:disabled):not(.disabled):active:focus,
-.c-btn-outline-primary:not(:disabled):not(.disabled).active:focus,
-.show > .c-btn-outline-primary.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
-}
-
-/*------------------------------------ Outline success ----------------------------------*/
-
-.c-btn-outline-success {
-    color: #28a745;
-    border-color: #28a745;
-}
-
-.c-btn-outline-success:hover {
-    color: #fff;
-    background-color: #28a745;
-    border-color: #28a745;
-}
-
-.c-btn-outline-success:focus,
-.c-btn-outline-success.focus {
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5);
-}
-
-.c-btn-outline-success.disabled,
-.c-btn-outline-success:disabled {
-    color: #28a745;
-    background-color: transparent;
-}
-
-.c-btn-outline-success:not(:disabled):not(.disabled):active,
-.c-btn-outline-success:not(:disabled):not(.disabled).active,
-.show > .c-btn-outline-success.dropdown-toggle {
-    color: #fff;
-    background-color: #28a745;
-    border-color: #28a745;
-}
-
-.c-btn-outline-success:not(:disabled):not(.disabled):active:focus,
-.c-btn-outline-success:not(:disabled):not(.disabled).active:focus,
-.show > .c-btn-outline-success.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5);
-}
-
-/* ------------------------------------- Outline danger -----------------------------------*/
-
-.c-btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
-}
-
-.c-btn-outline-danger:hover {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.c-btn-outline-danger:focus,
-.c-btn-outline-danger.focus {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
-}
-
-.c-btn-outline-danger.disabled,
-.c-btn-outline-danger:disabled {
-    color: #dc3545;
-    background-color: transparent;
-}
-
-.c-btn-outline-danger:not(:disabled):not(.disabled):active,
-.c-btn-outline-danger:not(:disabled):not(.disabled).active,
-.show > .c-btn-outline-danger.dropdown-toggle {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-.c-btn-outline-danger:not(:disabled):not(.disabled):active:focus,
-.c-btn-outline-danger:not(:disabled):not(.disabled).active:focus,
-.show > .c-btn-outline-danger.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
+.btn-primary {
+    color: #ffffffe8;
+    background-color: $c-button;
+    border-color: $c-button;
 }

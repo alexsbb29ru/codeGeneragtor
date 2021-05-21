@@ -119,23 +119,31 @@ main {
   color: #bebebe;
 }
 
-.grid-alert {
-  color: #00142b !important;
-  background-color: #84add7 !important;
-  border-color: #5f90c5 !important;
+.alert-primary {
+  background-color: #567cb9 !important;
+  border-color: #567cb9 !important;
 }
 
-#historyAlert {
-  background-color: #84add7 !important;
-  border-color: #5f90c5 !important;
+.alert-danger {
+  background-color: #ba323f !important;
+  border-color: #ba323f !important;
+}
+
+.alert-success {
+  background-color: #198754 !important;
+  border-color: #198754 !important;
+}
+
+.grid-alert {
+  color: #fff !important;
 }
 
 #historyAlert li {
-  color: #00142b !important;
+  color: #ffffff !important;
 }
 
 #historyAlert li:hover {
-  color: #243c7e !important;
+  color: #d9e3ff !important;
 }
 
 .c-btn {

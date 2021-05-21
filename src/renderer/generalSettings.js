@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setCurrentModal = exports.getCurrentModal = exports.ModalTypes = exports.ModalButton = exports.MainModal = exports.GeneralParams = void 0;
+exports.setCurrentModal = exports.getCurrentModal = exports.AlertCssClasses = exports.ModalTypes = exports.ModalButton = exports.MainModal = exports.GeneralParams = void 0;
 const electron_1 = __importDefault(require("electron"));
 const path_1 = __importDefault(require("path"));
 /**
@@ -57,6 +57,12 @@ var ModalTypes;
     ModalTypes["multiGenerate"] = "multiGenerate";
     ModalTypes["about"] = "about";
 })(ModalTypes = exports.ModalTypes || (exports.ModalTypes = {}));
+var AlertCssClasses;
+(function (AlertCssClasses) {
+    AlertCssClasses["primary"] = "alert-primary";
+    AlertCssClasses["success"] = "alert-success";
+    AlertCssClasses["danger"] = "alert-danger";
+})(AlertCssClasses = exports.AlertCssClasses || (exports.AlertCssClasses = {}));
 let currentModal;
 const getCurrentModal = () => {
     return currentModal;

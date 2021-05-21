@@ -7,7 +7,7 @@ $boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
 /* Btn colors */
 $primary-dark: #567cb9;
 $primary-dark-hover: #3b76cc;
-$success-dark: #147e2c;
+$success-dark: #198754;
 $danger-dark: #ba323f;
 $danger-dark-hover: #a7202c;
 
@@ -107,21 +107,26 @@ main {
     border: 1px solid rgba(221, 220, 220, 0.41);
     color: $font-color;
 }
-
-.grid-alert {
-    color: #00142b !important;
-    background-color: #84add7 !important;
-    border-color: #5f90c5 !important;
+.alert-primary {
+    background-color: $primary-dark !important;
+    border-color: $primary-dark !important;
 }
-#historyAlert {
-    background-color: #84add7 !important;
-    border-color: #5f90c5 !important;
+.alert-danger {
+    background-color: $danger-dark !important;
+    border-color: $danger-dark !important;
+}
+.alert-success {
+    background-color: $success-dark !important;
+    border-color: $success-dark !important;
+}
+.grid-alert {
+    color: #fff !important;
 }
 #historyAlert li {
-    color: #00142b !important;
+    color: #ffffff !important;
 }
 #historyAlert li:hover {
-    color: #243c7e !important;
+    color: #d9e3ff !important;
 }
 
 .c-btn {

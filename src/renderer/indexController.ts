@@ -47,6 +47,8 @@ class IndexController {
     private savedCodes: Array<string>
     //Общие параметры для приложения
     private generalParams: gp.GeneralParams
+    //Идентификатор таймера показа алерта
+    private alertTimerId: number = 0
 
     constructor() {
         this.ipcRender = window.require("electron").ipcRenderer
@@ -152,8 +154,9 @@ class IndexController {
         this.inputText.addEventListener("change", () => {
             this.writeRemainingSymb()
         })
-        this.inputText.addEventListener("input", () => {
+        this.inputText.addEventListener("input", async () => {
             //Выводим всплывашку с предложенной историей генерации
+            await this.historySearch(this.inputText.value)
             this.writeRemainingSymb()
         })
         this.settingsButton.addEventListener("click", () => {
@@ -204,7 +207,16 @@ class IndexController {
                     this.saveButton.dispatchEvent(new Event("click"))
             if (e.code === "Escape") {
                 //При нажатии Escape закрываем высплывашку с предложенной историей генерации
+                this.hideHistoryAlert()
             }
+        })
+
+        window.addEventListener("click", (e: MouseEvent) => {
+            if (
+                (<Element>e.target).id !== "historyAlert" &&
+                this.historyAlertIsShown()
+            )
+                this.hideHistoryAlert()
         })
 
         //Сохранение текста в "избранное"
@@ -216,10 +228,18 @@ class IndexController {
 
             if (this.savedCodes.includes(this.inputText.value)) {
                 //Выводим сообщение о том, что код уже содержится в избранном
+                this.showMessageAlert(
+                    "Текст уже содержится в избранном",
+                    gp.AlertCssClasses.danger
+                )
             } else {
                 this.savedCodes.push(this.inputText.value)
                 await this.saveCodesToLocalStorage()
                 //Вывести сообщение об успешном добавлении в "избранное"
+                this.showMessageAlert(
+                    "Текст успешно сохранен в избранном",
+                    gp.AlertCssClasses.success
+                )
                 savedCodesElement.options.add(
                     new Option(this.inputText.value, this.inputText.value)
                 )
@@ -240,7 +260,12 @@ class IndexController {
 
             this.inputText.dispatchEvent(new Event("change"))
             await this.saveCodesToLocalStorage()
+
             //Выводим сообщение об успешном удалении данных из избранного
+            this.showMessageAlert(
+                "Текст успешно удален из избранного",
+                gp.AlertCssClasses.success
+            )
         })
 
         //Вывод модалки для сохранения изображения в локальное хранилище
@@ -283,6 +308,10 @@ class IndexController {
                         this.saveFileFunc(fileName, url)
 
                         //Выводим сообщение об успешном сохранении изображении
+                        this.showMessageAlert(
+                            "Изображение успешно сохранено!",
+                            gp.AlertCssClasses.success
+                        )
                     } catch (err) {
                         console.log(err)
                     }
@@ -662,7 +691,7 @@ class IndexController {
      * @param modalObject Объект модального окна с необходимым содержимым
      * @returns
      */
-    private openModal(modalObject: gp.MainModal): void {
+    private openModal = (modalObject: gp.MainModal): void => {
         //Если модалка открыта или не содержит имя, не открываем ее
         if (this.isModalShown() || !modalObject.name) return
 
@@ -719,8 +748,139 @@ class IndexController {
      * Возвращает результат в зависимости от того, выведена модалка на экран или нет
      * @returns true или false, если отображается или не отображается модалка
      */
-    private isModalShown(): boolean {
+    private isModalShown = (): boolean => {
         return document.getElementById("mainModal")?.style.display === "block"
+    }
+
+    private showMessageAlert = (messageText: string, alertType?: string) => {
+        let messageAlert = <HTMLElement>document.getElementById("messageAlert")
+
+        if (alertType) {
+            messageAlert.classList.remove(gp.AlertCssClasses.danger)
+            messageAlert.classList.remove(gp.AlertCssClasses.primary)
+            messageAlert.classList.remove(gp.AlertCssClasses.success)
+
+            messageAlert.classList.add(alertType)
+        }
+        messageAlert.textContent = messageText
+        if (this.alertTimerId) {
+            clearTimeout(this.alertTimerId)
+            this.alertTimerId = 0
+        }
+
+        this.showAlert(messageAlert)
+        this.alertTimerId = window.setTimeout(
+            () => this.hideAlert(messageAlert),
+            2000
+        )
+    }
+
+    private hideHistoryAlert = () => {
+        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        this.hideAlert(historyAlert)
+    }
+    private showHistoryAlert = () => {
+        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        this.showAlert(historyAlert)
+    }
+    private historyAlertIsShown = (): boolean => {
+        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        return historyAlert.classList.contains("active-alert")
+    }
+
+    private showAlert = (alertElement: HTMLElement) => {
+        alertElement.classList.remove("disabled-alert")
+        alertElement.classList.add("active-alert")
+    }
+
+    private hideAlert = (alertElement: HTMLElement) => {
+        alertElement.classList.remove("active-alert")
+        alertElement.classList.add("disabled-alert")
+    }
+
+    private historySearch = async (searchText: string) => {
+        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        //Сохраняем новый массив с кодами, используя Set, чтобы были убраны дубликаты
+        let historyArr: Array<string> = [...new Set(this.historyCodes)]
+        let historyListAlert = <HTMLElement>(
+            document.getElementById("historyListAlert")
+        )
+        //Отступы сверху и снизу (костыль)
+        let topBottomHeight: number = 10
+        //Принимаем за высоту одной строки, чтобы указать высоту всплывающего блока
+        let stringHeight: number = 25
+        //Счетчик количества отображаемых кодов
+        let counter: number = 0
+        //Флаг, указывающий, что происходит поиск. Возможно, понадобится, когда история будет большая
+        let isSearching: boolean = false
+
+        //Очищаем содержимое всплывашки
+        historyListAlert.innerHTML = ""
+        //Инвертируем массив, чтобы недавние данные были первыми
+        historyArr.reverse()
+
+        if (!isSearching && this.inputText.value) {
+            isSearching = true
+
+            for (let i = 0; i < historyArr.length; i++) {
+                let str = historyArr[i]
+
+                //Если всплывашка скрыта, откроем ее
+                if (str.includes(this.inputText.value)) {
+                    if (!this.historyAlertIsShown()) this.showHistoryAlert()
+                    counter++
+                    //Если отображено 5 элементов, завершаем цикл, так как пока что выводим только 5 элементов
+                    if (counter > 5) break
+
+                    //Создаем элемент списка для отображаемого кода
+                    const li = document.createElement("li")
+                    //Обрежем отображаемое значение, если слишком много символов
+                    const itemText =
+                        str.length > 30
+                            ? document.createTextNode(
+                                  str.substring(0, 30) + "..."
+                              )
+                            : document.createTextNode(str)
+
+                    li.classList.add("list-group-item")
+                    //Добавляем этот параметр, чтобы при кликах вне текстового поля и всплывашки
+                    //закрывалась эта самая всплывашка
+                    li.setAttribute("histListFlag", "true")
+                    li.setAttribute("allText", str)
+
+                    li.appendChild(itemText)
+                    //При клике запишем значение в текстовое поле
+                    li.onclick = async () => {
+                        this.inputText.value = str
+                        await this.generateBarcode(str)
+                        this.hideHistoryAlert()
+                    }
+                    historyListAlert.appendChild(li)
+                }
+            }
+            //Если введенное значение равно тому, что в списке и в списке всего один элемент, скроем всплывашку
+            if (
+                (historyListAlert.children.length === 1 &&
+                    historyListAlert.children[0].getAttribute("allText") ===
+                        this.inputText.value) ||
+                historyListAlert.children.length == 0
+            ) {
+                this.hideHistoryAlert()
+                isSearching = false
+
+                return
+            }
+            //Формируем высоту вслывашки
+            historyAlert.style.height =
+                topBottomHeight +
+                historyListAlert.children.length * stringHeight +
+                topBottomHeight +
+                "px"
+
+            isSearching = false
+        } else {
+            if (this.historyAlertIsShown()) this.hideHistoryAlert()
+        }
     }
 
     //----------------------------------------------Generator settings region----------------------------------------
@@ -757,6 +917,9 @@ class IndexController {
             //Генерируем введенный текст
             this.generateBarcode(this.inputText.value, this.saveImageToBuffer)
         }
+
+        //При генерации скроем всплывашку с историей кодов
+        if (this.historyAlertIsShown()) this.hideHistoryAlert()
     }
     /**
      * Генерация изображения ШК из текста

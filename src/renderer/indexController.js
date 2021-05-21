@@ -35,6 +35,8 @@ const objectMapper_1 = require("./objectMapper");
 class IndexController {
     constructor() {
         var _a;
+        //Идентификатор таймера показа алерта
+        this.alertTimerId = 0;
         this.initButtonsHandlers = () => {
             let savedCodesElement = (document.getElementById("savedCodesSelect"));
             savedCodesElement.addEventListener("change", async () => {
@@ -45,8 +47,9 @@ class IndexController {
             this.inputText.addEventListener("change", () => {
                 this.writeRemainingSymb();
             });
-            this.inputText.addEventListener("input", () => {
+            this.inputText.addEventListener("input", async () => {
                 //Выводим всплывашку с предложенной историей генерации
+                await this.historySearch(this.inputText.value);
                 this.writeRemainingSymb();
             });
             this.settingsButton.addEventListener("click", () => {
@@ -84,7 +87,13 @@ class IndexController {
                         this.saveButton.dispatchEvent(new Event("click"));
                 if (e.code === "Escape") {
                     //При нажатии Escape закрываем высплывашку с предложенной историей генерации
+                    this.hideHistoryAlert();
                 }
+            });
+            window.addEventListener("click", (e) => {
+                if (e.target.id !== "historyAlert" &&
+                    this.historyAlertIsShown())
+                    this.hideHistoryAlert();
             });
             //Сохранение текста в "избранное"
             let saveQrTextButton = (document.getElementById("saveQrTextButton"));
@@ -93,11 +102,13 @@ class IndexController {
                     return;
                 if (this.savedCodes.includes(this.inputText.value)) {
                     //Выводим сообщение о том, что код уже содержится в избранном
+                    this.showMessageAlert("Текст уже содержится в избранном", gp.AlertCssClasses.danger);
                 }
                 else {
                     this.savedCodes.push(this.inputText.value);
                     await this.saveCodesToLocalStorage();
                     //Вывести сообщение об успешном добавлении в "избранное"
+                    this.showMessageAlert("Текст успешно сохранен в избранном", gp.AlertCssClasses.success);
                     savedCodesElement.options.add(new Option(this.inputText.value, this.inputText.value));
                 }
             });
@@ -113,6 +124,7 @@ class IndexController {
                 this.inputText.dispatchEvent(new Event("change"));
                 await this.saveCodesToLocalStorage();
                 //Выводим сообщение об успешном удалении данных из избранного
+                this.showMessageAlert("Текст успешно удален из избранного", gp.AlertCssClasses.success);
             });
             //Вывод модалки для сохранения изображения в локальное хранилище
             this.saveButton.addEventListener("click", () => {
@@ -136,6 +148,7 @@ class IndexController {
                         let url = this.qrImg.src;
                         this.saveFileFunc(fileName, url);
                         //Выводим сообщение об успешном сохранении изображении
+                        this.showMessageAlert("Изображение успешно сохранено!", gp.AlertCssClasses.success);
                     }
                     catch (err) {
                         console.log(err);
@@ -431,6 +444,170 @@ class IndexController {
         this.removeCharacters = (text) => {
             return text.replace(/[<>:/|?*\\"]/g, "");
         };
+        /**
+         * Отображение модального окна с определенным содержимым
+         * @param modalObject Объект модального окна с необходимым содержимым
+         * @returns
+         */
+        this.openModal = (modalObject) => {
+            //Если модалка открыта или не содержит имя, не открываем ее
+            if (this.isModalShown() || !modalObject.name)
+                return;
+            //Элемент заголовка модалки
+            let modalTitle = (this.mainMoadlElement.querySelector(".modal-title"));
+            //Элемент тела модалки
+            let modalBody = (this.mainMoadlElement.querySelector(".modal-body"));
+            //Подвал модалки, куда кидаем кнопки, если они будут
+            let modalFooter = (this.mainMoadlElement.querySelector(".modal-footer"));
+            let modalExtendedHeader = (this.mainMoadlElement.querySelector(".modal-extended-header"));
+            if (modalObject.extendedHeader && modalObject.extendedHeader.length > 0)
+                modalExtendedHeader.innerHTML = modalObject.extendedHeader;
+            //Запишем данные из объекта в соответствующие элементы
+            modalTitle.innerHTML = modalObject.title;
+            modalBody.innerHTML = modalObject.body;
+            //Если есть кнопки, создадим их на основе массива из объекта модалки
+            if (modalObject.buttons)
+                modalObject.buttons.forEach((button) => {
+                    let btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.id = button.id;
+                    btn.classList.add("btn", `${button.bClass}`);
+                    btn.textContent = button.text;
+                    if (button.handler)
+                        btn.addEventListener("click", () => {
+                            var _a;
+                            (_a = button.handler) === null || _a === void 0 ? void 0 : _a.call(button);
+                        });
+                    if (button.dismiss)
+                        btn.addEventListener("click", () => this.mainModal.hide());
+                    modalFooter.appendChild(btn);
+                });
+            //Если кнопок нет, скроем футер с глаз долой
+            if (modalObject.buttons.length === 0)
+                modalFooter.style.display = "none";
+            //Укажем имя текущей открываемой модалки
+            gp.setCurrentModal(modalObject.name);
+            //Откроем модалку
+            this.mainModal.show();
+            if (modalObject.handler)
+                modalObject.handler;
+        };
+        /**
+         * Возвращает результат в зависимости от того, выведена модалка на экран или нет
+         * @returns true или false, если отображается или не отображается модалка
+         */
+        this.isModalShown = () => {
+            var _a;
+            return ((_a = document.getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.style.display) === "block";
+        };
+        this.showMessageAlert = (messageText, alertType) => {
+            let messageAlert = document.getElementById("messageAlert");
+            if (alertType) {
+                messageAlert.classList.remove(gp.AlertCssClasses.danger);
+                messageAlert.classList.remove(gp.AlertCssClasses.primary);
+                messageAlert.classList.remove(gp.AlertCssClasses.success);
+                messageAlert.classList.add(alertType);
+            }
+            messageAlert.textContent = messageText;
+            if (this.alertTimerId) {
+                clearTimeout(this.alertTimerId);
+                this.alertTimerId = 0;
+            }
+            this.showAlert(messageAlert);
+            this.alertTimerId = window.setTimeout(() => this.hideAlert(messageAlert), 2000);
+        };
+        this.hideHistoryAlert = () => {
+            let historyAlert = document.getElementById("historyAlert");
+            this.hideAlert(historyAlert);
+        };
+        this.showHistoryAlert = () => {
+            let historyAlert = document.getElementById("historyAlert");
+            this.showAlert(historyAlert);
+        };
+        this.historyAlertIsShown = () => {
+            let historyAlert = document.getElementById("historyAlert");
+            return historyAlert.classList.contains("active-alert");
+        };
+        this.showAlert = (alertElement) => {
+            alertElement.classList.remove("disabled-alert");
+            alertElement.classList.add("active-alert");
+        };
+        this.hideAlert = (alertElement) => {
+            alertElement.classList.remove("active-alert");
+            alertElement.classList.add("disabled-alert");
+        };
+        this.historySearch = async (searchText) => {
+            let historyAlert = document.getElementById("historyAlert");
+            //Сохраняем новый массив с кодами, используя Set, чтобы были убраны дубликаты
+            let historyArr = [...new Set(this.historyCodes)];
+            let historyListAlert = (document.getElementById("historyListAlert"));
+            //Отступы сверху и снизу (костыль)
+            let topBottomHeight = 10;
+            //Принимаем за высоту одной строки, чтобы указать высоту всплывающего блока
+            let stringHeight = 25;
+            //Счетчик количества отображаемых кодов
+            let counter = 0;
+            //Флаг, указывающий, что происходит поиск. Возможно, понадобится, когда история будет большая
+            let isSearching = false;
+            //Очищаем содержимое всплывашки
+            historyListAlert.innerHTML = "";
+            //Инвертируем массив, чтобы недавние данные были первыми
+            historyArr.reverse();
+            if (!isSearching && this.inputText.value) {
+                isSearching = true;
+                for (let i = 0; i < historyArr.length; i++) {
+                    let str = historyArr[i];
+                    //Если всплывашка скрыта, откроем ее
+                    if (str.includes(this.inputText.value)) {
+                        if (!this.historyAlertIsShown())
+                            this.showHistoryAlert();
+                        counter++;
+                        //Если отображено 5 элементов, завершаем цикл, так как пока что выводим только 5 элементов
+                        if (counter > 5)
+                            break;
+                        //Создаем элемент списка для отображаемого кода
+                        const li = document.createElement("li");
+                        //Обрежем отображаемое значение, если слишком много символов
+                        const itemText = str.length > 30
+                            ? document.createTextNode(str.substring(0, 30) + "...")
+                            : document.createTextNode(str);
+                        li.classList.add("list-group-item");
+                        //Добавляем этот параметр, чтобы при кликах вне текстового поля и всплывашки
+                        //закрывалась эта самая всплывашка
+                        li.setAttribute("histListFlag", "true");
+                        li.setAttribute("allText", str);
+                        li.appendChild(itemText);
+                        //При клике запишем значение в текстовое поле
+                        li.onclick = async () => {
+                            this.inputText.value = str;
+                            await this.generateBarcode(str);
+                            this.hideHistoryAlert();
+                        };
+                        historyListAlert.appendChild(li);
+                    }
+                }
+                //Если введенное значение равно тому, что в списке и в списке всего один элемент, скроем всплывашку
+                if ((historyListAlert.children.length === 1 &&
+                    historyListAlert.children[0].getAttribute("allText") ===
+                        this.inputText.value) ||
+                    historyListAlert.children.length == 0) {
+                    this.hideHistoryAlert();
+                    isSearching = false;
+                    return;
+                }
+                //Формируем высоту вслывашки
+                historyAlert.style.height =
+                    topBottomHeight +
+                        historyListAlert.children.length * stringHeight +
+                        topBottomHeight +
+                        "px";
+                isSearching = false;
+            }
+            else {
+                if (this.historyAlertIsShown())
+                    this.hideHistoryAlert();
+            }
+        };
         //----------------------------------------------Generator settings region----------------------------------------
         this.loadFontToBarcode = () => {
             bwip_js_1.default.loadFont("PT-Sans", 100, fs.readFileSync(require("path").resolve(this.appData.getAppPath()) +
@@ -449,6 +626,9 @@ class IndexController {
                 //Генерируем введенный текст
                 this.generateBarcode(this.inputText.value, this.saveImageToBuffer);
             }
+            //При генерации скроем всплывашку с историей кодов
+            if (this.historyAlertIsShown())
+                this.hideHistoryAlert();
         };
         /**
          * Генерация изображения ШК из текста
@@ -573,62 +753,6 @@ class IndexController {
         this.initIpcRenderers();
         this.initButtonsHandlers();
         this.loadFontToBarcode();
-    }
-    /**
-     * Отображение модального окна с определенным содержимым
-     * @param modalObject Объект модального окна с необходимым содержимым
-     * @returns
-     */
-    openModal(modalObject) {
-        //Если модалка открыта или не содержит имя, не открываем ее
-        if (this.isModalShown() || !modalObject.name)
-            return;
-        //Элемент заголовка модалки
-        let modalTitle = (this.mainMoadlElement.querySelector(".modal-title"));
-        //Элемент тела модалки
-        let modalBody = (this.mainMoadlElement.querySelector(".modal-body"));
-        //Подвал модалки, куда кидаем кнопки, если они будут
-        let modalFooter = (this.mainMoadlElement.querySelector(".modal-footer"));
-        let modalExtendedHeader = (this.mainMoadlElement.querySelector(".modal-extended-header"));
-        if (modalObject.extendedHeader && modalObject.extendedHeader.length > 0)
-            modalExtendedHeader.innerHTML = modalObject.extendedHeader;
-        //Запишем данные из объекта в соответствующие элементы
-        modalTitle.innerHTML = modalObject.title;
-        modalBody.innerHTML = modalObject.body;
-        //Если есть кнопки, создадим их на основе массива из объекта модалки
-        if (modalObject.buttons)
-            modalObject.buttons.forEach((button) => {
-                let btn = document.createElement("button");
-                btn.type = "button";
-                btn.id = button.id;
-                btn.classList.add("btn", `${button.bClass}`);
-                btn.textContent = button.text;
-                if (button.handler)
-                    btn.addEventListener("click", () => {
-                        var _a;
-                        (_a = button.handler) === null || _a === void 0 ? void 0 : _a.call(button);
-                    });
-                if (button.dismiss)
-                    btn.addEventListener("click", () => this.mainModal.hide());
-                modalFooter.appendChild(btn);
-            });
-        //Если кнопок нет, скроем футер с глаз долой
-        if (modalObject.buttons.length === 0)
-            modalFooter.style.display = "none";
-        //Укажем имя текущей открываемой модалки
-        gp.setCurrentModal(modalObject.name);
-        //Откроем модалку
-        this.mainModal.show();
-        if (modalObject.handler)
-            modalObject.handler;
-    }
-    /**
-     * Возвращает результат в зависимости от того, выведена модалка на экран или нет
-     * @returns true или false, если отображается или не отображается модалка
-     */
-    isModalShown() {
-        var _a;
-        return ((_a = document.getElementById("mainModal")) === null || _a === void 0 ? void 0 : _a.style.display) === "block";
     }
 }
 new IndexController().init();
