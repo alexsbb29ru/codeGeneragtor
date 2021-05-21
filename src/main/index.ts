@@ -6,7 +6,6 @@
     shell,
     globalShortcut,
 } from "electron"
-import path from "path"
 
 const devMode: string = "develop"
 const releaseMode: string = "release"
@@ -30,14 +29,14 @@ const createWindow = (startPage: string): void => {
         show: false,
     })
 
-    if (appMode === devMode) {
+    if (appMode === releaseMode) {
         globalShortcut.register("CommandOrControl+R", () => {})
         globalShortcut.register("CommandOrControl+Shift+I", () => {})
     }
 
     win.loadFile(startPage)
 
-    win.webContents.openDevTools()
+    //win.webContents.openDevTools()
     win.once("ready-to-show", win.show)
     win.on("closed", () => {
         win = null

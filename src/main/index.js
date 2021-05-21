@@ -21,12 +21,12 @@ const createWindow = (startPage) => {
         frame: false,
         show: false,
     });
-    if (appMode === devMode) {
+    if (appMode === releaseMode) {
         electron_1.globalShortcut.register("CommandOrControl+R", () => { });
         electron_1.globalShortcut.register("CommandOrControl+Shift+I", () => { });
     }
     win.loadFile(startPage);
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools()
     win.once("ready-to-show", win.show);
     win.on("closed", () => {
         win = null;
