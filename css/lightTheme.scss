@@ -93,10 +93,10 @@ main {
     background-color: darken($bg-green, 10%);
     border-color: darken($bg-green, 10%);
 }
-
-.c-btn,
-.btn,
-.form-control,
-.form-select {
+.main-grid-container .alert,
+.main-grid-container .c-btn,
+.main-grid-container .btn,
+.main-grid-container .form-control,
+.main-grid-container .form-select {
     box-shadow: $formShadow;
 }

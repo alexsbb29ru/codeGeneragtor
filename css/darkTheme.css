@@ -26,16 +26,13 @@ main {
 
 .grid-container {
   color: #bebebe;
-  background-color: #181818;
+  -webkit-box-shadow: inset 1px 1px 5px -1px black;
+          box-shadow: inset 1px 1px 5px -1px black;
+  background-color: #222222;
 }
 
 .grid-titlebar {
   background-color: white;
-}
-
-.grid-left-side {
-  -webkit-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
-          box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
 }
 
 .left-side-button {
@@ -44,25 +41,27 @@ main {
 
 .canvasContainer {
   background-color: #2d2d2d;
-  -webkit-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
-          box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0px 0px 5px -1px black;
+          box-shadow: 0px 0px 5px -1px black;
 }
 
 .form-control {
   color: #bebebe;
   background-color: #2d2d2d;
-  border-color: #181818;
+  border-color: #222222;
 }
 
 .form-control:focus {
   color: #bebebe;
   background-color: #2d2d2d;
-  border-color: #181818;
+  border-color: #222222;
   -webkit-box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
           box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
 }
 
 .form-select {
+  -webkit-box-shadow: 0px 2px 5px -1px black;
+          box-shadow: 0px 2px 5px -1px black;
   cursor: pointer;
   color: #bebebe;
   background-color: #2d2d2d;
@@ -147,7 +146,7 @@ main {
 }
 
 .c-btn {
-  background-color: #424242;
+  background-color: #3f3f3f;
   color: #99bdff;
 }
 
@@ -181,5 +180,14 @@ main {
 .btn-danger:focus {
   background-color: #a7202c;
   border-color: #a7202c;
+}
+
+.main-grid-container .alert,
+.main-grid-container .c-btn,
+.main-grid-container .btn,
+.main-grid-container .form-control,
+.main-grid-container .form-select {
+  -webkit-box-shadow: 0px 2px 5px -1px black;
+          box-shadow: 0px 2px 5px -1px black;
 }
 /*# sourceMappingURL=darkTheme.css.map */

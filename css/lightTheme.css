@@ -95,10 +95,11 @@ main {
   border-color: #298f41;
 }
 
-.c-btn,
-.btn,
-.form-control,
-.form-select {
+.main-grid-container .alert,
+.main-grid-container .c-btn,
+.main-grid-container .btn,
+.main-grid-container .form-control,
+.main-grid-container .form-select {
   -webkit-box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
           box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
 }
