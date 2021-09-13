@@ -9,7 +9,7 @@
 
 const devMode: string = "develop"
 const releaseMode: string = "release"
-const appMode: string = devMode
+const appMode: string = releaseMode
 let win: BrowserWindow | null
 
 const createWindow = (startPage: string): void => {

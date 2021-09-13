@@ -200,11 +200,32 @@ class IndexController {
             if (e.ctrlKey && e.key == "Enter")
                 await this.generateCodesButtonsHandler()
         })
-
+        //Сохранение изображения по нажатию ctrl + s
         window.addEventListener("keydown", (e) => {
             if (e.ctrlKey && e.code == "KeyS")
                 if (!this.isModalShown())
                     this.saveButton.dispatchEvent(new Event("click"))
+
+            //Открытие модалки настроек по нажатию ctrl + q
+            if (e.ctrlKey && e.code == "KeyQ")
+                if (!this.isModalShown())
+                    this.settingsButton.dispatchEvent(new Event("click"))
+
+            //Открытие модалки истории по нажатию ctrl + j
+            if (e.ctrlKey && e.code == "KeyJ")
+                if (!this.isModalShown())
+                    this.historyButton.dispatchEvent(new Event("click"))
+
+            //Открытие модалки пакетной генерации по нажатию ctrl + g
+            if (e.ctrlKey && e.code == "KeyG")
+                if (!this.isModalShown())
+                    this.multiGenerateBtn.dispatchEvent(new Event("click"))
+
+            //Открытие модалки контактов по нажатию ctrl + i
+            if (e.ctrlKey && e.code == "KeyI")
+                if (!this.isModalShown())
+                    this.contactButton.dispatchEvent(new Event("click"))
+
             if (e.code === "Escape") {
                 //При нажатии Escape закрываем высплывашку с предложенной историей генерации
                 this.hideHistoryAlert()
@@ -637,7 +658,7 @@ class IndexController {
         try {
             jetpack.dir(dirPath)
         } catch (err) {
-            if (err.code !== "EEXIST") throw err
+            // if (ex.code !== "EEXIST") throw err
         }
     }
     /**
@@ -826,7 +847,11 @@ class IndexController {
                 let str = historyArr[i]
 
                 //Если всплывашка скрыта, откроем ее
-                if (str.includes(this.inputText.value)) {
+                if (
+                    str
+                        .toLowerCase()
+                        .includes(this.inputText.value.toLowerCase())
+                ) {
                     if (!this.historyAlertIsShown()) this.showHistoryAlert()
                     counter++
                     //Если отображено 5 элементов, завершаем цикл, так как пока что выводим только 5 элементов
