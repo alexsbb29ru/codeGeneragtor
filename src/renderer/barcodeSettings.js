@@ -28,6 +28,7 @@ class BarcodeSettings {
         this.generalParams = {
             copyImageToClipboard: false,
             isDarkMode: false,
+            isCtrlEnter: false,
             codeSymbolLength: {
                 currentLength: 100,
                 maxLength: 150,

@@ -34,6 +34,11 @@ class SettingsController {
         "Максимальное количество символов, доступное для генерации кода"
     //Название блока с тумблером переключения в dark mode
     private darkModeBlockName: string = "Тёмная тема"
+    //Название блока с выбором генерации по ctrl+enter или просто enter
+    private isCtrlEnterBlockName: string = "Генерация по ctrl+enter"
+    //Tooltip для блока с выбором кнопок генерации
+    private isCtrlEnterTooltip: string = `Если true (стоит галочка), то используется сочетание клавиш CTRL+Enter.\n
+    Иначе используется клавиша Enter`
     //Название блока с указанием максимального количества символов
     private maxSybolsBlockName: string = "Макс. кол-во символов"
     //Стандартные цвета
@@ -89,6 +94,25 @@ class SettingsController {
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="isDarkMode">
                     <label class="form-check-label" for="isDarkMode">${this.darkModeBlockName}</label>
+                </div>
+            </td>
+        </tr>`
+        let generateShortcut: string = `<tr>
+            <th scope="row" class="settingsKey"></th>
+            <td class="settingsValue">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="isCtrlEnter">
+                    <label class="form-check-label" for="isCtrlEnter">${this.isCtrlEnterBlockName}</label>
+                </div>
+            </td>
+            <td>
+                <div class="settingsTooltip" data-bs-toggle="tooltip" title="${this.isCtrlEnterTooltip}">
+                    <span>
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                        </svg>
+                    </span>
                 </div>
             </td>
         </tr>`
@@ -148,6 +172,7 @@ class SettingsController {
         catBody += code128block
         catBody += gen_copyToClip
         catBody += darkModeBlock
+        catBody += generateShortcut
         catBody += maxSymbolsBlock
         catBody += colorsBlock
 
@@ -189,6 +214,10 @@ class SettingsController {
         )
         //Bool - включение темной темы
         let darkMode = <HTMLInputElement>document.getElementById("isDarkMode")
+        //Bool - выбор сочетания клавиш для генерации ШК
+        let generateShortcut = <HTMLInputElement>(
+            document.getElementById("isCtrlEnter")
+        )
         //Максимальное количество символов
         let maxSybolsInput = <HTMLInputElement>(
             document.getElementById("maxSybolsInput")
@@ -205,6 +234,10 @@ class SettingsController {
         //Обработчик изменения темы оформления
         darkMode.addEventListener("change", () => {
             this.settingsTypes.general.isDarkMode = darkMode.checked
+        })
+        //Обработчик изменения сочетания клавиш для генерацию ШК
+        generateShortcut.addEventListener("change", () => {
+            this.settingsTypes.general.isCtrlEnter = generateShortcut.checked
         })
         //Обработчик изменения максимального количества символов
         maxSybolsInput.addEventListener("change", () => {
@@ -240,6 +273,7 @@ class SettingsController {
         showText128.checked = <boolean>this.settingsTypes.code128.includetext
         copyToClip.checked = this.settingsTypes.general.copyImageToClipboard
         darkMode.checked = this.settingsTypes.general.isDarkMode
+        generateShortcut.checked = this.settingsTypes.general.isCtrlEnter
         maxSybolsInput.value =
             this.settingsTypes.general.codeSymbolLength.currentLength.toString()
 

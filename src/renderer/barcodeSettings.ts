@@ -39,6 +39,7 @@ export type TColorSettings = {
 export type TGeneralSettings = {
     copyImageToClipboard: boolean
     isDarkMode: boolean
+    isCtrlEnter: boolean
     codeSymbolLength: TCodeSymbolSettings
     color: TColorSettings
     typeName: string
@@ -70,6 +71,7 @@ export class BarcodeSettings {
     private generalParams: TGeneralSettings = {
         copyImageToClipboard: false,
         isDarkMode: false,
+        isCtrlEnter: false,
         codeSymbolLength: {
             currentLength: 100,
             maxLength: 150,

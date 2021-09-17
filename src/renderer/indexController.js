@@ -78,8 +78,16 @@ class IndexController {
             });
             //Генерация ШК нажатием ctrl + enter
             this.inputText.addEventListener("keydown", async (e) => {
-                if (e.ctrlKey && e.key == "Enter")
-                    await this.generateCodesButtonsHandler();
+                if (e.ctrlKey && e.key === "Enter") {
+                    if (this.appSettings.general.isCtrlEnter)
+                        await this.generateCodesButtonsHandler();
+                }
+                else if (e.key === "Enter") {
+                    if (!this.appSettings.general.isCtrlEnter) {
+                        e.preventDefault();
+                        await this.generateCodesButtonsHandler();
+                    }
+                }
             });
             //Сохранение изображения по нажатию ctrl + s
             window.addEventListener("keydown", (e) => {
