@@ -54,7 +54,10 @@ class MultiGenerate {
                 document.getElementById("multiGenerateTextBlock")
             )
             //Распарсим текст по разделителю и отправим его дальше для генерации
-            let codesArr = multiGenerateTextBlock.value.trim().split(";")
+            let codesArr = multiGenerateTextBlock.value
+                .trim()
+                .replace(/(\r\n|\n|\r)/gm, "")
+                .split(";")
             codesArr.forEach((code, index) => {
                 if (!code) codesArr.splice(index, 1)
             })

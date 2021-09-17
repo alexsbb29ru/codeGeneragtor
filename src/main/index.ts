@@ -36,7 +36,7 @@ const createWindow = (startPage: string): void => {
 
     win.loadFile(startPage)
 
-    //win.webContents.openDevTools()
+    win.webContents.openDevTools()
     win.once("ready-to-show", win.show)
     win.on("closed", () => {
         win = null
