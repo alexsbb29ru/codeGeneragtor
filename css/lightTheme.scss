@@ -100,3 +100,15 @@ main {
 .main-grid-container .form-select {
     box-shadow: $formShadow;
 }
+
+#contextMenu {
+    background-color: white;
+    box-shadow: $boxShadow;
+    border: 1px solid #dfdfdf;
+
+    .context-menu-item {
+        &:hover {
+            background-color: #ebebeb;
+        }
+    }
+}

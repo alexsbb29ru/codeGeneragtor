@@ -71,7 +71,7 @@ export class BarcodeSettings {
     private generalParams: TGeneralSettings = {
         copyImageToClipboard: false,
         isDarkMode: false,
-        isCtrlEnter: false,
+        isCtrlEnter: true,
         codeSymbolLength: {
             currentLength: 100,
             maxLength: 150,

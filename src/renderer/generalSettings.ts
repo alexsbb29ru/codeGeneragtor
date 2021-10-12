@@ -31,6 +31,32 @@ export class GeneralParams {
     constructor() {}
 }
 
+export class ContextMenu {
+    public items: Array<ContextMenuItem>
+    /**
+     * Формирование контекстного меню
+     * @param items Список действий контекстного меню
+     */
+    constructor(items: Array<ContextMenuItem>) {
+        this.items = items
+    }
+}
+
+export class ContextMenuItem {
+    public name: string
+    public handler: Function
+
+    /**
+     * Создание пункта контекстного меню
+     * @param name Название пункта контекстного меню
+     * @param handler Обработчик нажатия на пункт меню
+     */
+    constructor(name: string, handler: Function) {
+        this.name = name
+        this.handler = handler
+    }
+}
+
 export type TAboutApp = {
     modalName: string
     name: string

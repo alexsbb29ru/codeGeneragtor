@@ -216,6 +216,27 @@ body {
     vertical-align: middle;
 }
 
+#contextMenu {
+    position: fixed;
+    z-index: 1000;
+    border-radius: 5px;
+}
+.context-menu-item {
+    cursor: pointer;
+    padding: 0.3rem;
+
+    transition: 0.1s;
+}
+
+.context-menu-item:first-child:hover {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.context-menu-item:last-child:hover {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
 /*-------------------- Settings page styles ---------------------------*/
 .settingsValue {
     text-align: left;

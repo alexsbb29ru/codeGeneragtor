@@ -103,4 +103,15 @@ main {
   -webkit-box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
           box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
 }
+
+#contextMenu {
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
+          box-shadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
+  border: 1px solid #dfdfdf;
+}
+
+#contextMenu .context-menu-item:hover {
+  background-color: #ebebeb;
+}
 /*# sourceMappingURL=lightTheme.css.map */

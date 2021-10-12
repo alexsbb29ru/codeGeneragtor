@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setCurrentModal = exports.getCurrentModal = exports.AlertCssClasses = exports.ModalTypes = exports.ModalButton = exports.MainModal = exports.GeneralParams = void 0;
+exports.setCurrentModal = exports.getCurrentModal = exports.AlertCssClasses = exports.ModalTypes = exports.ModalButton = exports.MainModal = exports.ContextMenuItem = exports.ContextMenu = exports.GeneralParams = void 0;
 const electron_1 = __importDefault(require("electron"));
 const path_1 = __importDefault(require("path"));
 /**
@@ -25,6 +25,28 @@ class GeneralParams {
     }
 }
 exports.GeneralParams = GeneralParams;
+class ContextMenu {
+    /**
+     * Формирование контекстного меню
+     * @param items Список действий контекстного меню
+     */
+    constructor(items) {
+        this.items = items;
+    }
+}
+exports.ContextMenu = ContextMenu;
+class ContextMenuItem {
+    /**
+     * Создание пункта контекстного меню
+     * @param name Название пункта контекстного меню
+     * @param handler Обработчик нажатия на пункт меню
+     */
+    constructor(name, handler) {
+        this.name = name;
+        this.handler = handler;
+    }
+}
+exports.ContextMenuItem = ContextMenuItem;
 class MainModal {
     constructor(name, title, body, buttons, extendedHeader, handler) {
         this.name = name;

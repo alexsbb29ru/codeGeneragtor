@@ -49,6 +49,8 @@ class IndexController {
     private generalParams: gp.GeneralParams
     //Идентификатор таймера показа алерта
     private alertTimerId: number = 0
+    //Выделенный текст в текстовом поле
+    private selectedText: string = ""
 
     constructor() {
         this.ipcRender = window.require("electron").ipcRenderer
@@ -207,6 +209,52 @@ class IndexController {
                 }
             }
         })
+        //Обработка выделения текста для последующего копирования в буфер обмена
+        this.inputText.addEventListener("mouseup", (e) => {
+            if (window.getSelection()?.toString()) {
+                this.selectedText = <string>window.getSelection()?.toString()
+            }
+        })
+        //Вызов кастомного контекстного меню
+        window.addEventListener("contextmenu", (e) => {
+            //Если нажата правая кнопка не в блоке для ввода текста, ничего не делаем
+            if ((<Element>e.target).id !== this.inputText.id) {
+                if (this.checkContextMenuShown()) this.hideContextMenu()
+                return
+            }
+            e?.preventDefault()
+
+            //Генерируем два пункта контекстного меню
+            let copyMenuItem = new gp.ContextMenuItem("Копировать", () => {
+                if (
+                    this.inputText.selectionStart !==
+                    this.inputText.selectionEnd
+                )
+                    electron.clipboard.writeText(this.selectedText)
+            })
+            let pasteMenuItem = new gp.ContextMenuItem("Вставить", () => {
+                let selectionStart = this.inputText.selectionStart
+                let selectionEnd = this.inputText.selectionEnd
+
+                let leftText = this.inputText.value.substring(
+                    0,
+                    <number>selectionStart
+                )
+                let rightText = this.inputText.value.substring(
+                    <number>selectionEnd
+                )
+
+                this.inputText.value =
+                    leftText + electron.clipboard.readText() + rightText
+            })
+            //Добавим в массив сделанные пункты, чтобы передать их в родительский объект
+            let contextMenu = new gp.ContextMenu(
+                new Array<gp.ContextMenuItem>(copyMenuItem, pasteMenuItem)
+            )
+            //Создаем и визуализируем контекстное меню
+            this.makeContextMenu(contextMenu, e)
+        })
+
         //Сохранение изображения по нажатию ctrl + s
         window.addEventListener("keydown", (e) => {
             if (e.ctrlKey && e.code == "KeyS")
@@ -245,6 +293,12 @@ class IndexController {
                 this.historyAlertIsShown()
             )
                 this.hideHistoryAlert()
+
+            if (
+                this.checkContextMenuShown() &&
+                !(<HTMLElement>e.target).classList.contains("context-menu-item")
+            )
+                this.hideContextMenu()
         })
 
         //Сохранение текста в "избранное"
@@ -913,6 +967,65 @@ class IndexController {
         } else {
             if (this.historyAlertIsShown()) this.hideHistoryAlert()
         }
+    }
+    /**
+     * Создание и отображение контекстного меню
+     * @param menuObject родительский объект контекстного меню
+     * @param event событие мыши для определения координат курсора
+     * @returns
+     */
+    private makeContextMenu(
+        menuObject: gp.ContextMenu,
+        event: MouseEvent
+    ): void {
+        //Если нет пунктов меню, ничего не делаем
+        if (menuObject.items.length === 0) return
+
+        //Если уже есть одно контекстное меню, удалим его
+        this.hideContextMenu()
+        //Сохраним координаты курсора
+        const { clientX: mouseX, clientY: mouseY } = event
+
+        //Создаем родительский блок контекстного меню
+        let menuBlock = document.createElement("div")
+        menuBlock.id = "contextMenu"
+        //Задаем координаты положения меню
+        menuBlock.style.top = `${mouseY}`
+        menuBlock.style.left = `${mouseX}`
+        menuBlock.classList.add("context-menu")
+        //Заполняем пункты меню
+        menuObject.items.forEach((item) => {
+            let menuItem = document.createElement("div")
+            menuItem.classList.add("context-menu-item")
+            menuItem.innerText = item.name
+            menuItem.onclick = () => {
+                item.handler()
+                this.hideContextMenu()
+            }
+
+            menuBlock.appendChild(menuItem)
+        })
+        let main = <HTMLElement>document.getElementById("main")
+        main.appendChild(menuBlock)
+    }
+    /**
+     * Определение отображения контекстного меню
+     * @returns true - меню отображается; false - меню скрыто
+     */
+    private checkContextMenuShown() {
+        let contextMenu = document.getElementById("contextMenu")
+        if (contextMenu) return true
+
+        return false
+    }
+    /**
+     * Скрытие контекстного меню
+     */
+    private hideContextMenu() {
+        let contextMenu = document.getElementById("contextMenu")
+        let main = <HTMLElement>document.getElementById("main")
+
+        if (contextMenu) main.removeChild(contextMenu)
     }
 
     //----------------------------------------------Generator settings region----------------------------------------

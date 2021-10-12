@@ -190,4 +190,18 @@ main {
   -webkit-box-shadow: 0px 2px 5px -1px black;
           box-shadow: 0px 2px 5px -1px black;
 }
+
+#contextMenu {
+  background-color: #424242;
+  -webkit-box-shadow: 0px 0px 5px -1px black;
+          box-shadow: 0px 0px 5px -1px black;
+}
+
+#contextMenu .context-menu-item {
+  color: #bebebe;
+}
+
+#contextMenu .context-menu-item:hover {
+  background-color: #585858;
+}
 /*# sourceMappingURL=darkTheme.css.map */

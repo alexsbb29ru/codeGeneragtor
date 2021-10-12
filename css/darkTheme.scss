@@ -170,3 +170,16 @@ main {
 .main-grid-container .form-select {
     box-shadow: $formShadow;
 }
+
+#contextMenu {
+    background-color: #424242;
+    box-shadow: $boxShadow;
+
+    .context-menu-item {
+        color: $font-color;
+
+        &:hover {
+            background-color: #585858;
+        }
+    }
+}

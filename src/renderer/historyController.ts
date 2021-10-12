@@ -138,7 +138,11 @@ class HistoryController {
                         this.initHistoryParams()
 
                         this.history.forEach((str) => {
-                            if (str.includes(searchInput.value))
+                            if (
+                                str
+                                    .toLowerCase()
+                                    .includes(searchInput.value.toLowerCase())
+                            )
                                 this.scrolledHistory.push(str)
                         })
                         this.showHistoryList(this.scrolledHistory)
