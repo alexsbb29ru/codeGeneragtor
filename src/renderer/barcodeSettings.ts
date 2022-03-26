@@ -10,12 +10,21 @@
     textcolor?: string
     barcolor: string
     eclevel?: string
+    eclevelList?: TQRCodeEclevels
     typeName: string
 }
 export type TBarcodeParams = {
     code128: TCodeParams
     qrcode: TCodeParams
+    dataMatrix: TCodeParams
     general: TGeneralSettings
+}
+
+export type TQRCodeEclevels = {
+    low: string
+    medium: string
+    quality: string
+    high: string
 }
 
 export type TAppDataFiles = {
@@ -45,6 +54,13 @@ export type TGeneralSettings = {
     typeName: string
 }
 
+export let QRCodeEclevels: TQRCodeEclevels = {
+    low: "L",
+    medium: "M",
+    quality: "Q",
+    high: "H",
+}
+
 export class BarcodeSettings {
     private code128Params: TCodeParams = {
         bcid: "code128",
@@ -63,7 +79,16 @@ export class BarcodeSettings {
         bcid: "qrcode",
         text: "",
         scale: 10,
-        eclevel: "H",
+        eclevel: QRCodeEclevels.high,
+        eclevelList: QRCodeEclevels,
+        backgroundcolor: "FFFFFF",
+        barcolor: "",
+        typeName: "TCodeParams",
+    }
+    private dataMatrixParams: TCodeParams = {
+        bcid: "datamatrix",
+        text: "",
+        scale: 10,
         backgroundcolor: "FFFFFF",
         barcolor: "",
         typeName: "TCodeParams",
@@ -88,6 +113,7 @@ export class BarcodeSettings {
     private barcodeTypes: TBarcodeParams = {
         code128: this.code128Params,
         qrcode: this.qrcodeParams,
+        dataMatrix: this.dataMatrixParams,
         general: this.generalParams,
     }
 

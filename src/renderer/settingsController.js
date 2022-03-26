@@ -36,6 +36,10 @@ ipcRenderer.on("window:open-settings", (_event, settings) => {
 });
 class SettingsController {
     constructor(settings) {
+        //Tooltip выбора качества QR-кода
+        this.qrCodeEclevelTooltip = "Уровень коррекции ошибок";
+        //Название блока с уровнями коррекции ошибок
+        this.qrCodeEclevelTitle = "Уровень коррекции ошибок";
         //Название блока с копированием изображения в буфер обмена
         this.copyToClipBlockName = "Копировать в буфер обмена";
         //Tooltip для сохранения изображения в буфер
@@ -70,6 +74,30 @@ class SettingsController {
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="showText128">
                     <label class="form-check-label" for="showText128">Отображать текст</label>
+                </div>
+            </td>
+        </tr>`;
+            let qrCodeBlock = `<tr>
+            <th scope="row" class="settingsKey">${this.settingsTypes.qrcode.bcid}</th>
+            <td>${this.qrCodeEclevelTitle}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td id="${this.settingsTypes.qrcode.bcid}Cat" class="settingsValue">
+                <div class="form-group">
+                    <select class="form-select lighter-select" id="qrCodeEclevels">
+                    <option></option>
+                    </select>
+                </div>
+            </td>
+            <td>
+                <div class="settingsTooltip" data-bs-toggle="tooltip" title="${this.qrCodeEclevelTooltip}">
+                    <span>
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                        </svg>
+                    </span>
                 </div>
             </td>
         </tr>`;
@@ -175,6 +203,7 @@ class SettingsController {
             </td>
         </tr>`;
             catBody += code128block;
+            catBody += qrCodeBlock;
             catBody += gen_copyToClip;
             catBody += darkModeBlock;
             catBody += generateShortcut;
@@ -200,6 +229,8 @@ class SettingsController {
             });
             //Bool - показывать или нет текст ШК code128
             let showText128 = (document.getElementById("showText128"));
+            //List - Select - Уровень коррекции QR-кода
+            let qrCodeEclevels = (document.getElementById("qrCodeEclevels"));
             //Bool - сохранять в буфер обмена сгенерированное изображение или нет
             let copyToClip = (document.getElementById("isCopyToClip"));
             //Bool - включение темной темы
@@ -208,6 +239,14 @@ class SettingsController {
             let generateShortcut = (document.getElementById("isCtrlEnter"));
             //Максимальное количество символов
             let maxSybolsInput = (document.getElementById("maxSybolsInput"));
+            //Обработчик изменения уровня коррекции QR-кода
+            qrCodeEclevels.addEventListener("change", async () => {
+                var _a;
+                // Получим значение уровня коррекции из объекта со списком по названию уровня коррекции
+                let levelCode = (_a = Object.getOwnPropertyDescriptor(this.settingsTypes.qrcode.eclevelList, qrCodeEclevels.value)) === null || _a === void 0 ? void 0 : _a.value;
+                // Присвоим выбранный уровень коррекции QR-коду
+                this.settingsTypes.qrcode.eclevel = levelCode;
+            });
             //Обработчик изменения чекбокса отображения текста code128
             showText128.addEventListener("change", () => {
                 this.settingsTypes.code128.includetext = showText128.checked;
@@ -240,6 +279,7 @@ class SettingsController {
                 this.settingsTypes.general.codeSymbolLength.currentLength =
                     parseFloat(maxSybolsInput.value);
             });
+            this.getQrCodeEclevelList();
             this.initColorControls();
             //Применим начальное значение для чекбокса из полученных настроек
             showText128.checked = this.settingsTypes.code128.includetext;
@@ -254,6 +294,32 @@ class SettingsController {
                     //Отправим запрос на применения настроек в ipcMain, а далее в indexController
                     ipcRenderer.send("window:change-settings", this.settingsTypes);
             }, { once: true });
+        };
+        /**
+         * Функция получения списка уровней коррекции QR-кода
+         */
+        this.getQrCodeEclevelList = () => {
+            // Получим список всех уровней коррекции
+            let levelList = Object.getOwnPropertyNames(this.settingsTypes.qrcode.eclevelList);
+            //List - Select - Уровень коррекции QR-кода
+            let qrCodeEclevels = (document.getElementById("qrCodeEclevels"));
+            //Засунем все уровни коррекции в Select
+            levelList.forEach((levelCode) => {
+                var _a;
+                let option = new Option();
+                let levelInd = levelList.indexOf(levelCode);
+                //Запишем в элементы списка уровень коррекции
+                option.text = levelList[levelInd].toUpperCase();
+                option.value = levelList[levelInd];
+                Object.getOwnPropertyDescriptor;
+                //Сразу выделим нужный нам тип кода
+                if (((_a = Object.getOwnPropertyDescriptor(this.settingsTypes.qrcode.eclevelList, levelCode)) === null || _a === void 0 ? void 0 : _a.value) === this.settingsTypes.qrcode.eclevel)
+                    option.selected = true;
+                //Добавим в список созданный элемент
+                qrCodeEclevels.options.add(option);
+            });
+            //Удалим пустую строчку
+            qrCodeEclevels.options.remove(0);
         };
         /**
          *  Инициализация параметров для выбора цвета

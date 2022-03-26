@@ -1,6 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BarcodeSettings = void 0;
+exports.BarcodeSettings = exports.QRCodeEclevels = void 0;
+exports.QRCodeEclevels = {
+    low: "L",
+    medium: "M",
+    quality: "Q",
+    high: "H",
+};
 class BarcodeSettings {
     constructor() {
         this.code128Params = {
@@ -20,7 +26,16 @@ class BarcodeSettings {
             bcid: "qrcode",
             text: "",
             scale: 10,
-            eclevel: "H",
+            eclevel: exports.QRCodeEclevels.high,
+            eclevelList: exports.QRCodeEclevels,
+            backgroundcolor: "FFFFFF",
+            barcolor: "",
+            typeName: "TCodeParams",
+        };
+        this.dataMatrixParams = {
+            bcid: "datamatrix",
+            text: "",
+            scale: 10,
             backgroundcolor: "FFFFFF",
             barcolor: "",
             typeName: "TCodeParams",
@@ -44,6 +59,7 @@ class BarcodeSettings {
         this.barcodeTypes = {
             code128: this.code128Params,
             qrcode: this.qrcodeParams,
+            dataMatrix: this.dataMatrixParams,
             general: this.generalParams,
         };
         this.appDataFiles = {

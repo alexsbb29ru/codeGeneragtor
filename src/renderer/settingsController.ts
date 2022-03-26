@@ -24,6 +24,10 @@ type TDefaultColors = {
 class SettingsController {
     //Список настроек для каждого типа ШК
     public settingsTypes: bs.TBarcodeParams
+    //Tooltip выбора качества QR-кода
+    private qrCodeEclevelTooltip: string = "Уровень коррекции ошибок"
+    //Название блока с уровнями коррекции ошибок
+    private qrCodeEclevelTitle: string = "Уровень коррекции ошибок"
     //Название блока с копированием изображения в буфер обмена
     private copyToClipBlockName: string = "Копировать в буфер обмена"
     //Tooltip для сохранения изображения в буфер
@@ -63,6 +67,30 @@ class SettingsController {
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="showText128">
                     <label class="form-check-label" for="showText128">Отображать текст</label>
+                </div>
+            </td>
+        </tr>`
+        let qrCodeBlock: string = `<tr>
+            <th scope="row" class="settingsKey">${this.settingsTypes.qrcode.bcid}</th>
+            <td>${this.qrCodeEclevelTitle}</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td id="${this.settingsTypes.qrcode.bcid}Cat" class="settingsValue">
+                <div class="form-group">
+                    <select class="form-select lighter-select" id="qrCodeEclevels">
+                    <option></option>
+                    </select>
+                </div>
+            </td>
+            <td>
+                <div class="settingsTooltip" data-bs-toggle="tooltip" title="${this.qrCodeEclevelTooltip}">
+                    <span>
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-question-circle" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M5.25 6.033h1.32c0-.781.458-1.384 1.36-1.384.685 0 1.313.343 1.313 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.007.463h1.307v-.355c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.326 0-2.786.647-2.754 2.533zm1.562 5.516c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                        </svg>
+                    </span>
                 </div>
             </td>
         </tr>`
@@ -170,6 +198,7 @@ class SettingsController {
         </tr>`
 
         catBody += code128block
+        catBody += qrCodeBlock
         catBody += gen_copyToClip
         catBody += darkModeBlock
         catBody += generateShortcut
@@ -208,6 +237,10 @@ class SettingsController {
         let showText128 = <HTMLInputElement>(
             document.getElementById("showText128")
         )
+        //List - Select - Уровень коррекции QR-кода
+        let qrCodeEclevels = <HTMLSelectElement>(
+            document.getElementById("qrCodeEclevels")
+        )
         //Bool - сохранять в буфер обмена сгенерированное изображение или нет
         let copyToClip = <HTMLInputElement>(
             document.getElementById("isCopyToClip")
@@ -222,7 +255,16 @@ class SettingsController {
         let maxSybolsInput = <HTMLInputElement>(
             document.getElementById("maxSybolsInput")
         )
-
+        //Обработчик изменения уровня коррекции QR-кода
+        qrCodeEclevels.addEventListener("change", async () => {
+            // Получим значение уровня коррекции из объекта со списком по названию уровня коррекции
+            let levelCode: string = Object.getOwnPropertyDescriptor(
+                this.settingsTypes.qrcode.eclevelList,
+                qrCodeEclevels.value
+            )?.value
+            // Присвоим выбранный уровень коррекции QR-коду
+            this.settingsTypes.qrcode.eclevel = levelCode
+        })
         //Обработчик изменения чекбокса отображения текста code128
         showText128.addEventListener("change", () => {
             this.settingsTypes.code128.includetext = showText128.checked
@@ -266,7 +308,7 @@ class SettingsController {
             this.settingsTypes.general.codeSymbolLength.currentLength =
                 parseFloat(maxSybolsInput.value)
         })
-
+        this.getQrCodeEclevelList()
         this.initColorControls()
 
         //Применим начальное значение для чекбокса из полученных настроек
@@ -290,6 +332,43 @@ class SettingsController {
             },
             { once: true }
         )
+    }
+    /**
+     * Функция получения списка уровней коррекции QR-кода
+     */
+    private getQrCodeEclevelList = () => {
+        // Получим список всех уровней коррекции
+        let levelList: string[] = Object.getOwnPropertyNames(
+            this.settingsTypes.qrcode.eclevelList
+        )
+
+        //List - Select - Уровень коррекции QR-кода
+        let qrCodeEclevels = <HTMLSelectElement>(
+            document.getElementById("qrCodeEclevels")
+        )
+
+        //Засунем все уровни коррекции в Select
+        levelList.forEach((levelCode) => {
+            let option = new Option()
+
+            let levelInd = levelList.indexOf(levelCode)
+            //Запишем в элементы списка уровень коррекции
+            option.text = levelList[levelInd].toUpperCase()
+            option.value = levelList[levelInd]
+            Object.getOwnPropertyDescriptor
+            //Сразу выделим нужный нам тип кода
+            if (
+                Object.getOwnPropertyDescriptor(
+                    this.settingsTypes.qrcode.eclevelList,
+                    levelCode
+                )?.value === this.settingsTypes.qrcode.eclevel
+            )
+                option.selected = true
+            //Добавим в список созданный элемент
+            qrCodeEclevels.options.add(option)
+        })
+        //Удалим пустую строчку
+        qrCodeEclevels.options.remove(0)
     }
     /**
      *  Инициализация параметров для выбора цвета
