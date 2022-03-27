@@ -267,6 +267,7 @@ class SettingsController {
         //Обработчик изменения темы оформления
         darkMode.addEventListener("change", () => {
             this.settingsTypes.general.isDarkMode = darkMode.checked
+            this.saveSettings()
         })
         //Обработчик изменения сочетания клавиш для генерацию ШК
         generateShortcut.addEventListener("change", () => {
@@ -314,15 +315,18 @@ class SettingsController {
         document.getElementById("mainModal")?.addEventListener(
             "hide.bs.modal",
             (e) => {
-                if (gp.getCurrentModal() === gp.ModalTypes.settings)
-                    //Отправим запрос на применения настроек в ipcMain, а далее в indexController
-                    ipcRenderer.send(
-                        "window:change-settings",
-                        this.settingsTypes
-                    )
+                this.saveSettings()
             },
             { once: true }
         )
+    }
+    /**
+     * Сохранение настроек
+     */
+    private saveSettings() {
+        if (gp.getCurrentModal() === gp.ModalTypes.settings)
+            //Отправим запрос на применения настроек в ipcMain, а далее в indexController
+            ipcRenderer.send("window:change-settings", this.settingsTypes)
     }
     /**
      * Функция получения списка уровней коррекции QR-кода

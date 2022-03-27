@@ -249,6 +249,7 @@ class SettingsController {
             //Обработчик изменения темы оформления
             darkMode.addEventListener("change", () => {
                 this.settingsTypes.general.isDarkMode = darkMode.checked;
+                this.saveSettings();
             });
             //Обработчик изменения сочетания клавиш для генерацию ШК
             generateShortcut.addEventListener("change", () => {
@@ -281,9 +282,7 @@ class SettingsController {
                 this.settingsTypes.general.codeSymbolLength.currentLength.toString();
             //Обработка закрытия модалки
             (_b = document.getElementById("mainModal")) === null || _b === void 0 ? void 0 : _b.addEventListener("hide.bs.modal", (e) => {
-                if (gp.getCurrentModal() === gp.ModalTypes.settings)
-                    //Отправим запрос на применения настроек в ipcMain, а далее в indexController
-                    ipcRenderer.send("window:change-settings", this.settingsTypes);
+                this.saveSettings();
             }, { once: true });
         };
         /**
@@ -348,5 +347,13 @@ class SettingsController {
             symbColor.value = this.settingsTypes.general.color.symbolsColor;
         };
         this.settingsTypes = settings;
+    }
+    /**
+     * Сохранение настроек
+     */
+    saveSettings() {
+        if (gp.getCurrentModal() === gp.ModalTypes.settings)
+            //Отправим запрос на применения настроек в ipcMain, а далее в indexController
+            ipcRenderer.send("window:change-settings", this.settingsTypes);
     }
 }
