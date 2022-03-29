@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const devMode = "develop";
 const releaseMode = "release";
-const appMode = devMode;
+const appMode = releaseMode;
 let win;
 const createWindow = (startPage) => {
     win = new electron_1.BrowserWindow({

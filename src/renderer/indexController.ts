@@ -1119,8 +1119,13 @@ class IndexController {
         let promise = new Promise((resolve, reject) => {
             //Сгенерируем изображение
             barcode.toBuffer(params, (err, png) => {
-                if (err) console.log(err)
-                else {
+                if (err) {
+                    // Если ошибка, выведем сообщение о неудочной генерации
+                    this.showMessageAlert(
+                        `Не удалось сгенерировать ${params.bcid}`,
+                        gp.AlertCssClasses.danger
+                    )
+                } else {
                     //Конвертируем изображение в строку Base64 для дальнейшего отображения и сохранения
                     let imageSrc: string =
                         "data:image/png;base64," + png.toString("base64")
