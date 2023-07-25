@@ -1,21 +1,15 @@
-﻿import electron from "electron"
-const { ipcRenderer } = electron
-import bootstrap from "bootstrap"
-import * as bs from "./barcodeSettings"
-import * as gp from "./generalSettings"
+﻿import * as gp from "./generalSettings"
+import { indexController } from "./renderer"
 
-ipcRenderer.on(
-    "window:init-history-modal",
-    (_event: Event, history: Array<string>) => {
-        let historyCont = new HistoryController(history)
-        historyCont.initHistoryModal()
-    }
-)
+export const initHistoryModal = (history: Array<string>) => {
+    const historyCont = new HistoryController(history)
+    return historyCont.initHistoryModal()
+}
 
 class HistoryController {
     private history: Array<string>
-    private loadList: number = 0
-    private loadIncrement: number = 0
+    private loadList = 0
+    private loadIncrement = 0
     private scrolledHistory: Array<string>
 
     constructor(history: Array<string>) {
@@ -29,19 +23,21 @@ class HistoryController {
         this.scrolledHistory = new Array<string>()
     }
     public initHistoryModal() {
-        let title: string = "История"
-        let extendedHeader: string = `<input type="text" placeholder="Поиск" class="form-control modal-input" id="history-search-input">`
-        let body: string = `<ul class="list-group list-group-flush" id="historyListModal"></ul>`
-        let clearBtn = new gp.ModalButton(
+        const title = "История"
+        const extendedHeader = `<input type="text" placeholder="Поиск" class="form-control modal-input" id="history-search-input">`
+        const body = `<ul class="list-group list-group-flush" id="historyListModal"></ul>`
+        const clearBtn = new gp.ModalButton(
             "clearHistBtn",
             "Очистить",
             "btn-danger",
-            null,
+            () => {
+                return
+            },
             false
         )
-        let buttons = new Array<gp.ModalButton>(clearBtn)
+        const buttons = new Array<gp.ModalButton>(clearBtn)
 
-        let modal = new gp.MainModal(
+        const modal = new gp.MainModal(
             gp.ModalTypes.history,
             title,
             body,
@@ -49,9 +45,7 @@ class HistoryController {
             extendedHeader
         )
 
-        ipcRenderer.send("window:open-history-modal", modal)
-
-        let mainModal = <HTMLElement>document.getElementById("mainModal")
+        const mainModal = <HTMLElement>document.getElementById("mainModal")
         //Во время открытия модалки загружаем в нее данные
         mainModal.addEventListener(
             "show.bs.modal",
@@ -67,10 +61,10 @@ class HistoryController {
             "shown.bs.modal",
             () => {
                 if (gp.getCurrentModal() !== gp.ModalTypes.history) return
-                let modalBody = <HTMLElement>(
+                const modalBody = <HTMLElement>(
                     mainModal.querySelector(".modal-body")
                 )
-                let historyList = <HTMLUListElement>(
+                const historyList = <HTMLUListElement>(
                     document.getElementById("historyListModal")
                 )
                 if (
@@ -80,36 +74,35 @@ class HistoryController {
                     this.showHistoryList(this.scrolledHistory)
                 }
 
-                let clearHistBtn = <HTMLButtonElement>(
+                const clearHistBtn = <HTMLButtonElement>(
                     document.getElementById("clearHistBtn")
                 )
                 //!Навесим обработчики на элементы модалки
                 //Очистка истории при нажатии на кнопку
                 clearHistBtn.addEventListener("click", () => {
-                    ipcRenderer.send("window:clear-history")
+                    indexController.clearHistory()
                 })
 
                 //Обработка двойного нажатия на пункте истории.
-                let historyListModal = <HTMLUListElement>(
+                const historyListModal = <HTMLUListElement>(
                     document.getElementById("historyListModal")
                 )
                 historyListModal.addEventListener("dblclick", (e) => {
                     //Отправим выбранный пункт в другой контроллер (indexController)
-                    ipcRenderer.send(
-                        "window:set-history",
-                        (<HTMLLIElement>e.target).innerText
-                    )
+
+                    const selectedText = (<HTMLLIElement>e.target).innerText
+                    indexController.setHistoryToInput(selectedText)
                 })
 
                 //Сделаем подгрузку данных при скролле
-                let historyModalBody = <HTMLElement>(
+                const historyModalBody = <HTMLElement>(
                     mainModal.querySelector(".modal-body")
                 )
-                historyModalBody.addEventListener("scroll", (e) => {
+                historyModalBody.addEventListener("scroll", () => {
                     if (this.scrolledHistory.length - this.loadList > 0) {
-                        let windowRelativeBottom =
+                        const windowRelativeBottom =
                             historyListModal.getBoundingClientRect().bottom
-                        let clientHeight = historyModalBody.clientHeight
+                        const clientHeight = historyModalBody.clientHeight
 
                         // если пользователь прокрутил достаточно далеко (< 100px до конца)
                         if (
@@ -121,7 +114,7 @@ class HistoryController {
                     }
                 })
                 //Обработчик ввода в поисковое поле
-                let searchInput = <HTMLInputElement>(
+                const searchInput = <HTMLInputElement>(
                     document.getElementById("history-search-input")
                 )
                 searchInput.addEventListener("input", () => {
@@ -152,6 +145,8 @@ class HistoryController {
             },
             { once: true }
         )
+
+        return modal
     }
     /**
      * Вывод истории генерации
@@ -174,7 +169,7 @@ class HistoryController {
             else inc = this.loadIncrement
 
             for (let i = this.loadList; i < this.loadList + inc; i++) {
-                let element = history[i]
+                const element = history[i]
 
                 const li = document.createElement("li")
                 const itemText = document.createTextNode(element)

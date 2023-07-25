@@ -1,19 +1,22 @@
-﻿import electron, { App, IpcRenderer } from "electron"
+﻿import electron, { IpcRenderer, IpcRendererEvent } from "electron"
 const { clipboard, nativeImage } = electron
 import path from "path"
 import jetpack from "fs-jetpack"
 import * as fs from "fs"
-import barcode from "bwip-js"
-import bootstrap from "bootstrap"
+import bwipjs from "bwip-js"
+import * as bootstrap from "bootstrap"
 import * as bs from "./barcodeSettings"
 import * as gp from "./generalSettings"
 import { ObjectMapper as mapper } from "./objectMapper"
+import { openSettingsWindow } from "./settingsController"
+import { openAboutModal } from "./contactController"
+import { initHistoryModal } from "./historyController"
+import { initMultiGenModal } from "./multiGenerateController"
 
-class IndexController {
-    private ipcRender: IpcRenderer
-    private appData: App
+export class IndexController {
+    private ipcRenderer: IpcRenderer
     //Img с отображаемым QR-кодом
-    private qrImg: HTMLImageElement
+    private qrImg: HTMLCanvasElement
     //Выпадающий список с типами ШК (128, QR)
     private typesSelect: HTMLSelectElement
     //Поле для ввода конвертируемого текста
@@ -21,7 +24,7 @@ class IndexController {
     //Поле, в котором выводится количество оставшихся символов
     private symbolCount: HTMLElement
     //Путь до папки с сохраненными изображениями
-    private downloadFolderPath: string
+    private qrDownloadFolderPath = ""
     //Получаем стандартные настройки приложения
     private appSettings: bs.TBarcodeParams
     //Кнока "Сгенерировать" ШК
@@ -48,24 +51,26 @@ class IndexController {
     //Общие параметры для приложения
     private generalParams: gp.GeneralParams
     //Идентификатор таймера показа алерта
-    private alertTimerId: number = 0
+    private alertTimerId = 0
     //Выделенный текст в текстовом поле
-    private selectedText: string = ""
+    private selectedText = ""
+    //Папка с загрузкам
+    private dowloadsFolderPath = ""
+    //Папка приложения
+    private appFolderPath = ""
+    // Версия приложения
+    private appVersion = ""
 
     constructor() {
-        this.ipcRender = window.require("electron").ipcRenderer
-        this.appData = window.require("electron").remote.app
+        this.ipcRenderer = window.require("electron").ipcRenderer
 
-        this.qrImg = <HTMLImageElement>document.getElementById("qrOutput")
+        this.qrImg = <HTMLCanvasElement>document.getElementById("qrOutput")
         this.typesSelect = <HTMLSelectElement>(
             document.getElementById("barcodeTypesSelect")
         )
         this.inputText = <HTMLInputElement>document.getElementById("qrTextForm")
         this.symbolCount = <HTMLElement>document.getElementById("symbolCount")
-        this.downloadFolderPath = path.join(
-            (electron.app || electron.remote.app).getPath("downloads"),
-            "QR Downloads"
-        )
+
         this.appSettings = new bs.BarcodeSettings().getSettingsParams()
         this.genQrButton = <HTMLButtonElement>(
             document.getElementById("genQrButton")
@@ -100,16 +105,23 @@ class IndexController {
         this.mainModal = new bootstrap.Modal(this.mainMoadlElement)
         //Очистка модалки при закрытии
         this.mainMoadlElement.addEventListener("hidden.bs.modal", () => {
-            ;(<HTMLElement>(
+            const modalTitle = <HTMLElement>(
                 this.mainMoadlElement.querySelector(".modal-title")
-            )).innerHTML = ""
-            ;(<HTMLElement>(
+            )
+            modalTitle.innerHTML = ""
+
+            const modalExtendedHeader = <HTMLElement>(
                 this.mainMoadlElement.querySelector(".modal-extended-header")
-            )).innerHTML = ""
-            ;(<HTMLElement>(
+            )
+
+            modalExtendedHeader.innerHTML = ""
+
+            const modalBody = <HTMLElement>(
                 this.mainMoadlElement.querySelector(".modal-body")
-            )).innerHTML = ""
-            let footer = <HTMLElement>(
+            )
+            modalBody.innerHTML = ""
+
+            const footer = <HTMLElement>(
                 this.mainMoadlElement.querySelector(".modal-footer")
             )
             footer.innerHTML = ""
@@ -123,17 +135,20 @@ class IndexController {
                 ?.classList.add("modal-dialog-centered")
         })
 
-        let tooltipTriggerList = [].slice.call(
+        const tooltipTriggerList = [].slice.call(
             document
                 .getElementById("main")
                 ?.querySelectorAll('[data-bs-toggle="tooltip"]')
         )
-        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     }
 
     async init() {
+        await this.initFoldersPath()
+        await this.initGeneralParams()
+
         this.initBarcodeTypesSelect()
         this.getSettingsFromStorage()
         this.getSavedCodesFromStorage()
@@ -142,15 +157,34 @@ class IndexController {
         this.initButtonsHandlers()
         this.loadFontToBarcode()
     }
+    public initGeneralParams = async () => {
+        await this.generalParams.init()
+        this.appVersion = await this.ipcRenderer.invoke("window:getAppVersion")
+    }
+    public initFoldersPath = async () => {
+        this.dowloadsFolderPath = await this.ipcRenderer.invoke(
+            "getDownloadsPath"
+        )
+        this.appFolderPath = await this.ipcRenderer.invoke("getAppPath")
 
+        this.qrDownloadFolderPath = path.join(
+            this.dowloadsFolderPath,
+            "QR Downloads"
+        )
+    }
     public initButtonsHandlers = () => {
-        let savedCodesElement: HTMLSelectElement = <HTMLSelectElement>(
+        const savedCodesElement: HTMLSelectElement = <HTMLSelectElement>(
             document.getElementById("savedCodesSelect")
         )
         savedCodesElement.addEventListener("change", async () => {
             this.inputText.value = savedCodesElement.value
             this.inputText.dispatchEvent(new Event("change"))
-            await this.generateCodesButtonsHandler()
+
+            if (savedCodesElement.value)
+                await this.generateCodesButtonsHandler()
+            else {
+                this.clearCanvas()
+            }
         })
 
         this.inputText.addEventListener("change", () => {
@@ -162,10 +196,9 @@ class IndexController {
             this.writeRemainingSymb()
         })
         this.settingsButton.addEventListener("click", () => {
-            this.ipcRender.send(
-                "window:prepare-settings-page",
-                this.appSettings
-            )
+            const modal = openSettingsWindow(this.appSettings)
+            modal.name = gp.ModalTypes.settings
+            this.openModal(modal)
         })
 
         this.historyButton.addEventListener("click", async () => {
@@ -173,24 +206,37 @@ class IndexController {
         })
 
         this.contactButton.addEventListener("click", () => {
-            let aboutArgs: gp.TAboutApp
-            aboutArgs = {
+            const aboutArgs: gp.TAboutApp = {
                 modalName: gp.ModalTypes.about,
                 name: "Генератор штрих-кодов",
                 copyright: `&#169; 2019 - ${new Date().getFullYear()} 
   <a href="#" id="personLink" targetLink="https://vk.com/subbotinalexeysergeevich">Aleksey Subbotin</a>`,
                 desctiption: "",
-                version: "",
+                version: this.appVersion,
             }
 
-            this.ipcRender.send("window:init-about", aboutArgs)
+            const modal = openAboutModal(aboutArgs)
+            this.openModal(modal)
         })
 
         this.multiGenerateBtn.addEventListener("click", () => {
-            this.ipcRender.send(
-                "window:init-multi-gen",
-                this.downloadFolderPath
+            const modal = initMultiGenModal(this.qrDownloadFolderPath)
+            this.openModal(modal)
+
+            const spinner = document.createElement("div")
+            spinner.id = "generateFilesSpinner"
+            spinner.style.display = "none"
+            spinner.classList.add(
+                "spinner-border",
+                "spinner-border-sm",
+                "text-primary"
             )
+            spinner.setAttribute("role", "status")
+            spinner.innerHTML = `<span class="visually-hidden">Loading...</span></div>`
+
+            this.mainMoadlElement
+                .querySelector(".modal-footer")
+                ?.prepend(spinner)
         })
 
         this.genQrButton.addEventListener("click", async () => {
@@ -225,22 +271,22 @@ class IndexController {
             e?.preventDefault()
 
             //Генерируем два пункта контекстного меню
-            let copyMenuItem = new gp.ContextMenuItem("Копировать", () => {
+            const copyMenuItem = new gp.ContextMenuItem("Копировать", () => {
                 if (
                     this.inputText.selectionStart !==
                     this.inputText.selectionEnd
                 )
                     electron.clipboard.writeText(this.selectedText)
             })
-            let pasteMenuItem = new gp.ContextMenuItem("Вставить", () => {
-                let selectionStart = this.inputText.selectionStart
-                let selectionEnd = this.inputText.selectionEnd
+            const pasteMenuItem = new gp.ContextMenuItem("Вставить", () => {
+                const selectionStart = this.inputText.selectionStart
+                const selectionEnd = this.inputText.selectionEnd
 
-                let leftText = this.inputText.value.substring(
+                const leftText = this.inputText.value.substring(
                     0,
                     <number>selectionStart
                 )
-                let rightText = this.inputText.value.substring(
+                const rightText = this.inputText.value.substring(
                     <number>selectionEnd
                 )
 
@@ -248,7 +294,7 @@ class IndexController {
                     leftText + electron.clipboard.readText() + rightText
             })
             //Добавим в массив сделанные пункты, чтобы передать их в родительский объект
-            let contextMenu = new gp.ContextMenu(
+            const contextMenu = new gp.ContextMenu(
                 new Array<gp.ContextMenuItem>(copyMenuItem, pasteMenuItem)
             )
             //Создаем и визуализируем контекстное меню
@@ -302,7 +348,7 @@ class IndexController {
         })
 
         //Сохранение текста в "избранное"
-        let saveQrTextButton: HTMLButtonElement = <HTMLButtonElement>(
+        const saveQrTextButton: HTMLButtonElement = <HTMLButtonElement>(
             document.getElementById("saveQrTextButton")
         )
         saveQrTextButton.addEventListener("click", async () => {
@@ -329,11 +375,11 @@ class IndexController {
         })
 
         //Удаление элемента из "Избранного"
-        let removeSavedCodeBtn: HTMLButtonElement = <HTMLButtonElement>(
+        const removeSavedCodeBtn: HTMLButtonElement = <HTMLButtonElement>(
             document.getElementById("removeSavedQrBtn")
         )
         removeSavedCodeBtn.addEventListener("click", async () => {
-            let code = savedCodesElement.value
+            const code = savedCodesElement.value
             if (!code) return
 
             this.savedCodes.splice(this.savedCodes.indexOf(code), 1)
@@ -352,41 +398,41 @@ class IndexController {
 
         //Вывод модалки для сохранения изображения в локальное хранилище
         this.saveButton.addEventListener("click", () => {
-            if (!this.qrImg.src) return
+            if (!this.qrImg.toDataURL()) return
 
-            let name = gp.ModalTypes.saveBarcode
-            let title = "Введите имя файла без расширения"
+            const name = gp.ModalTypes.saveBarcode
+            const title = "Введите имя файла без расширения"
 
-            let body = `<input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
-            <span id="saveFolderPath" class="saveFolderPath">${this.downloadFolderPath}</span>`
+            const body = `<input class="form-control modal-input" id="fileNameInput" type="text" placeholder="Введите имя файла">
+            <span id="saveFolderPath" class="saveFolderPath">${this.qrDownloadFolderPath}</span>`
 
-            let dismissBtn = new gp.ModalButton(
+            const dismissBtn = new gp.ModalButton(
                 "denyFileNameBtn",
                 "Отмена",
                 "btn-secondary",
                 () => {
-                    let fileNameInput = <HTMLInputElement>(
+                    const fileNameInput = <HTMLInputElement>(
                         document.getElementById("fileNameInput")
                     )
                     fileNameInput.value = ""
                 },
                 true
             )
-            let okBtn = new gp.ModalButton(
+            const okBtn = new gp.ModalButton(
                 "confirmFileNameBtn",
                 "ОК",
                 "btn-primary",
                 () => {
-                    let fileNameInput = <HTMLInputElement>(
+                    const fileNameInput = <HTMLInputElement>(
                         document.getElementById("fileNameInput")
                     )
                     if (!fileNameInput.value) return
 
                     this.mainModal.hide()
                     try {
-                        let fileName =
+                        const fileName =
                             this.removeCharacters(fileNameInput.value) + ".png"
-                        let url = this.qrImg.src
+                        const url = this.qrImg.toDataURL()
                         this.saveFileFunc(fileName, url)
 
                         //Выводим сообщение об успешном сохранении изображении
@@ -401,7 +447,7 @@ class IndexController {
                 false
             )
 
-            let modalObj = new gp.MainModal(
+            const modalObj = new gp.MainModal(
                 name,
                 title,
                 body,
@@ -410,14 +456,14 @@ class IndexController {
 
             this.openModal(modalObj)
 
-            let saveFolderPath = <HTMLSpanElement>(
+            const saveFolderPath = <HTMLSpanElement>(
                 document.getElementById("saveFolderPath")
             )
-            let fileNameInput = <HTMLInputElement>(
+            const fileNameInput = <HTMLInputElement>(
                 document.getElementById("fileNameInput")
             )
 
-            saveFolderPath.textContent = this.downloadFolderPath
+            saveFolderPath.textContent = this.qrDownloadFolderPath
             fileNameInput.value = this.removeCharacters(
                 <string>this.inputText.value
             )
@@ -433,134 +479,83 @@ class IndexController {
                         .getElementById("confirmFileNameBtn")
                         ?.dispatchEvent(new Event("click"))
         })
-
-        let allModals = document.querySelectorAll(".modal")
-        allModals.forEach((modal) => {
-            // modal.addEventListener("")
-        })
     }
     /**
      * Инициализация всех IpcRenderer
      */
     public initIpcRenderers = () => {
-        this.ipcRender.on(
-            "window:open-multigen-modal",
-            (_event: Event, modalObj: gp.MainModal) => {
-                gp.setCurrentModal(gp.ModalTypes.multiGenerate)
-                modalObj.name = gp.ModalTypes.multiGenerate
-                this.openModal(modalObj)
+        return
+    }
 
-                let spinner = document.createElement("div")
-                spinner.id = "generateFilesSpinner"
-                spinner.style.display = "none"
-                spinner.classList.add(
-                    "spinner-border",
-                    "spinner-border-sm",
-                    "text-primary"
-                )
-                spinner.setAttribute("role", "status")
-                spinner.innerHTML = `<span class="visually-hidden">Loading...</span></div>`
+    /**
+     * Пакетная генерация ШК
+     * @param codesArr Массив генерируемых ШК
+     */
+    public mulipleCodesGeneration = async (codesArr: string[]) => {
+        await this.generateBarcode(codesArr)
+    }
 
-                this.mainMoadlElement
-                    .querySelector(".modal-footer")
-                    ?.prepend(spinner)
-            }
-        )
-        //Обработаем запрос пакетной генерации
-        this.ipcRender.on(
-            "window:generate-codes",
-            async (_event: Event, codesArr: string[]) => {
-                await this.generateBarcode(codesArr)
-            }
-        )
+    /**
+     * Генерация текста, выбранного из истории
+     * @param historyText Выбранный текст из истории
+     */
+    public setHistoryToInput = (historyText: string) => {
+        this.mainModal.hide()
+        const maxLength =
+            this.appSettings.general.codeSymbolLength.currentLength
+        if (historyText.length > maxLength)
+            historyText = historyText.substring(0, maxLength)
+        if (this.inputText.value != historyText) {
+            this.inputText.value = historyText
+            this.inputText.dispatchEvent(new Event("change"))
+            this.genQrButton.dispatchEvent(new Event("click"))
+        }
+    }
 
-        //Очистка истории
-        this.ipcRender.on(
-            "window:clear-history",
-            (_event: Event, _args: any) => {
-                this.mainModal.hide()
-                //Очищаем массив с историей генерации
-                this.historyCodes = new Array<string>()
-                let fileName: string = new gp.GeneralParams().historyFileName
-                //Записываем историю в файл
-                let data = JSON.stringify(this.historyCodes)
-                this.saveDataToLocalStorage(fileName, data)
-            }
+    /**
+     * Применение настроек и сохранение их в файл
+     * @param codeTypes Настройки видов ШК
+     */
+    public changeSettings = async (codeTypes: bs.TBarcodeParams) => {
+        this.appSettings = codeTypes
+        await this.saveSettingsToLocalStorage()
+        await this.changeColorTheme(this.appSettings.general.isDarkMode)
+        this.changeMaxSymbolCount(
+            this.appSettings.general.codeSymbolLength.currentLength
         )
-        //Генерация текста, выбранного из истории
-        this.ipcRender.on(
-            "window:set-history",
-            (_event: Event, historyText: string) => {
-                this.mainModal.hide()
-                let maxLength =
-                    this.appSettings.general.codeSymbolLength.currentLength
-                if (historyText.length > maxLength)
-                    historyText = historyText.substring(0, maxLength)
-                if (this.inputText.value != historyText) {
-                    this.inputText.value = historyText
-                    this.inputText.dispatchEvent(new Event("change"))
-                    this.genQrButton.dispatchEvent(new Event("click"))
-                }
-            }
-        )
-        this.ipcRender.on(
-            "window:open-history-modal",
-            (_event: Event, modalObj: gp.MainModal) => {
-                this.mainMoadlElement
-                    .querySelector(".modal-dialog")
-                    ?.classList.add("modal-dialog-scrollable")
-                this.mainMoadlElement
-                    .querySelector(".modal-dialog")
-                    ?.classList.remove("modal-dialog-centered")
-                this.openModal(modalObj)
-            }
-        )
-        //Применение настроек и сохранение их в файл
-        this.ipcRender.on(
-            "window:change-settings",
-            async (_event: Event, codeTypes: bs.TBarcodeParams) => {
-                this.appSettings = codeTypes
-                await this.saveSettingsToLocalStorage()
-                this.changeColorTheme(this.appSettings.general.isDarkMode)
-                this.changeMaxSymbolCount(
-                    this.appSettings.general.codeSymbolLength.currentLength
-                )
-            }
-        )
-        //Открытие модалки настроек
-        this.ipcRender.on(
-            "window:open-settings-modal",
-            (_event: Event, modalObj: gp.MainModal) => {
-                modalObj.name = gp.ModalTypes.settings
-                this.openModal(modalObj)
-            }
-        )
-        this.ipcRender.on(
-            "window:open-about-modal",
-            (_event: Event, modalObj: gp.MainModal) => {
-                this.openModal(modalObj)
-            }
-        )
+    }
+
+    /**
+     * Очистка истории
+     */
+    public clearHistory = async () => {
+        this.mainModal.hide()
+        //Очищаем массив с историей генерации
+        this.historyCodes = new Array<string>()
+        const fileName: string = this.generalParams.historyFileName
+        //Записываем историю в файл
+        const data = JSON.stringify(this.historyCodes)
+        this.saveDataToLocalStorage(fileName, data)
     }
     /**
      * Получение списка типов кодов и добавление в Select
      */
     public initBarcodeTypesSelect = () => {
         //Получим типы ШК
-        let barcodeTypes: string[] = Object.getOwnPropertyNames(
+        const barcodeTypes: string[] = Object.getOwnPropertyNames(
             this.appSettings
         )
         //Переберем все типы ШК, создадим элементы и закинем в select
         barcodeTypes.forEach((barcodeType) => {
-            let objectBarcodeType = barcodeType as keyof bs.TBarcodeParams
+            const objectBarcodeType = barcodeType as keyof bs.TBarcodeParams
             if (
                 this.appSettings[objectBarcodeType].typeName !==
                 this.appSettings.code128.typeName
             )
                 return
 
-            let option = new Option()
-            let typeInd = barcodeTypes.indexOf(barcodeType)
+            const option = new Option()
+            const typeInd = barcodeTypes.indexOf(barcodeType)
 
             option.text = barcodeTypes[typeInd]
             option.value = barcodeTypes[typeInd]
@@ -579,13 +574,13 @@ class IndexController {
      */
     public getSavedCodesFromStorage = async () => {
         //Получаем имя файла с сохраненными кодами
-        let filePath: string = new gp.GeneralParams().savedDataFileName
+        const filePath: string = this.generalParams.savedDataFileName
         //Получаем все сохраненные коды из файла
-        let data: string = <string>await this.getDataFromStorage(filePath)
+        const data: string = <string>await this.getDataFromStorage(filePath)
         if (data) {
             this.savedCodes = <Array<string>>JSON.parse(data)
 
-            let savedCodesElement: HTMLSelectElement = <HTMLSelectElement>(
+            const savedCodesElement: HTMLSelectElement = <HTMLSelectElement>(
                 document.getElementById("savedCodesSelect")
             )
             //Закинем их в Select
@@ -599,14 +594,14 @@ class IndexController {
      */
     public getSettingsFromStorage = async () => {
         //Получаем имя файла с настройками
-        let filePath: string = new gp.GeneralParams().settingsFileName
+        const filePath: string = this.generalParams.settingsFileName
         //Получаем настройки из файла
-        let data: string = <string>await this.getDataFromStorage(filePath)
+        const data: string = <string>await this.getDataFromStorage(filePath)
         if (data) {
-            let sourceData: bs.TBarcodeParams = JSON.parse(data)
+            const sourceData: bs.TBarcodeParams = JSON.parse(data)
             new mapper().map<bs.TBarcodeParams>(sourceData, this.appSettings)
 
-            this.changeColorTheme(this.appSettings.general.isDarkMode)
+            await this.changeColorTheme(this.appSettings.general.isDarkMode)
             this.changeMaxSymbolCount(
                 this.appSettings.general.codeSymbolLength.currentLength
             )
@@ -618,17 +613,16 @@ class IndexController {
      */
     public getHistoryFromStorage = async (openDialog: boolean) => {
         //Получаем имя файла с историей генерации
-        let filePath: string = new gp.GeneralParams().historyFileName
+        const filePath: string = this.generalParams.historyFileName
         //Получаем историю генерации из файла
-        let data = await this.getDataFromStorage(filePath)
+        const data = await this.getDataFromStorage(filePath)
 
         if (data) {
             this.historyCodes = JSON.parse(data) as string[]
-            if (openDialog)
-                this.ipcRender.send(
-                    "window:init-history-modal",
-                    this.historyCodes
-                )
+            if (openDialog) {
+                const modal = initHistoryModal(this.historyCodes)
+                this.openModal(modal)
+            }
         }
     }
 
@@ -673,7 +667,7 @@ class IndexController {
 
         //! Костыль. Почему-то не копируется текущее изображение буфер
         setTimeout(() => {
-            let img = nativeImage.createFromDataURL(this.qrImg.src)
+            const img = nativeImage.createFromDataURL(this.qrImg.toDataURL())
             clipboard.writeImage(img)
             console.log("Image was generated")
         }, 100)
@@ -682,16 +676,16 @@ class IndexController {
      * Сохранение избранных данных в локальный файл
      */
     public saveCodesToLocalStorage = async () => {
-        let fileName = this.generalParams.savedDataFileName
-        let data = JSON.stringify(this.savedCodes)
+        const fileName = this.generalParams.savedDataFileName
+        const data = JSON.stringify(this.savedCodes)
         await this.saveDataToLocalStorage(fileName, data)
     }
     /**
      * Сохранение настроек в локальный файл
      */
     public saveSettingsToLocalStorage = async () => {
-        let fileName = this.generalParams.settingsFileName
-        let data = JSON.stringify(this.appSettings)
+        const fileName = this.generalParams.settingsFileName
+        const data = JSON.stringify(this.appSettings)
 
         await this.saveDataToLocalStorage(fileName, data)
     }
@@ -703,10 +697,10 @@ class IndexController {
      */
     public saveFileFunc = (fileName: string, url: string): void => {
         //Создадим директорию для сохранения файлов
-        this.makeDir(this.downloadFolderPath)
+        this.makeDir(this.qrDownloadFolderPath)
 
-        let pathToSave = path.join(this.downloadFolderPath, fileName)
-        let base64Data = url.replace(/^data:image\/png;base64,/, "")
+        const pathToSave = path.join(this.qrDownloadFolderPath, fileName)
+        const base64Data = url.replace(/^data:image\/png;base64,/, "")
 
         fs.writeFileSync(pathToSave, base64Data, "base64")
     }
@@ -726,18 +720,17 @@ class IndexController {
      * Переключение тем приложения
      * @param isDarkMode выбрана темная тема?
      */
-    private changeColorTheme = (isDarkMode: boolean) => {
-        let themeStyle: HTMLLinkElement = <HTMLLinkElement>(
-            document.getElementById("colorTheme")
-        )
+    private changeColorTheme = async (isDarkMode: boolean) => {
         if (isDarkMode) {
-            themeStyle.href = new gp.GeneralParams().darkStyleLink
             document.body.classList.add("darkBody")
             document.body.classList.remove("lightBody")
+
+            await this.ipcRenderer.invoke("dark-mode:on")
         } else {
-            themeStyle.href = new gp.GeneralParams().lightStyleLink
             document.body.classList.add("lightBody")
             document.body.classList.remove("darkBody")
+
+            await this.ipcRenderer.invoke("dark-mode:off")
         }
     }
     /**
@@ -753,7 +746,7 @@ class IndexController {
      */
     private writeRemainingSymb = () => {
         //Высчитываем оставшее количество символов
-        let remainingSymbCount =
+        const remainingSymbCount =
             this.appSettings.general.codeSymbolLength.currentLength -
             <number>this.inputText?.value.length
 
@@ -778,19 +771,19 @@ class IndexController {
         if (this.isModalShown() || !modalObject.name) return
 
         //Элемент заголовка модалки
-        let modalTitle = <HTMLElement>(
+        const modalTitle = <HTMLElement>(
             this.mainMoadlElement.querySelector(".modal-title")
         )
         //Элемент тела модалки
-        let modalBody = <HTMLElement>(
+        const modalBody = <HTMLElement>(
             this.mainMoadlElement.querySelector(".modal-body")
         )
         //Подвал модалки, куда кидаем кнопки, если они будут
-        let modalFooter = <HTMLElement>(
+        const modalFooter = <HTMLElement>(
             this.mainMoadlElement.querySelector(".modal-footer")
         )
 
-        let modalExtendedHeader = <HTMLElement>(
+        const modalExtendedHeader = <HTMLElement>(
             this.mainMoadlElement.querySelector(".modal-extended-header")
         )
         if (modalObject.extendedHeader && modalObject.extendedHeader.length > 0)
@@ -803,7 +796,7 @@ class IndexController {
         //Если есть кнопки, создадим их на основе массива из объекта модалки
         if (modalObject.buttons)
             modalObject.buttons.forEach((button) => {
-                let btn = document.createElement("button")
+                const btn = document.createElement("button")
                 btn.type = "button"
                 btn.id = button.id
                 btn.classList.add("btn", `${button.bClass}`)
@@ -835,7 +828,9 @@ class IndexController {
     }
 
     private showMessageAlert = (messageText: string, alertType?: string) => {
-        let messageAlert = <HTMLElement>document.getElementById("messageAlert")
+        const messageAlert = <HTMLElement>(
+            document.getElementById("messageAlert")
+        )
 
         if (alertType) {
             messageAlert.classList.remove(gp.AlertCssClasses.danger)
@@ -858,15 +853,21 @@ class IndexController {
     }
 
     private hideHistoryAlert = () => {
-        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        const historyAlert = <HTMLElement>(
+            document.getElementById("historyAlert")
+        )
         this.hideAlert(historyAlert)
     }
     private showHistoryAlert = () => {
-        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        const historyAlert = <HTMLElement>(
+            document.getElementById("historyAlert")
+        )
         this.showAlert(historyAlert)
     }
     private historyAlertIsShown = (): boolean => {
-        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        const historyAlert = <HTMLElement>(
+            document.getElementById("historyAlert")
+        )
         return historyAlert.classList.contains("active-alert")
     }
 
@@ -881,20 +882,22 @@ class IndexController {
     }
 
     private historySearch = async (searchText: string) => {
-        let historyAlert = <HTMLElement>document.getElementById("historyAlert")
+        const historyAlert = <HTMLElement>(
+            document.getElementById("historyAlert")
+        )
         //Сохраняем новый массив с кодами, используя Set, чтобы были убраны дубликаты
-        let historyArr: Array<string> = [...new Set(this.historyCodes)]
-        let historyListAlert = <HTMLElement>(
+        const historyArr: Array<string> = [...new Set(this.historyCodes)]
+        const historyListAlert = <HTMLElement>(
             document.getElementById("historyListAlert")
         )
         //Отступы сверху и снизу (костыль)
-        let topBottomHeight: number = 10
+        const topBottomHeight = 10
         //Принимаем за высоту одной строки, чтобы указать высоту всплывающего блока
-        let stringHeight: number = 25
+        const stringHeight = 25
         //Счетчик количества отображаемых кодов
-        let counter: number = 0
+        let counter = 0
         //Флаг, указывающий, что происходит поиск. Возможно, понадобится, когда история будет большая
-        let isSearching: boolean = false
+        let isSearching = false
 
         //Очищаем содержимое всплывашки
         historyListAlert.innerHTML = ""
@@ -905,7 +908,7 @@ class IndexController {
             isSearching = true
 
             for (let i = 0; i < historyArr.length; i++) {
-                let str = historyArr[i]
+                const str = historyArr[i]
 
                 //Если всплывашка скрыта, откроем ее
                 if (
@@ -987,7 +990,7 @@ class IndexController {
         const { clientX: mouseX, clientY: mouseY } = event
 
         //Создаем родительский блок контекстного меню
-        let menuBlock = document.createElement("div")
+        const menuBlock = document.createElement("div")
         menuBlock.id = "contextMenu"
         //Задаем координаты положения меню
         menuBlock.style.top = `${mouseY}`
@@ -995,7 +998,7 @@ class IndexController {
         menuBlock.classList.add("context-menu")
         //Заполняем пункты меню
         menuObject.items.forEach((item) => {
-            let menuItem = document.createElement("div")
+            const menuItem = document.createElement("div")
             menuItem.classList.add("context-menu-item")
             menuItem.innerText = item.name
             menuItem.onclick = () => {
@@ -1005,7 +1008,7 @@ class IndexController {
 
             menuBlock.appendChild(menuItem)
         })
-        let main = <HTMLElement>document.getElementById("main")
+        const main = <HTMLElement>document.getElementById("main")
         main.appendChild(menuBlock)
     }
     /**
@@ -1013,7 +1016,7 @@ class IndexController {
      * @returns true - меню отображается; false - меню скрыто
      */
     private checkContextMenuShown() {
-        let contextMenu = document.getElementById("contextMenu")
+        const contextMenu = document.getElementById("contextMenu")
         if (contextMenu) return true
 
         return false
@@ -1022,8 +1025,8 @@ class IndexController {
      * Скрытие контекстного меню
      */
     private hideContextMenu() {
-        let contextMenu = document.getElementById("contextMenu")
-        let main = <HTMLElement>document.getElementById("main")
+        const contextMenu = document.getElementById("contextMenu")
+        const main = <HTMLElement>document.getElementById("main")
 
         if (contextMenu) main.removeChild(contextMenu)
     }
@@ -1031,12 +1034,11 @@ class IndexController {
     //----------------------------------------------Generator settings region----------------------------------------
 
     private loadFontToBarcode = () => {
-        barcode.loadFont(
+        bwipjs.loadFont(
             "PT-Sans",
             100,
             fs.readFileSync(
-                require("path").resolve(this.appData.getAppPath()) +
-                    "/fonts/PTSans-Regular.ttf",
+                path.resolve(this.appFolderPath) + "/fonts/PTSans-Regular.ttf",
                 "binary"
             )
         )
@@ -1052,7 +1054,7 @@ class IndexController {
             )
                 this.historyCodes.push(this.inputText.value)
 
-            let data = JSON.stringify(this.historyCodes)
+            const data = JSON.stringify(this.historyCodes)
             //Записываем историю в файл
             await this.saveDataToLocalStorage(
                 this.generalParams.historyFileName,
@@ -1060,7 +1062,9 @@ class IndexController {
             )
 
             //Генерируем введенный текст
-            this.generateBarcode(this.inputText.value, this.saveImageToBuffer)
+            this.generateBarcode(this.inputText.value, () => {
+                this.saveImageToBuffer()
+            })
         }
 
         //При генерации скроем всплывашку с историей кодов
@@ -1072,12 +1076,12 @@ class IndexController {
      */
     public generateBarcode = async (
         text: string | string[],
-        callback?: Function
+        callback?: () => void
     ) => {
         //Получим выбранный тип ШК из выпадающего списка
-        let type = this.typesSelect.value as keyof bs.TBarcodeParams
+        const type = this.typesSelect.value as keyof bs.TBarcodeParams
         //Получаем параметры для выбранного типа ШК из настроек приложения
-        let params: bs.TCodeParams = <bs.TCodeParams>this.appSettings[type]
+        const params: bs.TCodeParams = <bs.TCodeParams>this.appSettings[type]
 
         //Установим новые значения для цветовых свойств ШК
         params.textcolor = this.appSettings.general.color.fontColor.replace(
@@ -1093,7 +1097,7 @@ class IndexController {
 
         //Если поступающий текст - массив, значит, это множественная генерация
         if (Array.isArray(text)) {
-            for (let code of text) {
+            for (const code of text) {
                 params.text = code.trim()
                 await this.generateSingleCode(true, params)
             }
@@ -1116,51 +1120,53 @@ class IndexController {
         isMulty: boolean,
         params: bs.TCodeParams
     ) => {
-        let promise = new Promise((resolve, reject) => {
-            //Сгенерируем изображение
-            barcode.toBuffer(params, (err, png) => {
-                if (err) {
-                    // Если ошибка, выведем сообщение о неудочной генерации
-                    this.showMessageAlert(
-                        `Не удалось сгенерировать ${params.bcid}`,
-                        gp.AlertCssClasses.danger
-                    )
+        const promise = new Promise((resolve, reject) => {
+            if (isMulty) {
+                const fileName = this.removeCharacters(params.text) + ".png"
+                const multiGenCanvas = document.getElementById("multiGenCanvas")
+
+                if (!multiGenCanvas) return
+
+                const canvas = multiGenCanvas as HTMLCanvasElement
+
+                bwipjs.toCanvas(canvas, params)
+
+                const imageData = canvas.toDataURL()
+                this.saveFileFunc(fileName, imageData)
+
+                resolve(true)
+            } else {
+                this.clearCanvas()
+
+                this.qrImg.style.padding = "10px"
+                this.qrImg.style.background =
+                    this.appSettings.general.color.background
+
+                //Чуток подправим отображение линейного ШК
+                if (params.bcid == this.appSettings.code128.bcid) {
+                    const baseSize = 150
+                    this.qrImg.style.height = `${baseSize}px`
+                    this.qrImg.style.width = `${baseSize * 1.67}px`
                 } else {
-                    //Конвертируем изображение в строку Base64 для дальнейшего отображения и сохранения
-                    let imageSrc: string =
-                        "data:image/png;base64," + png.toString("base64")
-                    //Если множественная генерация, то сохраним файл в директорию для сохраненных изображений
-                    if (isMulty) {
-                        let fileName =
-                            this.removeCharacters(params.text) + ".png"
-
-                        this.saveFileFunc(fileName, imageSrc)
-                        resolve(true)
-                    } else {
-                        //Выведем изображение на экран с дополнительными отступами
-                        //Отступы нужны для нормального сканированя ТСД с темной темой приложения
-                        this.qrImg.src = imageSrc
-                        this.qrImg.style.padding = "10px"
-                        this.qrImg.style.background =
-                            this.appSettings.general.color.background
-
-                        //Чуток подправим отображение линейного ШК
-                        if (params.bcid == this.appSettings.code128.bcid) {
-                            this.qrImg.height = 150
-                            this.qrImg.width = this.qrImg.height * 1.67
-                        } else {
-                            this.qrImg.height = 220
-                            this.qrImg.width = 220
-                        }
-
-                        resolve(true)
-                    }
+                    this.qrImg.style.height = "220px"
+                    this.qrImg.style.width = "220px"
                 }
-            })
+                bwipjs.toCanvas(this.qrImg, params)
+                resolve(true)
+            }
         })
 
-        await promise
+        return promise
+    }
+
+    /**
+     * Очистка canvas
+     */
+    private clearCanvas = () => {
+        const canvasContext = this.qrImg.getContext("2d")
+        canvasContext?.clearRect(0, 0, this.qrImg.width, this.qrImg.height)
+        this.qrImg.removeAttribute("style")
+        this.qrImg.removeAttribute("width")
+        this.qrImg.removeAttribute("height")
     }
 }
-
-new IndexController().init()

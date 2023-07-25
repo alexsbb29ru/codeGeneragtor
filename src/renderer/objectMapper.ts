@@ -1,13 +1,16 @@
-﻿export class ObjectMapper {
-    constructor() {}
+﻿/* eslint-disable no-prototype-builtins */
+export class ObjectMapper {
+    constructor() {
+        return
+    }
     /**
      * Маппер свойств и их значений из исходного объекта в целевой
      * @param sourceObject Исходный объект
      * @param targetObject Целевой объект
      */
-    map<T>(sourceObject: T, targetObject: T) {
+    map<T extends object>(sourceObject: T, targetObject: T) {
         //Получаем исходные свойства, данные которых нужно скопировать в целевой объект
-        let targetProps = Object.getOwnPropertyNames(targetObject)
+        const targetProps = Object.getOwnPropertyNames(targetObject)
 
         if (targetProps.length > 0) {
             targetProps.forEach((item) => {
@@ -16,15 +19,15 @@
                     //Проверяем, есть ли дочение свойства у объекта
                     //Если есть, то рекурсией проходим по ним
                     //Попутно проверяем, чтобы дочернее свойство было объектом
-                    let ObjectItem = item as keyof T
+                    const ObjectItem = item as keyof T
                     if (
                         Object.getOwnPropertyNames(targetObject[ObjectItem])
                             .length > 0 &&
                         typeof targetObject[ObjectItem] === "object"
                     )
                         this.map(
-                            sourceObject[ObjectItem],
-                            targetObject[ObjectItem]
+                            sourceObject[ObjectItem] as object,
+                            targetObject[ObjectItem] as object
                         )
                     //Переносим свойства в целевой объект
                     else targetObject[ObjectItem] = sourceObject[ObjectItem]
@@ -33,7 +36,7 @@
         }
     }
 
-    private hasOwnProperty<O extends {}, P extends PropertyKey>(
+    private hasOwnProperty<O extends object, P extends PropertyKey>(
         object: O,
         property: P
     ): boolean {

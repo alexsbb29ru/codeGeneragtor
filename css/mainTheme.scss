@@ -1,0 +1,381 @@
+﻿$light_hoverColor: #b9b9b94d;
+$light_boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
+$light_formShadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
+$light_main-grid-background: #f8f9fa;
+
+$light_success: #d1e7dd;
+$light_danger: #f8d7da;
+
+$light_bg-green: #35b653;
+$light_bg_blue: #0d6efd;
+
+$dark_font-color: #bebebe;
+$dark_placeholder-color: #919191;
+$dark_background: #262626;
+$dark_main-grid-background: #222222;
+$dark_formShadow: 0px 2px 5px -1px rgb(0, 0, 0);
+$dark_form-background: #2d2d2d;
+$dark_input-modal-background: #222222;
+$dark_boxShadow: 0px 0px 5px -1px rgb(0, 0, 0);
+/* Btn colors */
+$primary-dark: #567cb9;
+$primary-dark-hover: #3b76cc;
+$dark_success-dark: #198754;
+$dark_danger-dark: #ba323f;
+$dark_danger-dark-hover: #a7202c;
+
+$dark_c-button: #99bdff;
+
+@media (prefers-color-scheme: dark) {
+    #titlebar {
+        color: $dark_font-color;
+        background: $dark_background;
+        border-bottom: none;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    #titlebar {
+        background-color: #fff;
+        color: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    #restore-button .icon,
+    #max-button .icon,
+    #min-button .icon {
+        filter: none;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    #restore-button .icon,
+    #max-button .icon,
+    #close-button .icon,
+    #min-button .icon {
+        filter: invert(1);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    #windowControls .button:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    #windowControls .button:active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    #windowControls .button:hover {
+        background: $light_hoverColor;
+    }
+    #windowControls .button:active {
+        background: $light_hoverColor;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    main {
+        background-color: $dark_background;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    main {
+        background-color: #fff;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .grid-container {
+        color: $dark_font-color;
+        box-shadow: inset 1px 1px 5px -1px rgb(0, 0, 0);
+        background-color: $dark_main-grid-background;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .grid-container {
+        background-color: $light_main-grid-background;
+        box-shadow: inset 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .grid-titlebar {
+        background-color: white;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .grid-titlebar {
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .left-side-button {
+        color: $dark_font-color;
+    }
+
+    .canvasContainer {
+        background-color: $dark_form-background;
+        box-shadow: $dark_boxShadow;
+    }
+    .form-control {
+        color: $dark_font-color;
+        background-color: $dark_form-background;
+        border-color: $dark_main-grid-background;
+    }
+    .form-control:focus {
+        color: $dark_font-color;
+        background-color: $dark_form-background;
+        border-color: $dark_main-grid-background;
+        box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
+    }
+    .lighter-select {
+        background-color: #3f3f3f !important;
+    }
+    .form-select {
+        box-shadow: $dark_formShadow;
+        cursor: pointer;
+        color: $dark_font-color;
+        background-color: $dark_form-background;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cccc' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        border: none;
+    }
+    .form-select:focus {
+        color: $dark_font-color;
+        background-color: $dark_form-background;
+        border: none;
+        box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
+    }
+    .modal-content {
+        color: $dark_font-color;
+        background-color: $dark_form-background;
+    }
+    .modal-input {
+        background-color: $dark_input-modal-background;
+    }
+    .modal-header {
+        border-bottom: 1px solid $dark_font-color;
+        color: $dark_font-color;
+    }
+    .modal-footer {
+        border-top: 1px solid $dark_font-color;
+        color: $dark_font-color;
+    }
+    .btn-close {
+        color: #fff;
+        text-shadow: 0 1px 0 #000;
+        filter: invert(1);
+    }
+    .btn-close:hover {
+        color: #fff;
+        text-decoration: none;
+    }
+    .table {
+        color: $dark_font-color;
+    }
+    .list-group-item {
+        background-color: transparent;
+        border: 1px solid rgba(221, 220, 220, 0.41);
+        color: $dark_font-color;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .list-group-item {
+        background-color: transparent;
+    }
+    .canvasContainer {
+        background-color: white;
+        box-shadow: $light_boxShadow;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .alert-primary {
+        background-color: $primary-dark !important;
+        border-color: $primary-dark !important;
+    }
+    .alert-danger {
+        background-color: $dark_danger-dark !important;
+        border-color: $dark_danger-dark !important;
+    }
+    .alert-success {
+        background-color: $dark_success-dark !important;
+        border-color: $dark_success-dark !important;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .alert-danger {
+        color: #842029;
+        background-color: $light_danger !important;
+        border-color: $light_danger !important;
+    }
+    .alert-success {
+        color: #0f5132;
+        background-color: $light_success !important;
+        border-color: $light_success !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .grid-alert {
+        color: #fff !important;
+    }
+    #historyAlert li {
+        color: #ffffff !important;
+    }
+    #historyAlert li:hover {
+        color: #d9e3ff !important;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .grid-alert {
+        color: #004085;
+        background-color: #cce5ff;
+        border-color: #b8daff;
+    }
+
+    #historyAlert {
+        color: #405ba3 !important;
+        box-shadow: 0px 5px -1px rgba(0, 0, 0, 0.2);
+    }
+    #historyAlert li:hover {
+        color: rgb(19, 43, 110) !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .c-btn {
+        background-color: #3f3f3f;
+        color: $dark_c-button;
+    }
+    .c-btn:hover {
+        color: $dark_background;
+        background-color: $dark_c-button;
+    }
+    /* Custom bootstrap buttons*/
+    .btn-primary {
+        color: #ffffffe8;
+        background-color: $primary-dark;
+        border-color: $primary-dark;
+    }
+    .btn-primary:hover,
+    .btn-primary:active,
+    .btn-primary:focus {
+        background-color: $primary-dark-hover;
+        border-color: $primary-dark-hover;
+    }
+
+    .btn-danger {
+        color: #ffffffe8;
+        background-color: $dark_danger-dark;
+        border-color: $dark_danger-dark;
+    }
+
+    .btn-danger:hover,
+    .btn-danger:active,
+    .btn-danger:focus {
+        background-color: $dark_danger-dark-hover;
+        border-color: $dark_danger-dark-hover;
+    }
+
+    .main-grid-container .alert,
+    .main-grid-container .c-btn,
+    .main-grid-container .btn,
+    .main-grid-container .form-control,
+    .main-grid-container .form-select {
+        box-shadow: $dark_formShadow;
+    }
+
+    #contextMenu {
+        background-color: #424242;
+        box-shadow: $dark_boxShadow;
+
+        .context-menu-item {
+            color: $dark_font-color;
+
+            &:hover {
+                background-color: #585858;
+            }
+        }
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .c-btn {
+        background-color: $light_main-grid-background;
+        color: $light_bg_blue;
+    }
+    .c-btn:hover {
+        color: $light_main-grid-background;
+        background-color: $light_bg_blue;
+    }
+
+    .btn-primary {
+        color: #ffffffe8;
+        background-color: $light_bg_blue;
+        border-color: $light_bg_blue;
+    }
+    .btn-success {
+        background-color: $light_bg-green;
+        border-color: $light_bg-green;
+    }
+
+    .btn-success:hover,
+    .btn-success:active,
+    .btn-success:focus {
+        background-color: darken($light_bg-green, 10%);
+        border-color: darken($light_bg-green, 10%);
+    }
+    .main-grid-container .alert,
+    .main-grid-container .c-btn,
+    .main-grid-container .btn,
+    .main-grid-container .form-control,
+    .main-grid-container .form-select {
+        box-shadow: $light_formShadow;
+    }
+
+    #contextMenu {
+        background-color: white;
+        box-shadow: $light_boxShadow;
+        border: 1px solid #dfdfdf;
+
+        .context-menu-item {
+            &:hover {
+                background-color: #ebebeb;
+            }
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .form-control ~ label {
+        &::after {
+            background-color: transparent !important;
+        }
+        background-color: transparent;
+        color: $dark_font-color !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    table tr td,
+    th {
+        background-color: transparent !important;
+        color: $dark_font-color !important;
+    }
+    #symbolCountHelp {
+        color: $dark_font-color !important;
+    }
+
+    #history-search-input::placeholder {
+        color: $dark_placeholder-color;
+    }
+}

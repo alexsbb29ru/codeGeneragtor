@@ -1,13 +1,12 @@
-﻿import electron from "electron"
-const { ipcRenderer } = electron
-import * as bs from "./barcodeSettings"
-import * as gp from "./generalSettings"
+﻿import * as gp from "./generalSettings"
+import { indexController } from "./renderer"
 
 //Обработаем вызов и откроем модалку
-ipcRenderer.on("window:init-multi-gen", (event, folderPath) => {
-    let multiGen = new MultiGenerate(folderPath)
-    multiGen.initModal()
-})
+export const initMultiGenModal = (folderPath: string) => {
+    const multiGen = new MultiGenerate(folderPath)
+    const modal = multiGen.initModal()
+    return modal
+}
 
 class MultiGenerate {
     private folderPath: string
@@ -16,24 +15,32 @@ class MultiGenerate {
     }
 
     public initModal() {
-        let title: string = "Множественная генерация"
-        let body: string = `<div class="form-floating">
+        const title = "Множественная генерация"
+        const body = `<div class="form-floating">
               <textarea class="form-control" name="multiGenerateTextBlock" id="multiGenerateTextBlock"
                 placeholder="Введите данные через ;"></textarea>
               <label for="multiGenerateTextBlock">Введите данные через ;</label>
             </div>
-            <span id="generagteFolderPath" class="saveFolderPath">${this.folderPath}</span>`
-        let generateBtn = new gp.ModalButton(
+            <span id="generagteFolderPath" class="saveFolderPath">${this.folderPath}</span>
+            <div><canvas id="multiGenCanvas"></canvas></div>`
+
+        const generateBtn = new gp.ModalButton(
             "confirmMultiGenBtn",
             "Сгенерировать",
             "btn-primary",
-            null,
+            () => {
+                return
+            },
             false
         )
 
-        let buttons = new Array<gp.ModalButton>(generateBtn)
-        let modal = new gp.MainModal("", title, body, buttons)
-        ipcRenderer.send("window:open-multigen-modal", modal)
+        const buttons = new Array<gp.ModalButton>(generateBtn)
+        const modal = new gp.MainModal(
+            gp.ModalTypes.multiGenerate,
+            title,
+            body,
+            buttons
+        )
 
         document.getElementById("mainModal")?.addEventListener(
             "show.bs.modal",
@@ -43,18 +50,19 @@ class MultiGenerate {
             },
             { once: true }
         )
+        return modal
     }
     public initHandlers() {
-        let confirmMultiGenBtn = <HTMLButtonElement>(
+        const confirmMultiGenBtn = <HTMLButtonElement>(
             document.getElementById("confirmMultiGenBtn")
         )
 
-        confirmMultiGenBtn.addEventListener("click", () => {
-            let multiGenerateTextBlock = <HTMLTextAreaElement>(
+        confirmMultiGenBtn.addEventListener("click", async () => {
+            const multiGenerateTextBlock = <HTMLTextAreaElement>(
                 document.getElementById("multiGenerateTextBlock")
             )
             //Распарсим текст по разделителю и отправим его дальше для генерации
-            let codesArr = multiGenerateTextBlock.value
+            const codesArr = multiGenerateTextBlock.value
                 .trim()
                 .replace(/(\r\n|\n|\r)/gm, "")
                 .split(";")
@@ -63,13 +71,13 @@ class MultiGenerate {
             })
 
             if (codesArr.length > 0) {
-                let spinner = <HTMLElement>(
+                const spinner = <HTMLElement>(
                     document.getElementById("generateFilesSpinner")
                 )
                 if (spinner.style.display === "none")
                     spinner.style.display = "block"
 
-                ipcRenderer.send("window:generate-codes", codesArr)
+                await indexController.mulipleCodesGeneration(codesArr)
             }
         })
     }

@@ -1,21 +1,17 @@
-﻿import electron from "electron"
-const { ipcRenderer } = electron
-import bootstrap from "bootstrap"
+﻿import * as bootstrap from "bootstrap"
 import * as bs from "./barcodeSettings"
 import * as gp from "./generalSettings"
+import { indexController } from "./renderer"
 
 //Обработка запроса на открытие модалки с настройками
-ipcRenderer.on(
-    "window:open-settings",
-    (_event: Event, settings: bs.TBarcodeParams) => {
-        let setController = new SettingsController(settings)
-        //Покажем модалку
-        // settingsModal.modal("show")
-        //Сгенерируем пункты полученных настроек в modalBody
-        setController.generateSettingCat()
-    }
-)
-
+export const openSettingsWindow = (settings: bs.TBarcodeParams) => {
+    const setController = new SettingsController(settings)
+    //Покажем модалку
+    // settingsModal.modal("show")
+    //Сгенерируем пункты полученных настроек в modalBody
+    const modal = setController.generateSettingCat()
+    return modal
+}
 type TDefaultColors = {
     textColor: string //Цвет текста
     background: string //Цвет фона
@@ -25,24 +21,24 @@ class SettingsController {
     //Список настроек для каждого типа ШК
     public settingsTypes: bs.TBarcodeParams
     //Название блока с уровнями коррекции ошибок
-    private qrCodeEclevelTitle: string = "Уровень коррекции ошибок"
+    private qrCodeEclevelTitle = "Уровень коррекции ошибок"
     //Название блока с копированием изображения в буфер обмена
-    private copyToClipBlockName: string = "Копировать в буфер обмена"
+    private copyToClipBlockName = "Копировать в буфер обмена"
     //Tooltip для сохранения изображения в буфер
-    private copyToClipboardTooltip: string =
+    private copyToClipboardTooltip =
         "После генерации изображения, оно будет скопировано в системный буфер обмена"
     //Tooltip для макимального количества символов
-    private maxSybolsTooltip: string =
+    private maxSybolsTooltip =
         "Максимальное количество символов, доступное для генерации кода"
     //Название блока с тумблером переключения в dark mode
-    private darkModeBlockName: string = "Тёмная тема"
+    private darkModeBlockName = "Тёмная тема"
     //Название блока с выбором генерации по ctrl+enter или просто enter
-    private isCtrlEnterBlockName: string = "Генерация по ctrl+enter"
+    private isCtrlEnterBlockName = "Генерация по ctrl+enter"
     //Tooltip для блока с выбором кнопок генерации
-    private isCtrlEnterTooltip: string = `Если true (стоит галочка), то используется сочетание клавиш CTRL+Enter.\n
+    private isCtrlEnterTooltip = `Если true (стоит галочка), то используется сочетание клавиш CTRL+Enter.\n
     Иначе используется клавиша Enter`
     //Название блока с указанием максимального количества символов
-    private maxSybolsBlockName: string = "Макс. кол-во символов"
+    private maxSybolsBlockName = "Макс. кол-во символов"
     //Стандартные цвета
     private defaultColorsTable: TDefaultColors = {
         textColor: "#000000", //Цвет текста
@@ -57,9 +53,9 @@ class SettingsController {
      * Generate settings positions by received settings
      */
     public generateSettingCat = () => {
-        let title: string = "Настройки"
-        let catBody: string = `<table class="table table-borderless">`
-        let code128block: string = `<tr>
+        const title = "Настройки"
+        let catBody = `<table class="table table-borderless">`
+        const code128block = `<tr>
             <th scope="row" class="settingsKey">${this.settingsTypes.code128.bcid}</th>
             <td id="${this.settingsTypes.code128.bcid}Cat" class="settingsValue">
                 <div class="form-check">
@@ -68,7 +64,7 @@ class SettingsController {
                 </div>
             </td>
         </tr>`
-        let qrCodeBlock: string = `<tr>
+        const qrCodeBlock = `<tr>
             <th scope="row" class="settingsKey">${this.settingsTypes.qrcode.bcid}</th>
             <td>${this.qrCodeEclevelTitle}</td>
         </tr>
@@ -85,7 +81,7 @@ class SettingsController {
                 
             </td>
         </tr>`
-        let gen_copyToClip: string = `<tr>
+        const gen_copyToClip = `<tr>
             <th scope="row" class="settingsKey">Общие</th>
         </tr>
         <tr>
@@ -107,7 +103,7 @@ class SettingsController {
                 </div>
             </td>
         </tr>`
-        let darkModeBlock: string = `<tr>
+        const darkModeBlock = `<tr>
             <th scope="row" class="settingsKey"></th>
             <td class="settingsValue">
                 <div class="form-check">
@@ -116,7 +112,7 @@ class SettingsController {
                 </div>
             </td>
         </tr>`
-        let generateShortcut: string = `<tr>
+        const generateShortcut = `<tr>
             <th scope="row" class="settingsKey"></th>
             <td class="settingsValue">
                 <div class="form-check">
@@ -135,7 +131,7 @@ class SettingsController {
                 </div>
             </td>
         </tr>`
-        let maxSymbolsBlock: string = `<tr>
+        const maxSymbolsBlock = `<tr>
             <th scope="row" class="settingsKey"></th>
             <td class="settingsValue">
                 <div class="form-group">
@@ -159,7 +155,7 @@ class SettingsController {
             </td>
         </tr>`
 
-        let colorsBlock: string = `<tr>
+        const colorsBlock = `<tr>
             <th scope="row" class="settingsKey">Выбор цвета:</th>
             <td class="settingsValue">
                 <div class="form-group">
@@ -198,8 +194,7 @@ class SettingsController {
 
         catBody += "</table>"
 
-        let modal = new gp.MainModal("", title, catBody, [])
-        ipcRenderer.send("window:open-settings-modal", modal)
+        // ipcRenderer.send("window:open-settings-modal", modal)
 
         document.getElementById("mainModal")?.addEventListener(
             "show.bs.modal",
@@ -209,47 +204,50 @@ class SettingsController {
             },
             { once: true }
         )
+
+        const modal = new gp.MainModal("", title, catBody, [])
+        return modal
     }
 
     /**
      * Init inputs to apply changes
      */
     public initInputs = () => {
-        let tooltipTriggerList = [].slice.call(
+        const tooltipTriggerList = [].slice.call(
             document
                 .getElementById("mainModal")
                 ?.querySelectorAll('[data-bs-toggle="tooltip"]')
         )
-        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
 
         //Bool - показывать или нет текст ШК code128
-        let showText128 = <HTMLInputElement>(
+        const showText128 = <HTMLInputElement>(
             document.getElementById("showText128")
         )
         //List - Select - Уровень коррекции QR-кода
-        let qrCodeEclevels = <HTMLSelectElement>(
+        const qrCodeEclevels = <HTMLSelectElement>(
             document.getElementById("qrCodeEclevels")
         )
         //Bool - сохранять в буфер обмена сгенерированное изображение или нет
-        let copyToClip = <HTMLInputElement>(
+        const copyToClip = <HTMLInputElement>(
             document.getElementById("isCopyToClip")
         )
         //Bool - включение темной темы
-        let darkMode = <HTMLInputElement>document.getElementById("isDarkMode")
+        const darkMode = <HTMLInputElement>document.getElementById("isDarkMode")
         //Bool - выбор сочетания клавиш для генерации ШК
-        let generateShortcut = <HTMLInputElement>(
+        const generateShortcut = <HTMLInputElement>(
             document.getElementById("isCtrlEnter")
         )
         //Максимальное количество символов
-        let maxSybolsInput = <HTMLInputElement>(
+        const maxSybolsInput = <HTMLInputElement>(
             document.getElementById("maxSybolsInput")
         )
         //Обработчик изменения уровня коррекции QR-кода
         qrCodeEclevels.addEventListener("change", async () => {
             // Получим значение уровня коррекции из объекта со списком по названию уровня коррекции
-            let levelCode: string = Object.getOwnPropertyDescriptor(
+            const levelCode: string = Object.getOwnPropertyDescriptor(
                 this.settingsTypes.qrcode.eclevelList,
                 qrCodeEclevels.value
             )?.value
@@ -326,27 +324,27 @@ class SettingsController {
     private saveSettings() {
         if (gp.getCurrentModal() === gp.ModalTypes.settings)
             //Отправим запрос на применения настроек в ipcMain, а далее в indexController
-            ipcRenderer.send("window:change-settings", this.settingsTypes)
+            indexController.changeSettings(this.settingsTypes)
     }
     /**
      * Функция получения списка уровней коррекции QR-кода
      */
     private getQrCodeEclevelList = () => {
         // Получим список всех уровней коррекции
-        let levelList: string[] = Object.getOwnPropertyNames(
+        const levelList: string[] = Object.getOwnPropertyNames(
             this.settingsTypes.qrcode.eclevelList
         )
 
         //List - Select - Уровень коррекции QR-кода
-        let qrCodeEclevels = <HTMLSelectElement>(
+        const qrCodeEclevels = <HTMLSelectElement>(
             document.getElementById("qrCodeEclevels")
         )
 
         //Засунем все уровни коррекции в Select
         levelList.forEach((levelCode) => {
-            let option = new Option()
+            const option = new Option()
 
-            let levelInd = levelList.indexOf(levelCode)
+            const levelInd = levelList.indexOf(levelCode)
             //Запишем в элементы списка уровень коррекции
             option.text = levelList[levelInd].toUpperCase()
             option.value = levelList[levelInd]
@@ -370,13 +368,13 @@ class SettingsController {
      */
     private initColorControls = () => {
         //Цвет текста кода
-        let fontColor = <HTMLInputElement>document.getElementById("fontColor")
+        const fontColor = <HTMLInputElement>document.getElementById("fontColor")
         //Цвет фона кода
-        let backColor = <HTMLInputElement>document.getElementById("backColor")
+        const backColor = <HTMLInputElement>document.getElementById("backColor")
         //Цвет символов кода
-        let symbColor = <HTMLInputElement>document.getElementById("symbColor")
+        const symbColor = <HTMLInputElement>document.getElementById("symbColor")
         //Кнопка восстановления стандартных цветов
-        let setDefColorsBtn = <HTMLButtonElement>(
+        const setDefColorsBtn = <HTMLButtonElement>(
             document.getElementById("setDefColors")
         )
 

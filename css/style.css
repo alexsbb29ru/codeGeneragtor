@@ -135,6 +135,11 @@ body {
     min-height: 130px;
     max-height: 130px;
 }
+#multiGenCanvas {
+    display: none;
+    height: 0;
+    width: 0;
+}
 
 .leftFooter {
     display: grid;

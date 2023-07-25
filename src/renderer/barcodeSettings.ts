@@ -54,7 +54,7 @@ export type TGeneralSettings = {
     typeName: string
 }
 
-export let QRCodeEclevels: TQRCodeEclevels = {
+export const QRCodeEclevels: TQRCodeEclevels = {
     low: "L",
     medium: "M",
     quality: "Q",
@@ -123,7 +123,9 @@ export class BarcodeSettings {
         historyFileName: "history.txt",
     }
 
-    constructor() {}
+    constructor() {
+        return
+    }
     /**
      * Получение набора стандартных настроек ШК и QR-кодов
      * @returns Стандартный набор настроек для ШК и QR-кодов

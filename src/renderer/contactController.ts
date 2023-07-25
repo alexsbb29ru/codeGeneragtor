@@ -1,22 +1,19 @@
-﻿import electron, { IpcRenderer } from "electron"
-const { ipcRenderer } = electron
+﻿import { ipcRenderer } from "electron"
 
 import * as gp from "./generalSettings"
+import logo128 from "../../images/icon128.png"
 
-//Обработаем обращение
-ipcRenderer.on("window:init-about", (event, aboutParams) => {
-    new ContactController().updateContactTable(aboutParams)
-})
-class ContactController {
-    constructor() {}
+export const openAboutModal = (aboutParams: gp.TAboutApp): gp.MainModal => {
+    return updateContactTable(aboutParams)
+}
 
-    //Создалим объект модалки и отправим его обратно для открытия
-    public updateContactTable = (aboutParams: gp.TAboutApp) => {
-        let title = "О приложении"
-        let body = `<table class="table table-sm table-borderless contact-table">
+//Создалим объект модалки и отправим его обратно для открытия
+const updateContactTable = (aboutParams: gp.TAboutApp): gp.MainModal => {
+    const title = "О приложении"
+    const body = `<table class="table table-sm table-borderless contact-table">
               <tr>
                 <td id="logoBlockContact">
-                  <img src="images/icon128.png">
+                  <img src="${logo128}">
                 </td>
               </tr>
               <tr>
@@ -41,19 +38,19 @@ class ContactController {
               </tr>
             </table>`
 
-        let modal = new gp.MainModal(aboutParams.modalName, title, body, [])
-        ipcRenderer.send("window:open-about-modal", modal)
+    const modal = new gp.MainModal(aboutParams.modalName, title, body, [])
 
-        document.getElementById("mainModal")?.addEventListener(
-            "show.bs.modal",
-            () => {
-                let personLink = document.getElementById("personLink")
-                personLink?.addEventListener("click", () => {
-                    let url = personLink?.getAttribute("targetLink")
-                    ipcRenderer.send("url:open-url", url)
-                })
-            },
-            { once: true }
-        )
-    }
+    document.getElementById("mainModal")?.addEventListener(
+        "show.bs.modal",
+        () => {
+            const personLink = document.getElementById("personLink")
+            personLink?.addEventListener("click", () => {
+                const url = personLink?.getAttribute("targetLink")
+                ipcRenderer.send("url:open-url", url)
+            })
+        },
+        { once: true }
+    )
+
+    return modal
 }

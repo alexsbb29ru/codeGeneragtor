@@ -1,0 +1,236 @@
+<html>
+
+<head>
+  <meta charset="UTF-8" lang="ru">
+  <title>Генератор штрих-кода</title>
+</head>
+
+<body class="lightBody">
+  <!--Header block with custom titlebar-->
+  <header id="titlebar">
+    <div id="windowTitle">
+
+    </div>
+    <div id="windowControls">
+      <div class="button" id="min-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash"
+          viewBox="0 0 16 16">
+          <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z" />
+        </svg>
+      </div>
+
+      <div class="button" id="max-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-square"
+          viewBox="0 0 16 16">
+          <path
+            d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+        </svg>
+      </div>
+
+      <div class="button" id="restore-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+          class="bi bi-arrows-angle-contract" viewBox="0 0 16 16">
+          <path fill-rule="evenodd"
+            d="M.172 15.828a.5.5 0 0 0 .707 0l4.096-4.096V14.5a.5.5 0 1 0 1 0v-3.975a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1h2.768L.172 15.121a.5.5 0 0 0 0 .707zM15.828.172a.5.5 0 0 0-.707 0l-4.096 4.096V1.5a.5.5 0 1 0-1 0v3.975a.5.5 0 0 0 .5.5H14.5a.5.5 0 0 0 0-1h-2.768L15.828.879a.5.5 0 0 0 0-.707z" />
+        </svg>
+      </div>
+
+      <div class="button" id="close-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-x-lg"
+          viewBox="0 0 16 16">
+          <path
+            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+        </svg>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+    <!-- Основная модалка-->
+    <div class="modal fade" id="mainModal" tabindex="-1" aria-hidden="true" style="display: none;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"></h5>
+            <div class="modal-extended-header"></div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+          </div>
+          <div class="modal-footer">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Общий контейнер-->
+    <div class="main-grid-container">
+      <!--Левый блок с кнопками-->
+      <div class="grid-left-side">
+
+        <!--Кнопка настроек-->
+        <div class="left-side-button settingsButton">
+          <div id="settingsButton" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn"
+            title="Настройки (ctrl+e)">
+            <!-- <span>&#9874;</span> -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
+              class="bi bi-nut-fill" viewBox="0 0 16 16">
+              <path
+                d="M4.58 1a1 1 0 0 0-.868.504l-3.428 6a1 1 0 0 0 0 .992l3.428 6A1 1 0 0 0 4.58 15h6.84a1 1 0 0 0 .868-.504l3.429-6a1 1 0 0 0 0-.992l-3.429-6A1 1 0 0 0 11.42 1H4.58zm5.018 9.696a3 3 0 1 1-3-5.196 3 3 0 0 1 3 5.196z" />
+            </svg>
+          </div>
+        </div>
+        <!--Кнопка истории-->
+        <div class="left-side-button historyButton">
+          <div id="historyButton" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn"
+            title="История (ctrl+j)">
+            <!-- <span>&#9997;</span> -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
+              class="bi bi-server" viewBox="0 0 16 16">
+              <path
+                d="M1.333 2.667C1.333 1.194 4.318 0 8 0s6.667 1.194 6.667 2.667V4c0 1.473-2.985 2.667-6.667 2.667S1.333 5.473 1.333 4V2.667z" />
+              <path
+                d="M1.333 6.334v3C1.333 10.805 4.318 12 8 12s6.667-1.194 6.667-2.667V6.334a6.51 6.51 0 0 1-1.458.79C11.81 7.684 9.967 8 8 8c-1.966 0-3.809-.317-5.208-.876a6.508 6.508 0 0 1-1.458-.79z" />
+              <path
+                d="M14.667 11.668a6.51 6.51 0 0 1-1.458.789c-1.4.56-3.242.876-5.21.876-1.966 0-3.809-.316-5.208-.876a6.51 6.51 0 0 1-1.458-.79v1.666C1.333 14.806 4.318 16 8 16s6.667-1.194 6.667-2.667v-1.665z" />
+            </svg>
+          </div>
+        </div>
+        <!--Кнопка о приложении-->
+        <div class="left-side-button contactButton">
+          <div id="contactButton" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn"
+            title="О приложении (ctrl+i)">
+            <!-- <span>&#9875;</span> -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
+              class="bi bi-info-circle-fill" viewBox="0 0 16 16">
+              <path
+                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+            </svg>
+          </div>
+        </div>
+        <!--Кнопка паетного ввода-->
+        <div class="left-side-button multiGenerateBtn">
+          <div id="multiGenerateBtn" data-bs-toggle="tooltip" data-bs-placement="right" class="c-btn"
+            title="Множественная генерация (ctrl+g)">
+            <!-- <span>&#9997;</span> -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.3rem" height="1.3rem" fill="currentColor"
+              class="bi bi-collection-fill" viewBox="0 0 16 16">
+              <path
+                d="M0 13a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 16 13V6a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 0 6v7zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!--Центральный блок с элементами для генерации кодов-->
+      <div class="grid-container">
+        <!--Select с выбором типа генерируемого кода-->
+        <div class="grid-item grid-bar-types">
+          <div class="form-group">
+            <select class="form-select" id="barcodeTypesSelect">
+              <option></option>
+            </select>
+          </div>
+        </div>
+
+        <!--Grid с сохраненными текстами и кнопкой удаления-->
+        <div class="grid-item grid-fav">
+          <!--Сохраненные тексты-->
+          <div class="form-group">
+            <select class="form-select" id="savedCodesSelect">
+              <option></option>
+            </select>
+          </div>
+
+          <!--Кнопка удаления сохраненных кодов-->
+          <div class="fav-del-btn">
+            <button type="button" id="removeSavedQrBtn" class="btn btn-danger"
+              title="Удалить сохраненный QR-код из избранного">
+              <!-- <span>&#9940;</span> -->
+              <svg width="1.15rem" height="1.15rem" viewBox="0 0 16 16" class="bi bi-backspace" fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M6.603 2h7.08a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-7.08a1 1 0 0 1-.76-.35L1 8l4.844-5.65A1 1 0 0 1 6.603 2zm7.08-1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1h7.08z" />
+                <path fill-rule="evenodd"
+                  d="M5.83 5.146a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .707-.708l-5-5a.5.5 0 0 0-.708 0z" />
+                <path fill-rule="evenodd"
+                  d="M11.537 5.146a.5.5 0 0 1 0 .708l-5 5a.5.5 0 0 1-.708-.708l5-5a.5.5 0 0 1 .707 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!--Grid с блоком ввода текста для генерации-->
+        <div class="grid-item grid-text-block">
+          <div class="form-floating">
+            <textarea class="form-control" histListFlag id="qrTextForm" placeholder="Введите текст:"></textarea>
+            <label for="qrTextForm">Введите текст:</label>
+          </div>
+        </div>
+
+        <!--Block with canvas which show our converted text-->
+        <div class="grid-item grid-draw-block">
+          <div class="canvasContainer rounded">
+            <div class="centeredChild">
+              <!-- <canvas id="qrOutput"></canvas> -->
+              <canvas id="qrOutput"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!--Блок с выводом количества введенных символов-->
+        <div class="grid-item symb-count" id="symbolCount">
+        </div>
+
+        <!--Блок с кнопками в левой части-->
+        <div class="grid-item leftFooter">
+          <!--Кнопка генерации ШК-->
+          <div class="left-footer-gen-btn">
+            <button type="button" id="genQrButton" class="btn btn-primary">Сгенерировать</button>
+          </div>
+          <!--Кнопка сохранения ШК в избранное-->
+          <div class="left-footer-save-btn">
+            <button type="button" id="saveQrTextButton" class="btn btn-success" title="Сохранить QR-код в избранное">
+              <!-- <span>&#10004;</span> -->
+              <svg width="1.5rem" height="1.5rem" viewBox="0 0 16 16" class="bi bi-check2" fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!--Блок с кнопками в правой части-->
+        <div class="grid-item rightFooter">
+          <!--Кнопка сохранения ШК как изображение на комп-->
+          <div>
+            <a href="#" id="saveQrImgButton" class="btn btn-success">Сохранить</a>
+          </div>
+        </div>
+        <!--Блок с высплывающим сообщением-->
+        <div class="alert alert-primary grid-alert disabled-alert" id="messageAlert" role="alert">
+          <p id="alertText"></p>
+        </div>
+        <!--Блок с высплывающим списком из истории-->
+        <div class="alert alert-primary history-alert histListFlag disabled-alert" id="historyAlert" role="alert">
+          <ul class="list-group list-group-flush histListFlag" id="historyListAlert">
+
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- <script>
+    require('./scripts/customTitlebarController.js')
+    require('./src/renderer/indexController.js')
+    require('./src/renderer/settingsController.js')
+    require('./src/renderer/historyController.js')
+    require('./src/renderer/contactController.js')
+    require('./src/renderer/multiGenerateController.js')
+  </script> -->
+</body>
+
+</html>

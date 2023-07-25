@@ -4,32 +4,23 @@
     height: 10px;
   }
 }
-
 #titlebar {
   position: absolute;
   z-index: 2050;
   width: 100%;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: auto 138px;
-      grid-template-columns: auto 138px;
+  grid-template-columns: auto 138px;
   -webkit-app-region: drag;
   height: 32px;
 }
 
 #windowTitle {
-  -ms-grid-column: 1;
   grid-column: 1;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
   margin-left: 8px;
   overflow: hidden;
   font-family: "Segoe UI", sans-serif;
@@ -44,13 +35,10 @@
 }
 
 #windowControls {
-  -ms-grid-column: 2;
   grid-column: 2;
   -webkit-app-region: no-drag;
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: (46px)[3];
-      grid-template-columns: repeat(3, 46px);
+  grid-template-columns: repeat(3, 46px);
   position: absolute;
   top: 0;
   right: 0;
@@ -58,35 +46,24 @@
 }
 
 #windowControls .button {
-  -ms-grid-row: 1;
-  -ms-grid-row-span: 1;
-  grid-row: 1 / span 1;
-  display: -webkit-box;
-  display: -ms-flexbox;
+  grid-row: 1/span 1;
   display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
 }
 
 #min-button {
-  -ms-grid-column: 1;
   grid-column: 1;
 }
 
 #max-button,
 #restore-button {
-  -ms-grid-column: 2;
   grid-column: 2;
 }
 
 #close-button {
-  -ms-grid-column: 3;
   grid-column: 3;
 }
 
@@ -96,6 +73,7 @@
 
 #close-button:hover {
   background: #e81123 !important;
+  color: white;
 }
 
 #close-button:active {
@@ -103,12 +81,9 @@
 }
 
 .maximized #restore-button {
-  display: -webkit-box !important;
-  display: -ms-flexbox !important;
   display: flex !important;
 }
 
 .maximized #max-button {
   display: none;
-}
-/*# sourceMappingURL=customTitlebar.css.map */
+}/*# sourceMappingURL=customTitlebar.css.map */

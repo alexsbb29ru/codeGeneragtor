@@ -1,114 +1,117 @@
-$hoverColor: #b9b9b94d;
-$boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
-$formShadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
-$main-grid-background: #f8f9fa;
+@media (prefers-color-scheme: light) {
+    $hoverColor: #b9b9b94d;
 
-$success: #d1e7dd;
-$danger: #f8d7da;
+    $boxShadow: 0px 0px 5px -1px rgba(0, 0, 0, 0.2);
+    $formShadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2);
+    $main-grid-background: #f8f9fa;
 
-$bg-green: #35b653;
-$bg_blue: #0d6efd;
+    $success: #d1e7dd;
+    $danger: #f8d7da;
 
-#titlebar {
-    background-color: #fff;
-    color: black;
-}
+    $bg-green: #35b653;
+    $bg_blue: #0d6efd;
 
-#restore-button .icon,
-#max-button .icon,
-#close-button .icon,
-#min-button .icon {
-    filter: invert(1);
-}
+    #titlebar {
+        background-color: #fff;
+        color: black;
+    }
 
-#windowControls .button:hover {
-    background: $hoverColor;
-}
-#windowControls .button:active {
-    background: $hoverColor;
-}
+    #restore-button .icon,
+    #max-button .icon,
+    #close-button .icon,
+    #min-button .icon {
+        filter: invert(1);
+    }
 
-main {
-    background-color: #fff;
-}
-.grid-container {
-    background-color: $main-grid-background;
-    box-shadow: inset 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
-}
-.list-group-item {
-    background-color: transparent;
-}
-.canvasContainer {
-    background-color: white;
-    box-shadow: $boxShadow;
-}
+    #windowControls .button:hover {
+        background: $hoverColor;
+    }
+    #windowControls .button:active {
+        background: $hoverColor;
+    }
 
-.grid-alert {
-    color: #004085;
-    background-color: #cce5ff;
-    border-color: #b8daff;
-}
+    main {
+        background-color: #fff;
+    }
+    .grid-container {
+        background-color: $main-grid-background;
+        box-shadow: inset 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
+    }
+    .list-group-item {
+        background-color: transparent;
+    }
+    .canvasContainer {
+        background-color: white;
+        box-shadow: $boxShadow;
+    }
 
-#historyAlert {
-    color: #405ba3 !important;
-    box-shadow: 0px 5px -1px rgba(0, 0, 0, 0.2);
-}
-#historyAlert li:hover {
-    color: rgb(19, 43, 110) !important;
-}
+    .grid-alert {
+        color: #004085;
+        background-color: #cce5ff;
+        border-color: #b8daff;
+    }
 
-.alert-danger {
-    color: #842029;
-    background-color: $danger !important;
-    border-color: $danger !important;
-}
-.alert-success {
-    color: #0f5132;
-    background-color: $success !important;
-    border-color: $success !important;
-}
+    #historyAlert {
+        color: #405ba3 !important;
+        box-shadow: 0px 5px -1px rgba(0, 0, 0, 0.2);
+    }
+    #historyAlert li:hover {
+        color: rgb(19, 43, 110) !important;
+    }
 
-.c-btn {
-    background-color: $main-grid-background;
-    color: $bg_blue;
-}
-.c-btn:hover {
-    color: $main-grid-background;
-    background-color: $bg_blue;
-}
+    .alert-danger {
+        color: #842029;
+        background-color: $danger !important;
+        border-color: $danger !important;
+    }
+    .alert-success {
+        color: #0f5132;
+        background-color: $success !important;
+        border-color: $success !important;
+    }
 
-.btn-primary {
-    color: #ffffffe8;
-    background-color: $bg_blue;
-    border-color: $bg_blue;
-}
-.btn-success {
-    background-color: $bg-green;
-    border-color: $bg-green;
-}
+    .c-btn {
+        background-color: $main-grid-background;
+        color: $bg_blue;
+    }
+    .c-btn:hover {
+        color: $main-grid-background;
+        background-color: $bg_blue;
+    }
 
-.btn-success:hover,
-.btn-success:active,
-.btn-success:focus {
-    background-color: darken($bg-green, 10%);
-    border-color: darken($bg-green, 10%);
-}
-.main-grid-container .alert,
-.main-grid-container .c-btn,
-.main-grid-container .btn,
-.main-grid-container .form-control,
-.main-grid-container .form-select {
-    box-shadow: $formShadow;
-}
+    .btn-primary {
+        color: #ffffffe8;
+        background-color: $bg_blue;
+        border-color: $bg_blue;
+    }
+    .btn-success {
+        background-color: $bg-green;
+        border-color: $bg-green;
+    }
 
-#contextMenu {
-    background-color: white;
-    box-shadow: $boxShadow;
-    border: 1px solid #dfdfdf;
+    .btn-success:hover,
+    .btn-success:active,
+    .btn-success:focus {
+        background-color: darken($bg-green, 10%);
+        border-color: darken($bg-green, 10%);
+    }
+    .main-grid-container .alert,
+    .main-grid-container .c-btn,
+    .main-grid-container .btn,
+    .main-grid-container .form-control,
+    .main-grid-container .form-select {
+        box-shadow: $formShadow;
+    }
 
-    .context-menu-item {
-        &:hover {
-            background-color: #ebebeb;
+    #contextMenu {
+        background-color: white;
+        box-shadow: $boxShadow;
+        border: 1px solid #dfdfdf;
+
+        .context-menu-item {
+            &:hover {
+                background-color: #ebebeb;
+            }
         }
     }
 }

@@ -1,34 +1,35 @@
-﻿import electron from "electron"
+﻿/* eslint-disable @typescript-eslint/no-extra-semi */
+import electron, { ipcRenderer } from "electron"
 import path from "path"
 /**
  * Общие переменные с настройками для проекта
  */
 export class GeneralParams {
-    private readonly docsDirectory: string = path.join(
-        (electron.app || electron.remote.app).getPath("documents"),
-        "BarcodeGenerator"
-    )
+    private documentsPath = ""
+
+    private docsDirectory = ""
     //Ссылка на стиль с темной темой
     public readonly darkStyleLink: string = "./css/darkTheme.css"
     //Ссылка на стиль со светлой темой
     public readonly lightStyleLink: string = "./css/lightTheme.css"
     //Файл, в котором содержатся "избранные" коды
-    public readonly savedDataFileName: string = path.join(
-        this.docsDirectory,
-        "savedData.json"
-    )
+    public savedDataFileName = ""
     //Файл, в котором содержатся настроки
-    public readonly settingsFileName: string = path.join(
-        this.docsDirectory,
-        "settings.json"
-    )
+    public settingsFileName = ""
     //Файл с историей вводимыого текста
-    public readonly historyFileName: string = path.join(
-        this.docsDirectory,
-        "history.json"
-    )
+    public historyFileName = ""
 
-    constructor() {}
+    constructor() {
+        return
+    }
+
+    public init = async () => {
+        this.documentsPath = await ipcRenderer.invoke("getDocumentsPath")
+        this.docsDirectory = path.join(this.documentsPath, "BarcodeGenerator")
+        this.savedDataFileName = path.join(this.docsDirectory, "savedData.json")
+        this.settingsFileName = path.join(this.docsDirectory, "settings.json")
+        this.historyFileName = path.join(this.docsDirectory, "history.json")
+    }
 }
 
 export class ContextMenu {
@@ -44,14 +45,14 @@ export class ContextMenu {
 
 export class ContextMenuItem {
     public name: string
-    public handler: Function
+    public handler: () => void
 
     /**
      * Создание пункта контекстного меню
      * @param name Название пункта контекстного меню
      * @param handler Обработчик нажатия на пункт меню
      */
-    constructor(name: string, handler: Function) {
+    constructor(name: string, handler: () => void) {
         this.name = name
         this.handler = handler
     }
@@ -71,7 +72,7 @@ export class MainModal {
     public body: string
     public buttons: Array<ModalButton>
     public extendedHeader?: string
-    public handler?: Function
+    public handler?: typeof Function
 
     constructor(
         name: string,
@@ -79,7 +80,7 @@ export class MainModal {
         body: string,
         buttons: Array<ModalButton>,
         extendedHeader?: string,
-        handler?: Function
+        handler?: typeof Function
     ) {
         this.name = name
         this.title = title
@@ -94,14 +95,14 @@ export class ModalButton {
     public id: string
     public text: string
     public bClass: string
-    public handler: Function | null
+    public handler: () => void | null
     public dismiss: boolean | null
 
     constructor(
         id: string,
         text: string,
         bClass: string,
-        handler: Function | null,
+        handler: () => void | null,
         dismiss: boolean | null
     ) {
         this.id = id

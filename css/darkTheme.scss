@@ -1,188 +1,190 @@
-$font-color: #bebebe;
-$background: #262626;
-$main-grid-background: #222222;
-$formShadow: 0px 2px 5px -1px rgb(0, 0, 0);
-$form-background: #2d2d2d;
-$input-modal-background: #222222;
-$boxShadow: 0px 0px 5px -1px rgb(0, 0, 0);
-/* Btn colors */
-$primary-dark: #567cb9;
-$primary-dark-hover: #3b76cc;
-$success-dark: #198754;
-$danger-dark: #ba323f;
-$danger-dark-hover: #a7202c;
+@media (prefers-color-scheme: dark) {
+    $font-color: #bebebe;
+    $background: #262626;
+    $main-grid-background: #222222;
+    $formShadow: 0px 2px 5px -1px rgb(0, 0, 0);
+    $form-background: #2d2d2d;
+    $input-modal-background: #222222;
+    $boxShadow: 0px 0px 5px -1px rgb(0, 0, 0);
+    /* Btn colors */
+    $primary-dark: #567cb9;
+    $primary-dark-hover: #3b76cc;
+    $success-dark: #198754;
+    $danger-dark: #ba323f;
+    $danger-dark-hover: #a7202c;
 
-$c-button: #99bdff;
+    $c-button: #99bdff;
 
-#titlebar {
-    color: $font-color;
-    background: $background;
-    border-bottom: none;
-}
-
-#restore-button .icon,
-#max-button .icon,
-#min-button .icon {
-    filter: none;
-}
-
-#windowControls .button:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-#windowControls .button:active {
-    background: rgba(255, 255, 255, 0.2);
-}
-main {
-    background-color: $background;
-}
-.grid-container {
-    color: $font-color;
-    box-shadow: inset 1px 1px 5px -1px rgb(0, 0, 0);
-    background-color: $main-grid-background;
-}
-.grid-titlebar {
-    background-color: white;
-}
-.left-side-button {
-    color: $font-color;
-}
-.canvasContainer {
-    background-color: $form-background;
-    box-shadow: $boxShadow;
-}
-.form-control {
-    color: $font-color;
-    background-color: $form-background;
-    border-color: $main-grid-background;
-}
-.form-control:focus {
-    color: $font-color;
-    background-color: $form-background;
-    border-color: $main-grid-background;
-    box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
-}
-.lighter-select {
-    background-color: #3f3f3f !important;
-}
-.form-select {
-    box-shadow: $formShadow;
-    cursor: pointer;
-    color: $font-color;
-    background-color: $form-background;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cccc' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-    border: none;
-}
-.form-select:focus {
-    color: $font-color;
-    background-color: $form-background;
-    border: none;
-    box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
-}
-.modal-content {
-    color: $font-color;
-    background-color: $form-background;
-}
-.modal-input {
-    background-color: $input-modal-background;
-}
-.modal-header {
-    border-bottom: 1px solid $font-color;
-    color: $font-color;
-}
-.modal-footer {
-    border-top: 1px solid $font-color;
-    color: $font-color;
-}
-.btn-close {
-    color: #fff;
-    text-shadow: 0 1px 0 #000;
-    filter: invert(1);
-}
-.btn-close:hover {
-    color: #fff;
-    text-decoration: none;
-}
-.table {
-    color: $font-color;
-}
-.list-group-item {
-    background-color: transparent;
-    border: 1px solid rgba(221, 220, 220, 0.41);
-    color: $font-color;
-}
-.alert-primary {
-    background-color: $primary-dark !important;
-    border-color: $primary-dark !important;
-}
-.alert-danger {
-    background-color: $danger-dark !important;
-    border-color: $danger-dark !important;
-}
-.alert-success {
-    background-color: $success-dark !important;
-    border-color: $success-dark !important;
-}
-.grid-alert {
-    color: #fff !important;
-}
-#historyAlert li {
-    color: #ffffff !important;
-}
-#historyAlert li:hover {
-    color: #d9e3ff !important;
-}
-
-.c-btn {
-    background-color: #3f3f3f;
-    color: $c-button;
-}
-.c-btn:hover {
-    color: $background;
-    background-color: $c-button;
-}
-/* Custom bootstrap buttons*/
-.btn-primary {
-    color: #ffffffe8;
-    background-color: $primary-dark;
-    border-color: $primary-dark;
-}
-.btn-primary:hover,
-.btn-primary:active,
-.btn-primary:focus {
-    background-color: $primary-dark-hover;
-    border-color: $primary-dark-hover;
-}
-
-.btn-danger {
-    color: #ffffffe8;
-    background-color: $danger-dark;
-    border-color: $danger-dark;
-}
-
-.btn-danger:hover,
-.btn-danger:active,
-.btn-danger:focus {
-    background-color: $danger-dark-hover;
-    border-color: $danger-dark-hover;
-}
-
-.main-grid-container .alert,
-.main-grid-container .c-btn,
-.main-grid-container .btn,
-.main-grid-container .form-control,
-.main-grid-container .form-select {
-    box-shadow: $formShadow;
-}
-
-#contextMenu {
-    background-color: #424242;
-    box-shadow: $boxShadow;
-
-    .context-menu-item {
+    #titlebar {
         color: $font-color;
+        background: $background;
+        border-bottom: none;
+    }
 
-        &:hover {
-            background-color: #585858;
+    #restore-button .icon,
+    #max-button .icon,
+    #min-button .icon {
+        filter: none;
+    }
+
+    #windowControls .button:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    #windowControls .button:active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    main {
+        background-color: $background;
+    }
+    .grid-container {
+        color: $font-color;
+        box-shadow: inset 1px 1px 5px -1px rgb(0, 0, 0);
+        background-color: $main-grid-background;
+    }
+    .grid-titlebar {
+        background-color: white;
+    }
+    .left-side-button {
+        color: $font-color;
+    }
+    .canvasContainer {
+        background-color: $form-background;
+        box-shadow: $boxShadow;
+    }
+    .form-control {
+        color: $font-color;
+        background-color: $form-background;
+        border-color: $main-grid-background;
+    }
+    .form-control:focus {
+        color: $font-color;
+        background-color: $form-background;
+        border-color: $main-grid-background;
+        box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
+    }
+    .lighter-select {
+        background-color: #3f3f3f !important;
+    }
+    .form-select {
+        box-shadow: $formShadow;
+        cursor: pointer;
+        color: $font-color;
+        background-color: $form-background;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23cccc' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        border: none;
+    }
+    .form-select:focus {
+        color: $font-color;
+        background-color: $form-background;
+        border: none;
+        box-shadow: 0 0 0 0.25rem rgba(107, 167, 255, 0.25);
+    }
+    .modal-content {
+        color: $font-color;
+        background-color: $form-background;
+    }
+    .modal-input {
+        background-color: $input-modal-background;
+    }
+    .modal-header {
+        border-bottom: 1px solid $font-color;
+        color: $font-color;
+    }
+    .modal-footer {
+        border-top: 1px solid $font-color;
+        color: $font-color;
+    }
+    .btn-close {
+        color: #fff;
+        text-shadow: 0 1px 0 #000;
+        filter: invert(1);
+    }
+    .btn-close:hover {
+        color: #fff;
+        text-decoration: none;
+    }
+    .table {
+        color: $font-color;
+    }
+    .list-group-item {
+        background-color: transparent;
+        border: 1px solid rgba(221, 220, 220, 0.41);
+        color: $font-color;
+    }
+    .alert-primary {
+        background-color: $primary-dark !important;
+        border-color: $primary-dark !important;
+    }
+    .alert-danger {
+        background-color: $danger-dark !important;
+        border-color: $danger-dark !important;
+    }
+    .alert-success {
+        background-color: $success-dark !important;
+        border-color: $success-dark !important;
+    }
+    .grid-alert {
+        color: #fff !important;
+    }
+    #historyAlert li {
+        color: #ffffff !important;
+    }
+    #historyAlert li:hover {
+        color: #d9e3ff !important;
+    }
+
+    .c-btn {
+        background-color: #3f3f3f;
+        color: $c-button;
+    }
+    .c-btn:hover {
+        color: $background;
+        background-color: $c-button;
+    }
+    /* Custom bootstrap buttons*/
+    .btn-primary {
+        color: #ffffffe8;
+        background-color: $primary-dark;
+        border-color: $primary-dark;
+    }
+    .btn-primary:hover,
+    .btn-primary:active,
+    .btn-primary:focus {
+        background-color: $primary-dark-hover;
+        border-color: $primary-dark-hover;
+    }
+
+    .btn-danger {
+        color: #ffffffe8;
+        background-color: $danger-dark;
+        border-color: $danger-dark;
+    }
+
+    .btn-danger:hover,
+    .btn-danger:active,
+    .btn-danger:focus {
+        background-color: $danger-dark-hover;
+        border-color: $danger-dark-hover;
+    }
+
+    .main-grid-container .alert,
+    .main-grid-container .c-btn,
+    .main-grid-container .btn,
+    .main-grid-container .form-control,
+    .main-grid-container .form-select {
+        box-shadow: $formShadow;
+    }
+
+    #contextMenu {
+        background-color: #424242;
+        box-shadow: $boxShadow;
+
+        .context-menu-item {
+            color: $font-color;
+
+            &:hover {
+                background-color: #585858;
+            }
         }
     }
 }

@@ -1,40 +1,56 @@
 {
-    "name": "barcodegen",
-    "version": "2.1.1",
-    "description": "App for generating barcode",
-    "main": "src/main/index.js",
+    "name": "codegenerator2",
+    "productName": "codegenerator2",
+    "version": "2.2.0",
+    "description": "My Electron application description",
+    "main": ".webpack/main",
     "scripts": {
-        "start": "tsc && electron .",
-        "watch": "nodemon",
-        "generate": "electron-builder"
+        "start": "electron-forge start",
+        "package": "electron-forge package",
+        "make": "electron-forge make",
+        "publish": "electron-forge publish",
+        "lint": "eslint --ext .ts,.tsx ."
     },
-    "author": "Sbb Company",
-    "license": "ISC",
+    "keywords": [],
+    "author": {
+        "name": "alexsbb29ru",
+        "email": "49026819+alexsbb29ru@users.noreply.github.com"
+    },
+    "license": "MIT",
     "devDependencies": {
-        "@types/bwip-js": "^2.1.0",
-        "electron": "^12.1.0",
-        "electron-builder": "^22.8.0",
-        "nodemon": "^2.0.7"
+        "@electron-forge/cli": "^6.2.1",
+        "@electron-forge/maker-deb": "^6.2.1",
+        "@electron-forge/maker-rpm": "^6.2.1",
+        "@electron-forge/maker-squirrel": "^6.2.1",
+        "@electron-forge/maker-zip": "^6.2.1",
+        "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
+        "@electron-forge/plugin-webpack": "^6.2.1",
+        "@types/bootstrap": "^5.2.6",
+        "@types/bwip-js": "^3.2.0",
+        "@typescript-eslint/eslint-plugin": "^5.62.0",
+        "@typescript-eslint/parser": "^5.62.0",
+        "@vercel/webpack-asset-relocator-loader": "^1.7.3",
+        "autoprefixer": "^10.4.14",
+        "css-loader": "^6.8.1",
+        "electron": "25.3.1",
+        "eslint": "^8.45.0",
+        "eslint-plugin-import": "^2.27.5",
+        "file-loader": "^6.2.0",
+        "fork-ts-checker-webpack-plugin": "^7.3.0",
+        "node-loader": "^2.0.0",
+        "postcss-loader": "^7.3.3",
+        "sass": "^1.64.1",
+        "sass-loader": "^13.3.2",
+        "style-loader": "^3.3.3",
+        "ts-loader": "^9.4.4",
+        "ts-node": "^10.9.1",
+        "typescript": "~4.5.4"
     },
     "dependencies": {
-        "@electron/remote": "^1.0.2",
-        "@popperjs/core": "^2.9.2",
-        "@types/bootstrap": "^5.0.13",
-        "bootstrap": "^5.0.1",
-        "bwip-js": "^2.0.10",
-        "fs-jetpack": "^4.1.0",
-        "popper.js": "^1.16.1"
-    },
-    "build": {
-        "appId": "com.barcodegen.app",
-        "productName": "Barcode generator",
-        "target": "NSIS",
-        "directories": {
-            "output": "build"
-        },
-        "nsis": {
-            "allowToChangeInstallationDirectory": true,
-            "oneClick": false
-        }
+        "@popperjs/core": "^2.11.8",
+        "bootstrap": "^5.3.0",
+        "bwip-js": "^3.4.3",
+        "electron-squirrel-startup": "^1.0.0",
+        "fs-jetpack": "^5.1.0"
     }
 }

@@ -1,89 +1,90 @@
 @media (-webkit-device-pixel-ratio: 1.5),
-  (device-pixel-ratio: 1.5),
-  (-webkit-device-pixel-ratio: 2),
-  (device-pixel-ratio: 2),
-  (-webkit-device-pixel-ratio: 3),
-  (device-pixel-ratio: 3) {
-  #window-controls .icon {
-    width: 10px;
-    height: 10px;
-  }
+    (device-pixel-ratio: 1.5),
+    (-webkit-device-pixel-ratio: 2),
+    (device-pixel-ratio: 2),
+    (-webkit-device-pixel-ratio: 3),
+    (device-pixel-ratio: 3) {
+    #window-controls .icon {
+        width: 10px;
+        height: 10px;
+    }
 }
 
 $barWidth: 32px;
 
 #titlebar {
-  position:absolute;
-  z-index: 2050;
-  width: 100%;
-  user-select: none;
-  display: grid;
-  grid-template-columns: auto 138px;
-  -webkit-app-region: drag;
-  height: $barWidth;
+    position: absolute;
+    z-index: 2050;
+    width: 100%;
+    user-select: none;
+    display: grid;
+    grid-template-columns: auto 138px;
+    -webkit-app-region: drag;
+    height: $barWidth;
 }
 
 #windowTitle {
-  grid-column: 1;
-  display: flex;
-  align-items: center;
-  margin-left: 8px;
-  overflow: hidden;
-  font-family: "Segoe UI", sans-serif;
-  font-size: small;
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+    font-size: small;
 }
 
 #windowTitle span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.5;
 }
 
 #windowControls {
-  grid-column: 2;
-  -webkit-app-region: no-drag;
-  display: grid;
-  grid-template-columns: repeat(3, 46px);
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: $barWidth;
+    grid-column: 2;
+    -webkit-app-region: no-drag;
+    display: grid;
+    grid-template-columns: repeat(3, 46px);
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: $barWidth;
 }
 #windowControls .button {
-  grid-row: 1 / span 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
+    grid-row: 1 / span 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
 #min-button {
-  grid-column: 1;
+    grid-column: 1;
 }
 #max-button,
 #restore-button {
-  grid-column: 2;
+    grid-column: 2;
 }
 #close-button {
-  grid-column: 3;
+    grid-column: 3;
 }
 
 #restore-button {
-  display: none !important;
+    display: none !important;
 }
 
 #close-button:hover {
-  background: #e81123 !important;
+    background: #e81123 !important;
+    color: white;
 }
 #close-button:active {
-  background: #f1707a !important;
+    background: #f1707a !important;
 }
 
 .maximized #restore-button {
-  display: flex !important;
+    display: flex !important;
 }
 
 .maximized #max-button {
-  display: none;
+    display: none;
 }
